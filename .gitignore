@@ -1,0 +1,55 @@
+# Flutter/Dart specific
+.dart_tool/
+.pub/
+.clang_complete
+.packages
+build/
+android/
+ios/
+linux/
+macos/
+web/
+windows/
+test/
+
+
+# Android specific
+build
+# For ignoring the .iml file that should be created in the root of your project
+*.iml
+# For ignoring the .gradle directory
+/gradle/
+/app/gradle.build
+/app/gradle-wrapper.jar
+/app/gradle-wrapper.properties
+
+# iOS specific
+# For ignoring the .app build directory
+/ios/Flutter/App.framework
+/ios/Flutter/App.framework.dSYM
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.framework/
+/ios/Flutter/Flutter.framework.dSYM
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/FlutterPluginRegistrant.podspec
+
+# Visual Studio Code specific
+.vscode/
+
+# Android Studio/IntelliJ IDEA specific
+.idea/
+*.iml
+*.iws
+*.ipr
+*.jar
+*.bin
+# macOS specific
+.DS_Store
+
+# Temporary and build files
+*.log
+*.pid
+log/
+logs/
+temp/
