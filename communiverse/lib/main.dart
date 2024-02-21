@@ -9,17 +9,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [],
-      child: MaterialApp(
-        title: 'Communiverse',
-        darkTheme: ThemeData(
-        ),
-        themeMode: ThemeMode.dark,
-        debugShowCheckedModeBanner: false,
-        routes: getApplicationRoutes(),
-        initialRoute: "/",
+    return MaterialApp(
+      title: 'Communiverse',
+      darkTheme: ThemeData(
+        scaffoldBackgroundColor: Color.fromRGBO(46, 30, 47, 1),
+        primaryColor: Color.fromRGBO(106, 13, 173, 1),
       ),
+      themeMode: ThemeMode.dark,
+      debugShowCheckedModeBanner: false,
+      routes: getApplicationRoutes(),
+      initialRoute: "/",
     );
   }
 }
