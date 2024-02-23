@@ -10,11 +10,6 @@ class AccessScreen extends StatefulWidget {
 }
 
 class _AccessScreenState extends State<AccessScreen> {
-  final _formKey = GlobalKey<FormState>();
-  bool _isPasswordVisible = true;
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -73,8 +68,8 @@ class _AccessScreenState extends State<AccessScreen> {
                     Expanded(
                       child: TabBarView(
                         children: [
-                          LoginForm(formKey: _formKey),
-                          Center(child: Text('Contenido de la pestaña 2')),
+                          LoginForm(),
+                          SignupScreen()
                         ],
                       ),
                     ),
