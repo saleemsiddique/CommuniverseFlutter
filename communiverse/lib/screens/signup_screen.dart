@@ -14,6 +14,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _firstnameController = TextEditingController();
   final TextEditingController _lastnameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,11 @@ class _SignupScreenState extends State<SignupScreen> {
           email(),
           SizedBox(height: size.height * 0.02),
           PasswordFormField(),
+          SizedBox(height: size.height * 0.02),
+          ConfirmPasswordFormField(
+            passwordController: _passwordController,
+            confirmPasswordController: _confirmPasswordController,
+          ),
           SizedBox(height: size.height * 0.02),
           username(),
           SizedBox(height: size.height * 0.02),
