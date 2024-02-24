@@ -11,7 +11,8 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailorusernameController = TextEditingController();
+  final TextEditingController _emailorusernameController =
+      TextEditingController();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -21,6 +22,7 @@ class _LoginFormState extends State<LoginForm> {
       child: ListView(
         padding: EdgeInsets.all(10),
         children: <Widget>[
+          SizedBox(height: size.height * 0.01),
           emailorusername(),
           SizedBox(height: size.height * 0.03),
           PasswordFormField(),
