@@ -1,6 +1,7 @@
-import 'package:communiverse/widgets/password_textbox.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -11,8 +12,10 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailorusernameController =
-      TextEditingController();
+  final TextEditingController _emailorusernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isPasswordVisible = true;
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -25,7 +28,7 @@ class _LoginFormState extends State<LoginForm> {
           SizedBox(height: size.height * 0.01),
           emailorusername(),
           SizedBox(height: size.height * 0.03),
-          PasswordFormField(),
+          password(),
           SizedBox(height: size.height * 0.00015),
           forgetPassword(),
           SizedBox(height: size.height * 0.02),
@@ -42,6 +45,8 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   TextFormField emailorusername() {
+    final userLoginRequestService =
+        Provider.of<UserLoginRequestService>(context, listen: false);
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: _emailorusernameController,
@@ -54,9 +59,49 @@ class _LoginFormState extends State<LoginForm> {
           borderRadius: BorderRadius.circular(10.0), // Adjust border radius
         ),
       ),
+      onChanged: (value) => userLoginRequestService.emailOrUsername = value,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Email or Username required';
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField password() {
+    final userLoginRequestService = Provider.of<UserLoginRequestService>(context, listen: false);
+    return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      controller: _passwordController,
+      decoration: InputDecoration(
+        hintText: "Password",
+        prefixIcon: Icon(Icons.lock),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        suffixIcon: GestureDetector(
+          onTap: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+            icon: Icon(
+                _isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+          ),
+        ),
+      ),
+      obscureText: _isPasswordVisible,
+      onChanged: (value) => userLoginRequestService.password = value,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Password required';
         }
         return null;
       },
@@ -81,6 +126,8 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   ElevatedButton loginButton(BuildContext context) {
+    final userLoginRequestService =
+        Provider.of<UserLoginRequestService>(context, listen: false);
     return ElevatedButton(
       style: ButtonStyle(
         minimumSize: MaterialStateProperty.all<Size>(
@@ -94,13 +141,33 @@ class _LoginFormState extends State<LoginForm> {
           ),
         ),
       ),
-      onPressed: () {
+      onPressed: () async {
         if (_formKey.currentState!.validate()) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Formulario válido. Datos enviados.'),
-            ),
-          );
+          Map<String, dynamic> credentials = userLoginRequestService.toJson();
+          print(credentials);
+          try {
+            await userLoginRequestService.signIn(credentials);
+            Navigator.of(context).pushNamed('home');
+          } catch (error) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Login Error"),
+                  content: Text(
+                      error.toString()),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Accept"),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         }
       },
       child: Text('Login'),

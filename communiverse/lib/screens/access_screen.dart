@@ -45,7 +45,7 @@ class _AccessScreenState extends State<AccessScreen>
             duration: Duration(milliseconds: 100), // Duración de la animación
             height: _isSignUpSelected ? size.height * 0.2 : size.height * 0.3, // Ajusta el tamaño del contenido superior
             child: Container(
-              padding: EdgeInsets.only(bottom: 20),
+              padding: EdgeInsets.only(top: 30),
               color: Colors.transparent, // Cambia el color a transparente para no ocupar espacio
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

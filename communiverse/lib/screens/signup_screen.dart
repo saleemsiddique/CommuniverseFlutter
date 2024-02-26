@@ -1,6 +1,7 @@
-import 'package:communiverse/widgets/password_textbox.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -12,10 +13,13 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _firstnameController = TextEditingController();
-  final TextEditingController _lastnameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  bool _isPasswordVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -26,18 +30,19 @@ class _SignupScreenState extends State<SignupScreen> {
       child: ListView(
         padding: EdgeInsets.all(10),
         children: <Widget>[
-          names("First name", Icon(Icons.person), _firstnameController),
+          names("Name", _nameController, (value) {
+            Provider.of<UserService>(context, listen: false).name = value;
+          }),
           SizedBox(height: size.height * 0.02),
-          names("Last name", Icon(Icons.person), _lastnameController),
+          names("Last Name", _lastNameController, (value) {
+            Provider.of<UserService>(context, listen: false).lastName = value;
+          }),
           SizedBox(height: size.height * 0.02),
           email(),
           SizedBox(height: size.height * 0.02),
-          PasswordFormField(),
+          password(),
           SizedBox(height: size.height * 0.02),
-          ConfirmPasswordFormField(
-            passwordController: _passwordController,
-            confirmPasswordController: _confirmPasswordController,
-          ),
+          confirmPasswordFormField(),
           SizedBox(height: size.height * 0.02),
           username(),
           SizedBox(height: size.height * 0.02),
@@ -51,20 +56,21 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  TextFormField names(
-      String field, Icon icon, TextEditingController controllerField) {
+  TextFormField names(String field, TextEditingController controllerField,
+      Function(String) onChanged) {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: controllerField,
       decoration: InputDecoration(
         prefixIcon: Icon(Icons.person),
         hintText: field,
-        filled: true, // Set filled to true
+        filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0), // Adjust border radius
+          borderRadius: BorderRadius.circular(10.0),
         ),
       ),
+      onChanged: onChanged,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return '$field required';
@@ -74,7 +80,32 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+  TextFormField email() {
+    final userService = Provider.of<UserService>(context, listen: false);
+    return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      controller: _emailController,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.email),
+        hintText: "Email Address",
+        filled: true, // Set filled to true
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0), // Adjust border radius
+        ),
+      ),
+      onChanged: (value) => userService.email = value,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Email required';
+        }
+        return null;
+      },
+    );
+  }
+
   TextFormField username() {
+    final userService = Provider.of<UserService>(context, listen: false);
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: _usernameController,
@@ -87,6 +118,7 @@ class _SignupScreenState extends State<SignupScreen> {
           borderRadius: BorderRadius.circular(10.0), // Adjust border radius
         ),
       ),
+      onChanged: (value) => userService.username = value,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Username required';
@@ -96,7 +128,84 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
+  TextFormField password() {
+    final userService = Provider.of<UserService>(context, listen: false);
+    return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      controller: _passwordController,
+      decoration: InputDecoration(
+        hintText: "Password",
+        prefixIcon: Icon(Icons.lock),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        suffixIcon: GestureDetector(
+          onTap: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+            icon: Icon(
+                _isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+          ),
+        ),
+      ),
+      obscureText: _isPasswordVisible,
+      onChanged: (value) => userService.password = value,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Password required';
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField confirmPasswordFormField() {
+    return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      controller: _confirmPasswordController,
+      decoration: InputDecoration(
+        hintText: "Confirm Password",
+        prefixIcon: Icon(Icons.lock),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        suffixIcon: GestureDetector(
+          onTap: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+            icon: Icon(
+                _isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+          ),
+        ),
+      ),
+      obscureText: _isPasswordVisible,
+      validator: (value) {
+        if (value != _passwordController.text) {
+          return 'Passwords do not match';
+        }
+        return null;
+      },
+    );
+  }
+
   ElevatedButton signupButton(BuildContext context) {
+    final userService = Provider.of<UserService>(context, listen: false);
     return ElevatedButton(
       style: ButtonStyle(
         minimumSize: MaterialStateProperty.all<Size>(
@@ -110,13 +219,32 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
       ),
-      onPressed: () {
+      onPressed: () async {
         if (_formKey.currentState!.validate()) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Formulario válido. Datos enviados.'),
-            ),
-          );
+          Map<String, dynamic> credentials = userService.toJson();
+          print(credentials);
+          try {
+            await userService.signUp(credentials);
+            Navigator.of(context).pushNamed('home');
+          } catch (error) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Sign Up Error"),
+                  content: Text(error.toString()),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Accept"),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         }
       },
       child: Text('Sign up'),

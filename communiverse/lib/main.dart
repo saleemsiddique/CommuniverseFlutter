@@ -1,4 +1,5 @@
 import 'package:communiverse/routes/routes.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,16 +10,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Communiverse',
-      darkTheme: ThemeData(
-        scaffoldBackgroundColor: Color.fromRGBO(46, 30, 47, 1),
-        primaryColor: Color.fromRGBO(106, 13, 173, 1),
-      ),
-      themeMode: ThemeMode.dark,
-      debugShowCheckedModeBanner: false,
-      routes: getApplicationRoutes(),
-      initialRoute: "/",
-    );
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => UserLoginRequestService(),
+          ),
+          ChangeNotifierProvider.value(
+          value: UserService(),
+        ),
+        ],
+        child: MaterialApp(
+          title: 'Communiverse',
+          darkTheme: ThemeData(
+            scaffoldBackgroundColor: Color.fromRGBO(46, 30, 47, 1),
+            primaryColor: Color.fromRGBO(106, 13, 173, 1),
+          ),
+          themeMode: ThemeMode.dark,
+          debugShowCheckedModeBanner: false,
+          routes: getApplicationRoutes(),
+          initialRoute: "/",
+        ));
   }
 }
