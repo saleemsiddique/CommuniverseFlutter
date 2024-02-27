@@ -42,7 +42,7 @@ class _AccessScreenState extends State<AccessScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AnimatedContainer(
-            duration: Duration(milliseconds: 100), // Duración de la animación
+            duration: Duration(milliseconds: 300), // Duración de la animación
             height: _isSignUpSelected ? size.height * 0.2 : size.height * 0.3, // Ajusta el tamaño del contenido superior
             child: Container(
               padding: EdgeInsets.only(top: 30),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+  const SignupScreen({Key? key}) : super(key: key);
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -24,34 +24,40 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Form(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      key: _formKey,
-      child: ListView(
-        padding: EdgeInsets.all(10),
-        children: <Widget>[
-          names("Name", _nameController, (value) {
-            Provider.of<UserService>(context, listen: false).name = value;
-          }),
-          SizedBox(height: size.height * 0.02),
-          names("Last Name", _lastNameController, (value) {
-            Provider.of<UserService>(context, listen: false).lastName = value;
-          }),
-          SizedBox(height: size.height * 0.02),
-          email(),
-          SizedBox(height: size.height * 0.02),
-          password(),
-          SizedBox(height: size.height * 0.02),
-          confirmPasswordFormField(),
-          SizedBox(height: size.height * 0.02),
-          username(),
-          SizedBox(height: size.height * 0.02),
-          signupButton(context),
-          SizedBox(height: size.height * 0.03),
-          formDivider(),
-          SizedBox(height: size.height * 0.02),
-          botonGoogle(context)
-        ],
+    return Scaffold(backgroundColor: Color.fromRGBO(86, 73, 87, 1),
+      body: SingleChildScrollView( // Wrap your form with SingleChildScrollView
+        child: Form(
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          key: _formKey,
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              children: <Widget>[
+                names("Name", _nameController, (value) {
+                  Provider.of<UserService>(context, listen: false).name = value;
+                }),
+                SizedBox(height: size.height * 0.02),
+                names("Last Name", _lastNameController, (value) {
+                  Provider.of<UserService>(context, listen: false).lastName = value;
+                }),
+                SizedBox(height: size.height * 0.02),
+                email(),
+                SizedBox(height: size.height * 0.02),
+                password(),
+                SizedBox(height: size.height * 0.02),
+                confirmPasswordFormField(),
+                SizedBox(height: size.height * 0.02),
+                username(),
+                SizedBox(height: size.height * 0.02),
+                signupButton(context),
+                SizedBox(height: size.height * 0.03),
+                formDivider(),
+                SizedBox(height: size.height * 0.02),
+                botonGoogle(context)
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
