@@ -1,3 +1,3 @@
 class AppConfig {
-  static late String BaseApiUrl = "192.168.1.34:8083";
+  static String BaseApiUrl = "192.168.1.41:8083";
 }
