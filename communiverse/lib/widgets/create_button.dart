@@ -55,11 +55,11 @@ class _HexagonButtonState extends State<HexagonButton>
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: widget.showMenu ? Colors.white : Color.fromRGBO(79, 40, 87, 1),
+                  color: widget.showMenu ? Color.fromRGBO(229, 171, 255, 1) : Color.fromRGBO(79, 40, 87, 1),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Center(
-                  child: Icon(Icons.close_rounded),
+                  child: Icon(Icons.close_rounded, color: Colors.white)
                 ),
               ),
             );
@@ -96,7 +96,7 @@ class _MenuWidgetState extends State<MenuWidget> with SingleTickerProviderStateM
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 200),
     );
     _animation = Tween<double>(begin: 1.0, end: 0.7).animate(_controller);
     if (widget.showMenu) {
@@ -151,7 +151,7 @@ class _MenuWidgetState extends State<MenuWidget> with SingleTickerProviderStateM
                 child: Center(child: Text(option, style: TextStyle(color: Colors.black,))),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: Color.fromRGBO(229, 171, 255, 1),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
             );

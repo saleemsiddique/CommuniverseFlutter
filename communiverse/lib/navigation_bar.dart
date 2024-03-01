@@ -31,11 +31,11 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       } catch (error) {
         errorTokenExpired(context);
       }
-      setState(() {
-        _selectedIndex = index;
-        _showMenu = false;
-      });
     }
+    setState(() {
+      _selectedIndex = index;
+      _showMenu = false;
+    });
   }
 
   @override
@@ -77,7 +77,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                   onPressed: () {
                     _onItemTapped(0);
                   },
-                  color: _selectedIndex == 0 ? Colors.white : Colors.black,
+                  color: _selectedIndex == 0
+                      ? Color.fromRGBO(229, 171, 255, 1)
+                      : Colors.grey,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                 ),
@@ -86,7 +88,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                   onPressed: () {
                     _onItemTapped(1);
                   },
-                  color: _selectedIndex == 1 ? Colors.white : Colors.black,
+                  color: _selectedIndex == 1
+                      ? Color.fromRGBO(229, 171, 255, 1)
+                      : Colors.grey,
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                 ),

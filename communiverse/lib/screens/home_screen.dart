@@ -14,33 +14,50 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
     final communityService =
         Provider.of<CommunityService>(context, listen: true);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(16.0),
+    return Center( // Wrap in a Center widget
+      child: Container(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Top 5 Communities',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Padding(
+              padding: EdgeInsets.only(left: 16.0), // Add padding to the left
+              child: Text(
+                'Top 5 Communities',
+                style: TextStyle(
+                  fontFamily: 'WorkSans',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
             ),
-            SizedBox(height: 16),
-            Expanded(
-              child: CommunityCarousel(communities: communityService.top5Communities),
+            Container(
+              height: size.height * 0.23,
+              child: CommunityCarousel(
+                  communities: communityService.top5Communities),
             ),
-            SizedBox(height: 32), // Espacio entre los carruseles
-            Text(
-              'Otras Comunidades',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            SizedBox(height: 100),
+            Padding(
+              padding: EdgeInsets.only(left: 16.0), // Add padding to the left
+              child: Text(
+                'My Communities',
+                style: TextStyle(
+                  fontFamily: 'WorkSans',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
             ),
-            SizedBox(height: 16),
-            Expanded(
-              child: CommunityCarousel(communities: communityService.top5Communities),
+            Container(
+              height: size.height * 0.23,
+              child: CommunityCarousel(
+                  communities: communityService.top5Communities),
             ),
           ],
         ),

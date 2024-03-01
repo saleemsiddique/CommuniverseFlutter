@@ -24,7 +24,11 @@ class MyApp extends StatelessWidget {
         ],
         child: MaterialApp(
           title: 'Communiverse',
+          theme: ThemeData(
+            fontFamily: 'WorkSans', // Registering the font family
+          ),
           darkTheme: ThemeData(
+            fontFamily: 'WorkSans', // Registering the font family
             scaffoldBackgroundColor: Color.fromRGBO(46, 30, 47, 1),
             primaryColor: Color.fromRGBO(106, 13, 173, 1),
           ),

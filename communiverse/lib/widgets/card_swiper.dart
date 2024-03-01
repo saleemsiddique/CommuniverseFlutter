@@ -23,13 +23,11 @@ class CommunityCarousel extends StatelessWidget {
     }
 
     return Container(
-      decoration: BoxDecoration(color: Colors.red),
       width: double.infinity,
       child: CarouselSlider.builder(
         itemCount: communities.length,
         options: CarouselOptions(
           aspectRatio: 16 / 9, // Relación de aspecto de las imágenes
-          autoPlay: true,
           enlargeCenterPage: true,
           viewportFraction: 0.6,
           initialPage: 0,
@@ -61,18 +59,20 @@ class CommunityCarousel extends StatelessWidget {
                       community.photo,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      height: size.height * 0.25, // Ajuste de altura
+                      height: size.height * 0.2, // Ajuste de altura
                     ),
                   ),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(8.0),
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.transparent,
                     child: Text(
                       community.name,
                       style: TextStyle(
+                        fontFamily: 'WorkSans', // Usando Roboto Bold
+                        fontWeight: FontWeight.bold,
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 18,
                       ),
                       textAlign: TextAlign.center,
                     ),
