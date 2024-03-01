@@ -16,8 +16,11 @@ class MyApp extends StatelessWidget {
             create: (_) => UserLoginRequestService(),
           ),
           ChangeNotifierProvider.value(
-          value: UserService(),
-        ),
+            value: UserService(),
+          ),
+          ChangeNotifierProvider.value(
+            value: CommunityService(),
+          )
         ],
         child: MaterialApp(
           title: 'Communiverse',

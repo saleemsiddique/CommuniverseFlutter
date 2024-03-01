@@ -1,6 +1,8 @@
 import 'package:communiverse/screens/screens.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
   const CustomBottomNavigationBar({Key? key}) : super(key: key);
@@ -21,10 +23,19 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      _showMenu = false;
-    });
+    final communityService =
+        Provider.of<CommunityService>(context, listen: false);
+    if (index == 0) {
+      try {
+        communityService.getTop5Communities();
+      } catch (error) {
+        errorTokenExpired(context);
+      }
+      setState(() {
+        _selectedIndex = index;
+        _showMenu = false;
+      });
+    }
   }
 
   @override

@@ -7,12 +7,15 @@ class User {
   String email;
   String password;
   String username;
+  String photo;
   String biography;
-  UserStats userStats; // Objeto que maneja los niveles y puntos del usuario
+  UserStats userStats;
   List<dynamic> createdCommunities;
   List<dynamic> moderatedCommunities;
   List<dynamic> memberCommunities;
-  UserInteractions interactions;
+  Interactions interactions;
+  List<dynamic> followersId;
+  List<dynamic> followedId;
 
   User({
     required this.id,
@@ -21,27 +24,36 @@ class User {
     required this.email,
     required this.password,
     required this.username,
+    required this.photo,
     required this.biography,
-    required this.userStats, // Actualización para incluir el objeto de estadísticas del usuario
+    required this.userStats,
     required this.createdCommunities,
     required this.moderatedCommunities,
     required this.memberCommunities,
     required this.interactions,
+    required this.followersId,
+    required this.followedId,
   });
 
-  User.empty()
-      : id = "",
-        name = '',
-        lastName = '',
-        email = '',
-        password = '',
-        username = '',
-        biography = "",
-        userStats = UserStats.empty(), // Inicializa los niveles y puntos del usuario
-        createdCommunities = [],
-        moderatedCommunities = [],
-        memberCommunities = [],
-        interactions = UserInteractions.empty();
+  factory User.empty() {
+    return User(
+      id: '',
+      name: '',
+      lastName: '',
+      email: '',
+      password: '',
+      username: '',
+      photo: '',
+      biography: '',
+      userStats: UserStats(level: 0, totalPoints: 0),
+      createdCommunities: [],
+      moderatedCommunities: [],
+      memberCommunities: [],
+      interactions: Interactions(receivedLikes: 0, receivedReposts: 0),
+      followersId: [],
+      followedId: [],
+    );
+  }
 
   factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
 
@@ -54,12 +66,18 @@ class User {
         email: json["email"],
         password: json["password"],
         username: json["username"],
+        photo: json["photo"],
         biography: json["biography"],
-        userStats: UserStats.fromJson(json["userStats"]), // Parsea el objeto de estadísticas del usuario
-        createdCommunities: List<dynamic>.from(json["createdCommunities"].map((x) => x)),
-        moderatedCommunities: List<dynamic>.from(json["moderatedCommunities"].map((x) => x)),
-        memberCommunities: List<dynamic>.from(json["memberCommunities"].map((x) => x)),
-        interactions: UserInteractions.fromJson(json["interactions"]),
+        userStats: UserStats.fromJson(json["userStats"]),
+        createdCommunities:
+            List<dynamic>.from(json["createdCommunities"].map((x) => x)),
+        moderatedCommunities:
+            List<dynamic>.from(json["moderatedCommunities"].map((x) => x)),
+        memberCommunities:
+            List<dynamic>.from(json["memberCommunities"].map((x) => x)),
+        interactions: Interactions.fromJson(json["interactions"]),
+        followersId: List<dynamic>.from(json["followers_id"].map((x) => x)),
+        followedId: List<dynamic>.from(json["followed_id"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -69,12 +87,43 @@ class User {
         "email": email,
         "password": password,
         "username": username,
+        "photo": photo,
         "biography": biography,
-        "userStats": userStats.toJson(), // Serializa el objeto de estadísticas del usuario
-        "createdCommunities": List<dynamic>.from(createdCommunities.map((x) => x)),
-        "moderatedCommunities": List<dynamic>.from(moderatedCommunities.map((x) => x)),
-        "memberCommunities": List<dynamic>.from(memberCommunities.map((x) => x)),
+        "userStats": userStats.toJson(),
+        "createdCommunities":
+            List<dynamic>.from(createdCommunities.map((x) => x)),
+        "moderatedCommunities":
+            List<dynamic>.from(moderatedCommunities.map((x) => x)),
+        "memberCommunities":
+            List<dynamic>.from(memberCommunities.map((x) => x)),
         "interactions": interactions.toJson(),
+        "followers_id": List<dynamic>.from(followersId.map((x) => x)),
+        "followed_id": List<dynamic>.from(followedId.map((x) => x)),
+      };
+}
+
+class Interactions {
+  int receivedLikes;
+  int receivedReposts;
+
+  Interactions({
+    required this.receivedLikes,
+    required this.receivedReposts,
+  });
+
+  factory Interactions.fromRawJson(String str) =>
+      Interactions.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Interactions.fromJson(Map<String, dynamic> json) => Interactions(
+        receivedLikes: json["receivedLikes"],
+        receivedReposts: json["receivedReposts"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "receivedLikes": receivedLikes,
+        "receivedReposts": receivedReposts,
       };
 }
 
@@ -87,9 +136,10 @@ class UserStats {
     required this.totalPoints,
   });
 
-  UserStats.empty()
-      : level = 10, // Nivel inicial
-        totalPoints = 0;
+  factory UserStats.fromRawJson(String str) =>
+      UserStats.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
 
   factory UserStats.fromJson(Map<String, dynamic> json) => UserStats(
         level: json["level"],
@@ -99,29 +149,5 @@ class UserStats {
   Map<String, dynamic> toJson() => {
         "level": level,
         "totalPoints": totalPoints,
-      };
-}
-
-class UserInteractions {
-  int receivedLikes;
-  int receivedReposts;
-
-  UserInteractions({
-    required this.receivedLikes,
-    required this.receivedReposts,
-  });
-
-  UserInteractions.empty()
-      : receivedLikes = 0,
-        receivedReposts = 0;
-
-  factory UserInteractions.fromJson(Map<String, dynamic> json) => UserInteractions(
-        receivedLikes: json["receivedLikes"],
-        receivedReposts: json["receivedReposts"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "receivedLikes": receivedLikes,
-        "receivedReposts": receivedReposts,
       };
 }

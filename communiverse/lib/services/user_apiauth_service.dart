@@ -16,8 +16,7 @@ class UserLoginRequestService extends ChangeNotifier {
 
   signIn(Map<String, dynamic> data) async {
     try {
-      final jsonData = await CommuniverseProvider.postJsonData(
-          '${CommuniverseProvider.apiAuthRoutes}signin', data);
+      final jsonData = await CommuniverseProvider.postJsonData('${CommuniverseProvider.apiAuthRoutes}signin', data);
       userLoginRequest = UserLoginRequest.fromJson(json.decode(jsonData));
       CommuniverseProvider.apiKey =
           '${userLoginRequest.type} ${userLoginRequest.token}';
