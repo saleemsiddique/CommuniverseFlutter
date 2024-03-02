@@ -127,7 +127,8 @@ class _LoginFormState extends State<LoginForm> {
 
   ElevatedButton loginButton(BuildContext context) {
     final userLoginRequestService =
-        Provider.of<UserLoginRequestService>(context, listen: false);
+        Provider.of<UserLoginRequestService>(context, listen: true);
+        final communityService = Provider.of<CommunityService>(context, listen: true);
     return ElevatedButton(
       style: ButtonStyle(
         minimumSize: MaterialStateProperty.all<Size>(
@@ -147,6 +148,7 @@ class _LoginFormState extends State<LoginForm> {
           print(credentials);
           try {
             await userLoginRequestService.signIn(credentials);
+            await communityService.getTop5Communities();
             Navigator.of(context).pushNamed('home');
           } catch (error) {
             showDialog(

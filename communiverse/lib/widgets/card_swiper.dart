@@ -51,34 +51,42 @@ class CommunityCarousel extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: <Widget>[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      community.photo,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: size.height * 0.2, // Ajuste de altura
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(8.0),
-                    color: Colors.transparent,
-                    child: Text(
-                      community.name,
-                      style: TextStyle(
-                        fontFamily: 'WorkSans', // Usando Roboto Bold
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
+  alignment: Alignment.bottomCenter,
+  children: <Widget>[
+    ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Image.network(
+        community.photo,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: size.height * 0.2, // Ajuste de altura
+        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null)
+            return child;
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    ),
+    Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(8.0),
+      color: Colors.transparent,
+      child: Text(
+        community.name,
+        style: TextStyle(
+          fontFamily: 'WorkSans', // Usando Roboto Bold
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontSize: 18,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    ),
+  ],
+),
+
             ),
           );
         },

@@ -18,16 +18,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final communityService =
         Provider.of<CommunityService>(context, listen: true);
-    return Center( // Wrap in a Center widget
+    return Center(
       child: Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Image(
+                image: AssetImage("assets/LogoCommuniverse.png"),
+                width: 200,
+              ),
+            ),
+            SizedBox(height: 40),
             Padding(
               padding: EdgeInsets.only(left: 16.0), // Add padding to the left
               child: Text(
-                'Top 5 Communities',
+                'Most Popular',
                 style: TextStyle(
                   fontFamily: 'WorkSans',
                   fontWeight: FontWeight.bold,
@@ -41,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CommunityCarousel(
                   communities: communityService.top5Communities),
             ),
-            SizedBox(height: 100),
+            SizedBox(height: 70),
             Padding(
               padding: EdgeInsets.only(left: 16.0), // Add padding to the left
               child: Text(

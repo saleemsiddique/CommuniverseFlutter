@@ -45,7 +45,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         index: _selectedIndex,
         children: [
           HomeScreen(),
-          ProfileScreen(),
+          ProfileScreen()
         ],
       ),
       bottomNavigationBar: Padding(
