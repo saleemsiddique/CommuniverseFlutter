@@ -27,6 +27,11 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData(
             scaffoldBackgroundColor: Color.fromRGBO(46, 30, 47, 1),
             primaryColor: Color.fromRGBO(106, 13, 173, 1),
+            textTheme: TextTheme(
+              bodySmall: TextStyle(color: Colors.white),
+              bodyMedium: TextStyle(color: Colors.white),
+              bodyLarge: TextStyle(color: Colors.white),
+            ),
           ),
           themeMode: ThemeMode.dark,
           debugShowCheckedModeBanner: false,

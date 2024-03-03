@@ -26,6 +26,18 @@ signUp(Map<String, dynamic> data) async {
   }
 }
 
+findUserById(String id) async {
+  try {
+    final jsonData = await CommuniverseProvider.getJsonData('user/${id}');
+    user = User.fromJson(json.decode(jsonData));
+    print("Este es el usuario encotrado por ID: $user");
+    notifyListeners();
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}
+
   Map<String, dynamic> toJson() => {
         "name": name,
         "lastName": lastName,

@@ -17,7 +17,7 @@ class CommunityCarousel extends StatelessWidget {
         width: double.infinity,
         height: size.height * 0.5,
         child: Center(
-          child: CircularProgressIndicator(),
+          child: Text("Communities not found", style: TextStyle(color: Colors.white))
         ),
       );
     }

@@ -1,4 +1,6 @@
+import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -11,122 +13,159 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final userService = Provider.of<UserService>(context, listen: true);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Perfil'),
+        body: Padding(
+      padding: EdgeInsets.only(top: 40),
+      child: SingleChildScrollView(
+        child: basicInfo(userService, size),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Parte superior izquierda: foto de perfil y nombre de usuario
-            Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    ));
+  }
+
+  Column basicInfo(UserService userService, Size size) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(
+                  CircleAvatar(
+                    backgroundColor: Colors.black,
+                    radius: 50,
+                    backgroundImage: userService.user.photo != ''
+                        ? NetworkImage(userService.user.photo)
+                        : AssetImage('assets/no-user.png')
+                            as ImageProvider<Object>?,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    userService.user.username,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+              Container(
+                width: size.width * 0.44, // Set your desired width here
+                child: Padding(
+                  padding: EdgeInsets.only(left: 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundImage: NetworkImage('URL_DE_LA_IMAGEN'),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            'Nombre de Usuario',
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold),
-                          )
-                        ],
+                      _buildInfoLabel('Name'),
+                      SizedBox(height: 2),
+                      Text(
+                        '${userService.user.name} ${userService.user.lastName}',
+                        style:
+                            TextStyle(color: Color.fromRGBO(222, 139, 255, 1)),
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Nombre completo',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            Text('Descripción'),
-                            Text('Nivel'),
-                          ],
+                      _buildInfoLabel('Description'),
+                      SizedBox(height: 2),
+                      Text(
+                        userService.user.biography,
+                        overflow: TextOverflow.clip,
+                        maxLines: 5,
+                        style: TextStyle(
+                          color: Color.fromRGBO(222, 139, 255, 1),
                         ),
+                      ),
+                      _buildInfoLabel('Level'),
+                      SizedBox(height: 2),
+                      Text(
+                        '${userService.user.userStats.level}',
+                        style:
+                            TextStyle(color: Color.fromRGBO(222, 139, 255, 1)),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            // Parte superior derecha: información adicional
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      'Followers',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text('123'), // Aquí iría el número de seguidores
-                  ],
                 ),
-                Column(
-                  children: [
-                    Text(
-                      'Followed',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text('456'), // Aquí iría el número de seguidos
-                  ],
-                ),
-              ],
-            ),
-            // Widget con pestañas para los diferentes contenidos
-            DefaultTabController(
-              length: _tabs.length, // Número de pestañas
-              child: Column(
-                children: [
-                  TabBar(
-                    tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                    onTap: (index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
-                  ),
-                  Container(
-                    height: 200, // Altura del contenido de la pestaña
-                    child: TabBarView(
-                      children: [
-                        // Contenido de la pestaña Posts
-                        Center(
-                          child: Text('Contenido de Posts'),
-                        ),
-                        // Contenido de la pestaña Reposts
-                        Center(
-                          child: Text('Contenido de Reposts'),
-                        ),
-                        // Contenido de la pestaña Communities
-                        Center(
-                          child: Text('Contenido de Communities'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+              )
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSection(
+                'Followers', userService.user.followersId.length.toString()),
+            _buildSection(
+                'Followed', userService.user.followedId.length.toString()),
           ],
         ),
+
+        // Widget con pestañas para los diferentes contenidos
+        DefaultTabController(
+          length: _tabs.length, // Número de pestañas
+          child: Column(
+            children: [
+              TabBar(
+                tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
+              Container(
+                height: 200, // Altura del contenido de la pestaña
+                child: TabBarView(
+                  children: [
+                    // Contenido de la pestaña Posts
+                    Center(
+                      child: Text('Contenido de Posts'),
+                    ),
+                    // Contenido de la pestaña Reposts
+                    Center(
+                      child: Text('Contenido de Reposts'),
+                    ),
+                    // Contenido de la pestaña Communities
+                    Center(
+                      child: Text('Contenido de Communities'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection(String title, String value) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 30),
+      decoration: BoxDecoration(border: Border.all(color: Colors.white)),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoLabel(String label) {
+    return Container(
+      padding: EdgeInsets.only(top: 8, bottom: 4),
+      child: Text(
+        label,
+        style: TextStyle(color: Colors.white),
       ),
     );
   }

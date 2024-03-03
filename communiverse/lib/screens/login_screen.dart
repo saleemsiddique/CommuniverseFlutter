@@ -126,6 +126,8 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   ElevatedButton loginButton(BuildContext context) {
+        final userService =
+        Provider.of<UserService>(context, listen: true);
     final userLoginRequestService =
         Provider.of<UserLoginRequestService>(context, listen: true);
         final communityService = Provider.of<CommunityService>(context, listen: true);
@@ -148,6 +150,7 @@ class _LoginFormState extends State<LoginForm> {
           print(credentials);
           try {
             await userLoginRequestService.signIn(credentials);
+            await userService.findUserById(UserLoginRequestService.userLoginRequest.id);
             await communityService.getTop5Communities();
             Navigator.of(context).pushNamed('home');
           } catch (error) {

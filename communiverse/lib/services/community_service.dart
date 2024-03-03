@@ -9,6 +9,7 @@ import 'package:communiverse/models/models.dart';
 class CommunityService extends ChangeNotifier {
   GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   List<Community> top5Communities = [];
+  List<Community> myCommunties = [];
 
   getTop5Communities() async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;
