@@ -21,9 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Center(
       child: Container(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: size.height * 0.1),
             Center(
               child: Image(
                 image: AssetImage("assets/LogoCommuniverse.png"),

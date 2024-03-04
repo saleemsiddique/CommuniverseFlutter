@@ -34,7 +34,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         errorTokenExpired(context);
       }
     } else if (index == 1) {
-      postService.findPostById("e5a386e6");
+      postService.findPostById("4d9a454a");
     }
     setState(() {
       _selectedIndex = index;
@@ -45,6 +45,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(
         index: _selectedIndex,
         children: [HomeScreen(), ProfileScreen()],

@@ -19,48 +19,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
     return Scaffold(
-        body: Padding(
-      padding: EdgeInsets.only(top: 40),
-      child: SingleChildScrollView(
-          child: Column(
-        children: [
-          basicInfo(userService, size),
-          SizedBox(height: size.height * 0.03),
-          DefaultTabController(
-            length: _tabs.length, // Número de pestañas
-            child: Column(
-              children: [
-                TabBar(
-                  tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                  onTap: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                ),
-                Container(
-                  height: 200, // Altura del contenido de la pestaña
-                  child: TabBarView(
+      body: Padding(
+          padding: EdgeInsets.only(top: 40),
+          child: SingleChildScrollView(
+              child: Column(
+            children: [
+              basicInfo(userService, size),
+              SizedBox(height: size.height * 0.03),
+              DefaultTabController(
+                length: _tabs.length, // Número de pestañas
+                child: Container(height: size.height,
+                  color: Color.fromRGBO(165, 91, 194, 0.2),
+                  child: Column(
                     children: [
-                      // Contenido de la pestaña Posts
-                      Center(child: PostWidget(post: postService.post)),
-                      // Contenido de la pestaña Reposts
-                      Center(
-                        child: Text('Contenido de Reposts'),
+                      TabBar(
+                        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                        onTap: (index) {
+                          setState(() {
+                            _currentIndex = index;
+                          });
+                        },
                       ),
-                      // Contenido de la pestaña Communities
-                      Center(
-                        child: Text('Contenido de Communities'),
+                      Container(
+                        height: 200, // Altura del contenido de la pestaña
+                        child: TabBarView(
+                          children: [
+                            // Contenido de la pestaña Posts
+                            Center(child: PostWidget(post: postService.post)),
+                            // Contenido de la pestaña Reposts
+                            Center(
+                              child: Text('Contenido de Reposts'),
+                            ),
+                            // Contenido de la pestaña Communities
+                            Center(
+                              child: Text('Contenido de Communities'),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
-      )),
-    ));
+              )
+            ],
+          ))),
+    );
   }
 
   Column basicInfo(UserService userService, Size size) {

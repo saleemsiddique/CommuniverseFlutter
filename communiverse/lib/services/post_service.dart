@@ -30,4 +30,16 @@ class PostService extends ChangeNotifier {
       throw errorMessage;
     }
   }
+
+    Future<Community> findPostCommunity(String id) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData('community/${id}');
+      Community community = Community.fromJson(json.decode(jsonData));
+      print("Este es el community del post: $community");
+      return community;
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
 }
