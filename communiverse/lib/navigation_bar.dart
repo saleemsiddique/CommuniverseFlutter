@@ -34,7 +34,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         errorTokenExpired(context);
       }
     } else if (index == 1) {
-      postService.findPostById("4d9a454a");
+      postService.findMyPosts("5182b9c5");
     }
     setState(() {
       _selectedIndex = index;

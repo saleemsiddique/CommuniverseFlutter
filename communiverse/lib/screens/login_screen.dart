@@ -12,7 +12,8 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailorusernameController = TextEditingController();
+  final TextEditingController _emailorusernameController =
+      TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = true;
 
@@ -70,7 +71,8 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   TextFormField password() {
-    final userLoginRequestService = Provider.of<UserLoginRequestService>(context, listen: false);
+    final userLoginRequestService =
+        Provider.of<UserLoginRequestService>(context, listen: false);
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: _passwordController,
@@ -126,11 +128,13 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   ElevatedButton loginButton(BuildContext context) {
-        final userService =
-        Provider.of<UserService>(context, listen: true);
+    final userService = Provider.of<UserService>(context, listen: true);
     final userLoginRequestService =
         Provider.of<UserLoginRequestService>(context, listen: true);
-        final communityService = Provider.of<CommunityService>(context, listen: true);
+    final postService = Provider.of<PostService>(context, listen: false);
+
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
     return ElevatedButton(
       style: ButtonStyle(
         minimumSize: MaterialStateProperty.all<Size>(
@@ -150,7 +154,9 @@ class _LoginFormState extends State<LoginForm> {
           print(credentials);
           try {
             await userLoginRequestService.signIn(credentials);
-            await userService.findUserById(UserLoginRequestService.userLoginRequest.id);
+            await userService
+                .findUserById(UserLoginRequestService.userLoginRequest.id);
+            await postService.findMyPosts("5182b9c5");
             await communityService.getTop5Communities();
             Navigator.of(context).pushNamed('home');
           } catch (error) {
@@ -159,8 +165,7 @@ class _LoginFormState extends State<LoginForm> {
               builder: (context) {
                 return AlertDialog(
                   title: Text("Login Error"),
-                  content: Text(
-                      error.toString()),
+                  content: Text(error.toString()),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () {

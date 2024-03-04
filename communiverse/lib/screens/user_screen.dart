@@ -28,7 +28,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: size.height * 0.03),
               DefaultTabController(
                 length: _tabs.length, // Número de pestañas
-                child: Container(height: size.height,
+                child: Container(
+                  height: size.height,
                   color: Color.fromRGBO(165, 91, 194, 0.2),
                   child: Column(
                     children: [
@@ -41,11 +42,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       Container(
-                        height: 200, // Altura del contenido de la pestaña
+                        height: size.height * 0.938, // Altura del contenido de la pestaña
                         child: TabBarView(
                           children: [
                             // Contenido de la pestaña Posts
-                            Center(child: PostWidget(post: postService.post)),
+                            Center(
+                                child: ListView.builder(
+                              itemCount: postService.myPosts.length,
+                              itemBuilder: (context, index) {
+                                final post = postService.myPosts[index];
+                                return PostWidget(post: post);
+                              },
+                            )),
                             // Contenido de la pestaña Reposts
                             Center(
                               child: Text('Contenido de Reposts'),
@@ -80,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     backgroundColor: Colors.black,
-                    radius: 50,
+                    radius: 55,
                     backgroundImage: userService.user.photo != ''
                         ? NetworkImage(userService.user.photo)
                         : AssetImage('assets/no-user.png')
@@ -91,10 +99,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Text(
                     userService.user.username,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   )
                 ],
               ),
+              SizedBox(width: size.width * 0.05),
               Container(
                 width: size.width * 0.44, // Set your desired width here
                 child: Padding(
@@ -107,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         '${userService.user.name} ${userService.user.lastName}',
                         style:
-                            TextStyle(color: Color.fromRGBO(222, 139, 255, 1)),
+                            TextStyle(fontSize: 15,color: Color.fromRGBO(222, 139, 255, 1)),
                       ),
                       _buildInfoLabel('Description'),
                       SizedBox(height: 2),
@@ -115,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         userService.user.biography,
                         overflow: TextOverflow.clip,
                         maxLines: 5,
-                        style: TextStyle(
+                        style: TextStyle(fontSize: 15,
                           color: Color.fromRGBO(222, 139, 255, 1),
                         ),
                       ),
@@ -124,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         '${userService.user.userStats.level}',
                         style:
-                            TextStyle(color: Color.fromRGBO(222, 139, 255, 1)),
+                            TextStyle(fontSize: 15,color: Color.fromRGBO(222, 139, 255, 1)),
                       ),
                     ],
                   ),
@@ -154,12 +163,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(
             title,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),
           ),
           SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color.fromRGBO(222, 139, 255, 1)),
           ),
         ],
       ),

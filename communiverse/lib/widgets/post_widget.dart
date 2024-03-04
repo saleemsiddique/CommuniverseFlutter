@@ -1,5 +1,6 @@
 import 'package:communiverse/services/post_service.dart';
 import 'package:communiverse/services/services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/models/models.dart';
 import 'package:provider/provider.dart';
@@ -11,64 +12,77 @@ class PostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: EdgeInsets.all(7),
-    child:Card(
-      color: Color.fromRGBO(46, 30, 47, 1),
-      elevation: 3,
-      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeader(context),
-                  if (post.content != '') _buildContent(),
-                  if (post.photos != [] || post.videos != []) _buildMedia(),
-                  if (post.quizz != Quizz.empty()) _buildQuizz(),
-                ],
-              ),
+    final Size size = MediaQuery.of(context).size;
+    return Padding(
+      padding: EdgeInsets.all(7),
+      child: SizedBox(
+        height: size.height * 0.35,
+        child: Card(
+          color: Color.fromRGBO(46, 30, 47, 1),
+          elevation: 3,
+          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (post.quizz == Quizz.empty()) ...[
+                        _buildHeader(context),
+                        if (post.content != '') _buildContent(),
+                        SizedBox(height: 10),
+                        if (post.photos.isNotEmpty || post.videos.isNotEmpty)
+                          _buildMedia(),
+                      ] else ...[
+                        _buildHeader(context),
+                        SizedBox(height: 15),
+                        _buildQuizz(context, post)
+                      ]
+                    ],
+                  ),
+                ),
+                _buildInteractions(),
+              ],
             ),
-            _buildInteractions(),
-          ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   Row _buildInteractions() {
     return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _formatDateTime(post.dateTime),
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-              Row(
-                children: [
-                  _buildInteractionCount(
-                    Icons.comment,
-                    post.postInteractions.comments.length,
-                  ),
-                  SizedBox(width: 10),
-                  _buildInteractionCount(
-                    Icons.repeat,
-                    post.postInteractions.reposts,
-                  ),
-                  SizedBox(width: 10),
-                  _buildInteractionCount(
-                    Icons.favorite_border,
-                    post.postInteractions.likes,
-                  ),
-                ],
-              ),
-            ],
-          );
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          _formatDateTime(post.dateTime),
+          style: TextStyle(
+            color: Colors.grey,
+          ),
+        ),
+        Row(
+          children: [
+            _buildInteractionCount(
+              Icons.comment,
+              post.postInteractions.comments.length,
+            ),
+            SizedBox(width: 10),
+            _buildInteractionCount(
+              Icons.repeat,
+              post.postInteractions.reposts,
+            ),
+            SizedBox(width: 10),
+            _buildInteractionCount(
+              Icons.favorite_border,
+              post.postInteractions.likes,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -164,34 +178,39 @@ class PostWidget extends StatelessWidget {
     );
   }
 
-Widget _buildContent() {
-  String trimmedContent = post.content!.trim();
-  bool isLongContent = trimmedContent.length > 20;
+  Widget _buildContent() {
+    String trimmedContent = post.content!.trim();
+    bool isLongContent = trimmedContent.length > 200;
+    final int maxCharacters = 200;
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          isLongContent ? trimmedContent.substring(0, 20) + "..." : trimmedContent,
-          style: TextStyle(color: Colors.white),
-        ),
-        if (isLongContent)
-          TextButton(
-            onPressed: () {
-              // Acción para expandir o mostrar más contenido
-            },
-            child: Text(
-              "Ver más",
-              style: TextStyle(color: Colors.blue),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              text: isLongContent
+                  ? trimmedContent.substring(0, maxCharacters)
+                  : trimmedContent,
+              style: TextStyle(color: Colors.white),
+              children: <TextSpan>[
+                if (isLongContent)
+                  TextSpan(
+                    text: ' Ver más',
+                    style: TextStyle(color: Colors.blue),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        // Acción para expandir o mostrar más contenido
+                      },
+                  ),
+              ],
             ),
           ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Widget _buildMedia() {
     return SizedBox(
@@ -230,114 +249,143 @@ Widget _buildContent() {
     );
   }
 
-  Widget _buildQuizz() {
-    return Column(
+  Widget _buildQuizz(BuildContext context, Post post) {
+    final Size size = MediaQuery.of(context).size;
+    String? firstPhoto = post.photos.isNotEmpty ? post.photos[0] : null;
+    String quizDescription = '${post.quizz.description}';
+
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Quiz',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'Question 1',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text('Option A'),
-        Text('Option B'),
-        Text('Option C'),
-        SizedBox(height: 16),
-        Text(
-          'Question 2',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Text('Option X'),
-        Text('Option Y'),
-        Text('Option Z'),
-        SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () {
-            // Action to play the quiz
-          },
-          child: Row(
+        if (firstPhoto != null)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10.0),
+            child: Image.network(
+              firstPhoto,
+              width: size.width * 0.4,
+              height: size.height * 0.2,
+              fit: BoxFit.cover,
+            ),
+          )
+        else
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10.0),
+            child: Image.asset(
+              "assets/no-image.jpg",
+              width: size.width * 0.4,
+              height: size.height * 0.2,
+              fit: BoxFit.cover,
+            ),
+          ),
+        SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.play_arrow),
-              SizedBox(width: 8),
-              Text('Jugar'),
+              Text(
+                quizDescription,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: size.height * 0.1),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromRGBO(165, 91, 194, 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                onPressed: () {
+                  // Action to play the quiz
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.play_arrow),
+                    SizedBox(width: 20),
+                    Text(
+                      'Play',
+                      style: TextStyle(
+                        fontFamily: "WorkSans",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ],
     );
   }
-}
 
-Widget _buildInteractionCount(IconData icon, int count) {
-  return Row(
-    children: [
-      Icon(
-        icon,
-        size: 18,
-        color: Colors.grey,
-      ),
-      SizedBox(width: 3),
-      Text(
-        '$count',
-        style: TextStyle(
+  Widget _buildInteractionCount(IconData icon, int count) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 18,
           color: Colors.grey,
         ),
-      ),
-    ],
-  );
-}
+        SizedBox(width: 3),
+        Text(
+          '$count',
+          style: TextStyle(
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    );
+  }
 
-String _formatDateTime(DateTime dateTime) {
-  // Format the date and time in the specified format
-  return '${_formatTime(dateTime)} · ${_formatDate(dateTime)}';
-}
+  String _formatDateTime(DateTime dateTime) {
+    // Format the date and time in the specified format
+    return '${_formatTime(dateTime)} · ${_formatDate(dateTime)}';
+  }
 
-String _formatTime(DateTime dateTime) {
-  // Format the time
-  String period = dateTime.hour < 12 ? 'AM' : 'PM';
-  int hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
-  String minute =
-      dateTime.minute < 10 ? '0${dateTime.minute}' : '${dateTime.minute}';
-  return '$hour:$minute$period';
-}
+  String _formatTime(DateTime dateTime) {
+    // Format the time
+    String period = dateTime.hour < 12 ? 'AM' : 'PM';
+    int hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
+    String minute =
+        dateTime.minute < 10 ? '0${dateTime.minute}' : '${dateTime.minute}';
+    return '$hour:$minute$period';
+  }
 
-String _formatDate(DateTime dateTime) {
-  // Format the date
-  return '${_getMonthName(dateTime.month)} ${dateTime.day} ${dateTime.year}';
-}
+  String _formatDate(DateTime dateTime) {
+    // Format the date
+    return '${_getMonthName(dateTime.month)} ${dateTime.day} ${dateTime.year}';
+  }
 
-String _getMonthName(int month) {
-  // Get the month name
-  switch (month) {
-    case 1:
-      return 'Jan';
-    case 2:
-      return 'Feb';
-    case 3:
-      return 'Mar';
-    case 4:
-      return 'Apr';
-    case 5:
-      return 'May';
-    case 6:
-      return 'Jun';
-    case 7:
-      return 'Jul';
-    case 8:
-      return 'Aug';
-    case 9:
-      return 'Sep';
-    case 10:
-      return 'Oct';
-    case 11:
-      return 'Nov';
-    case 12:
-      return 'Dec';
-    default:
-      return '';
+  String _getMonthName(int month) {
+    // Get the month name
+    switch (month) {
+      case 1:
+        return 'Jan';
+      case 2:
+        return 'Feb';
+      case 3:
+        return 'Mar';
+      case 4:
+        return 'Apr';
+      case 5:
+        return 'May';
+      case 6:
+        return 'Jun';
+      case 7:
+        return 'Jul';
+      case 8:
+        return 'Aug';
+      case 9:
+        return 'Sep';
+      case 10:
+        return 'Oct';
+      case 11:
+        return 'Nov';
+      case 12:
+        return 'Dec';
+      default:
+        return '';
+    }
   }
 }
