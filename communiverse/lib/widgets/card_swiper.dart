@@ -64,7 +64,6 @@ class CommunityCarousel extends StatelessWidget {
           if (loadingProgress == null)
             return child;
           return Center(
-            child: CircularProgressIndicator(),
           );
         },
       ),
