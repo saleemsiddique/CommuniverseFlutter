@@ -20,6 +20,9 @@ class MyApp extends StatelessWidget {
           ),
           ChangeNotifierProvider.value(
             value: CommunityService(),
+          ),
+          ChangeNotifierProvider.value(
+            value: PostService(),
           )
         ],
         child: MaterialApp(

@@ -1,4 +1,6 @@
+import 'package:communiverse/services/post_service.dart';
 import 'package:communiverse/services/services.dart';
+import 'package:communiverse/widgets/post_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,13 +16,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
     return Scaffold(
         body: Padding(
       padding: EdgeInsets.only(top: 40),
       child: SingleChildScrollView(
-        child: basicInfo(userService, size),
-      ),
+          child: Column(
+        children: [
+          basicInfo(userService, size),
+          SizedBox(height: size.height * 0.03),
+          DefaultTabController(
+            length: _tabs.length, // Número de pestañas
+            child: Column(
+              children: [
+                TabBar(
+                  tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                  onTap: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                ),
+                Container(
+                  height: 200, // Altura del contenido de la pestaña
+                  child: TabBarView(
+                    children: [
+                      // Contenido de la pestaña Posts
+                      Center(child: PostWidget(post: postService.post)),
+                      // Contenido de la pestaña Reposts
+                      Center(
+                        child: Text('Contenido de Reposts'),
+                      ),
+                      // Contenido de la pestaña Communities
+                      Center(
+                        child: Text('Contenido de Communities'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      )),
     ));
   }
 
@@ -99,42 +138,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildSection(
                 'Followed', userService.user.followedId.length.toString()),
           ],
-        ),
-
-        // Widget con pestañas para los diferentes contenidos
-        DefaultTabController(
-          length: _tabs.length, // Número de pestañas
-          child: Column(
-            children: [
-              TabBar(
-                tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                onTap: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-              ),
-              Container(
-                height: 200, // Altura del contenido de la pestaña
-                child: TabBarView(
-                  children: [
-                    // Contenido de la pestaña Posts
-                    Center(
-                      child: Text('Contenido de Posts'),
-                    ),
-                    // Contenido de la pestaña Reposts
-                    Center(
-                      child: Text('Contenido de Reposts'),
-                    ),
-                    // Contenido de la pestaña Communities
-                    Center(
-                      child: Text('Contenido de Communities'),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ),
       ],
     );

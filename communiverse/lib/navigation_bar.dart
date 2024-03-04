@@ -25,12 +25,16 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   void _onItemTapped(int index) {
     final communityService =
         Provider.of<CommunityService>(context, listen: false);
+    final postService = Provider.of<PostService>(context, listen: false);
+
     if (index == 0) {
       try {
         communityService.getTop5Communities();
       } catch (error) {
         errorTokenExpired(context);
       }
+    } else if (index == 1) {
+      postService.findPostById("e5a386e6");
     }
     setState(() {
       _selectedIndex = index;
@@ -43,10 +47,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: [
-          HomeScreen(),
-          ProfileScreen()
-        ],
+        children: [HomeScreen(), ProfileScreen()],
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 60),
