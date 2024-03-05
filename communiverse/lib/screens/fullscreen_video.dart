@@ -12,7 +12,6 @@ class FullScreenVideo extends StatelessWidget {
   @override
   @override
   Widget build(BuildContext context) {
-    print(videoUrl);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,

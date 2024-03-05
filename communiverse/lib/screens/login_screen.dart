@@ -154,9 +154,9 @@ class _LoginFormState extends State<LoginForm> {
           print(credentials);
           try {
             await userLoginRequestService.signIn(credentials);
-            await userService
-                .findUserById(UserLoginRequestService.userLoginRequest.id);
-            await postService.findMyPosts("5182b9c5");
+            await userService.findUserById(UserLoginRequestService.userLoginRequest.id);
+            await postService.findMyPosts(UserLoginRequestService.userLoginRequest.id);
+            await postService.findMyRePosts(UserLoginRequestService.userLoginRequest.id);
             await communityService.getTop5Communities();
             Navigator.of(context).pushNamed('home');
           } catch (error) {

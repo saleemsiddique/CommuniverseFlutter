@@ -55,6 +55,103 @@ class PostWidget extends StatelessWidget {
     );
   }
 
+  
+  Widget _buildHeader(BuildContext context) {
+  final postService = Provider.of<PostService>(context, listen: false);
+
+  // Almacenar los datos recuperados en variables locales
+  final authorFuture = postService.findPostAuthor(post.authorId);
+  final communityFuture = postService.findPostCommunity(post.communityId);
+  final repostUserFuture = postService.findPostAuthor(post.repostUserId ?? '');
+
+  return FutureBuilder<User>(
+    future: authorFuture,
+    builder: (context, snapshotUser) {
+      if (snapshotUser.connectionState == ConnectionState.waiting) {
+        return Container();
+      } else if (snapshotUser.hasError) {
+        return Text('Error: ${snapshotUser.error}');
+      } else {
+        final author = snapshotUser.data!;
+        return FutureBuilder<Community>(
+          future: communityFuture,
+          builder: (context, snapshotCommunity) {
+            if (snapshotCommunity.connectionState == ConnectionState.waiting) {
+              return Container();
+            } else if (snapshotCommunity.hasError) {
+              return Text('Error: ${snapshotCommunity.error}');
+            } else {
+              final community = snapshotCommunity.data!;
+              return FutureBuilder<User>(
+                future: repostUserFuture,
+                builder: (context, snapshotRepostUser) {
+                  final repostUser = snapshotRepostUser.data;
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${author.name} ${author.lastName}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${author.username}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'For: ${community.name}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          if (repostUser?.username != null &&
+                              repostUser?.username != '')
+                            Row(
+                              children: [
+                                Icon(
+                                  size: 15,
+                                  Icons.repeat,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(width: 3),
+                                Text(
+                                  '${repostUser?.username}',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+          },
+        );
+      }
+    },
+  );
+}
+
+
+
   Row _buildInteractions() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,99 +181,6 @@ class PostWidget extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return FutureBuilder<User>(
-      future: Provider.of<PostService>(context, listen: false)
-          .findPostAuthor(post.authorId),
-      builder: (context, snapshotUser) {
-        if (snapshotUser.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshotUser.hasError) {
-          return Text('Error: ${snapshotUser.error}');
-        } else {
-          final author = snapshotUser.data!;
-          return FutureBuilder<Community>(
-            future: Provider.of<PostService>(context, listen: false)
-                .findPostCommunity(post.communityId),
-            builder: (context, snapshotCommunity) {
-              if (snapshotCommunity.connectionState ==
-                  ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshotCommunity.hasError) {
-                return Text('Error: ${snapshotCommunity.error}');
-              } else {
-                final community = snapshotCommunity.data!;
-                return FutureBuilder<User>(
-                  future: post.repostUserId != ''
-                      ? Provider.of<PostService>(context, listen: false)
-                          .findPostAuthor(post.repostUserId!)
-                      : Future.value(User.empty()),
-                  builder: (context, snapshotRepostUser) {
-                    final repostUser = snapshotRepostUser.data;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${author.name} ${author.lastName}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '${author.username}',
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'For: ${community.name}',
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            if (repostUser?.username != null &&
-                                repostUser?.username != '')
-                              Row(
-                                children: [
-                                  Icon(
-                                    size: 15,
-                                    Icons.repeat,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(width: 3),
-                                  Text(
-                                    '${repostUser?.username}',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }
-            },
-          );
-        }
-      },
     );
   }
 

@@ -35,6 +35,8 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       }
     } else if (index == 1) {
       postService.findMyPosts("5182b9c5");
+      postService.findMyRePosts("5182b9c5");
+
     }
     setState(() {
       _selectedIndex = index;

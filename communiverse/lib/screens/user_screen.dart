@@ -15,68 +15,105 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-  final Size size = MediaQuery.of(context).size;
-  final postService = Provider.of<PostService>(context, listen: true);
-  final userService = Provider.of<UserService>(context, listen: true);
-  return Scaffold(
-    body: Padding(
-      padding: EdgeInsets.only(top: 40),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            basicInfo(userService, size),
-            SizedBox(height: size.height * 0.05),
-            DefaultTabController(
-              length: _tabs.length,
-              child: Container(
-                height: size.height * 0.9,
-                color: Color.fromRGBO(165, 91, 194, 0.2),
-                child: Column(
-                  children: [
-                    TabBar(
-                      tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                      onTap: (index) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                      },
-                      indicatorColor: Colors.white,
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          // Contenido de la pestaña Posts
-                          Center(
-                            child: ListView.builder(
-                              itemCount: postService.myPosts.length,
-                              itemBuilder: (context, index) {
-                                final post = postService.myPosts[index];
-                                return PostWidget(post: post);
-                              },
-                            ),
-                          ),
-                          // Contenido de la pestaña Reposts
-                          Center(
-                            child: Text('Contenido de Reposts'),
-                          ),
-                          // Contenido de la pestaña Communities
-                          Center(
-                            child: Text('Contenido de Communities'),
-                          ),
-                        ],
+    final Size size = MediaQuery.of(context).size;
+    final postService = Provider.of<PostService>(context, listen: true);
+    final userService = Provider.of<UserService>(context, listen: true);
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.only(top: 40),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              basicInfo(userService, size),
+              SizedBox(height: size.height * 0.05),
+              DefaultTabController(
+                length: _tabs.length,
+                child: Container(
+                  height: size.height * 0.9,
+                  color: Color.fromRGBO(165, 91, 194, 0.2),
+                  child: Column(
+                    children: [
+                      TabBar(
+                        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                        onTap: (index) {
+                          setState(() {
+                            _currentIndex = index;
+                          });
+                        },
+                        indicatorColor: Colors.white,
                       ),
-                    ),
-                  ],
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            // Contenido de la pestaña Posts
+                            Center(
+                              child: ListView.builder(
+                                itemCount: postService.myPosts.length,
+                                itemBuilder: (context, index) {
+                                  final post = postService.myPosts[index];
+                                  return PostWidget(post: post);
+                                },
+                              ),
+                            ),
+                            // Contenido de la pestaña Reposts
+                            Center(
+                              child: ListView.builder(
+                                itemCount: postService.myRePosts.length,
+                                itemBuilder: (context, index) {
+                                  final post = postService.myRePosts[index];
+                                  return PostWidget(post: post);
+                                },
+                              ),
+                            ),
+                            // Contenido de la pestaña Communities
+                            Center(
+                              child: Text('Contenido de Communities'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
+  /*
+Center(
+  child: NotificationListener<ScrollNotification>(
+    onNotification: (ScrollNotification scrollInfo) {
+      if (!postService.isLoading &&
+          scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+        // Reached the end of the list, load more data if there is more to load
+        if (!postService.allDataLoaded) {
+          postService.findMyRePosts(userService.user.id);
+        }
+      }
+      return true;
+    },
+    child: ListView.builder(
+      itemCount: postService.myRePosts.posts.length + (postService.allDataLoaded ? 0 : 1), // +1 for loading indicator if more data can be loaded
+      itemBuilder: (context, index) {
+        if (index < postService.myRePosts.posts.length) {
+          final post = postService.myRePosts.posts[index];
+          return PostWidget(post: post);
+        } else if (postService.isLoading) {
+          // Show a loading indicator while more content is being loaded
+          return CircularProgressIndicator();
+        } else {
+          // If isLoading is false and all data is loaded, show an empty container
+          return Container();
+        }
+      },
+    ),
+  ),
+),
+  */
 
   Column basicInfo(UserService userService, Size size) {
     return Column(
@@ -119,8 +156,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: 2),
                       Text(
                         '${userService.user.name} ${userService.user.lastName}',
-                        style:
-                            TextStyle(fontSize: 15,color: Color.fromRGBO(222, 139, 255, 1)),
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Color.fromRGBO(222, 139, 255, 1)),
                       ),
                       _buildInfoLabel('Description'),
                       SizedBox(height: 2),
@@ -128,7 +166,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         userService.user.biography,
                         overflow: TextOverflow.clip,
                         maxLines: 5,
-                        style: TextStyle(fontSize: 15,
+                        style: TextStyle(
+                          fontSize: 15,
                           color: Color.fromRGBO(222, 139, 255, 1),
                         ),
                       ),
@@ -136,8 +175,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: 2),
                       Text(
                         '${userService.user.userStats.level}',
-                        style:
-                            TextStyle(fontSize: 15,color: Color.fromRGBO(222, 139, 255, 1)),
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Color.fromRGBO(222, 139, 255, 1)),
                       ),
                     ],
                   ),
@@ -168,12 +208,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(
             title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           SizedBox(height: 4),
           Text(
             value,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color.fromRGBO(222, 139, 255, 1)),
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color.fromRGBO(222, 139, 255, 1)),
           ),
         ],
       ),
