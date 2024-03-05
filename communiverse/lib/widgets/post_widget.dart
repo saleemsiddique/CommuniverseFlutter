@@ -1,5 +1,7 @@
+import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/post_service.dart';
 import 'package:communiverse/services/services.dart';
+import 'package:communiverse/utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/models/models.dart';
@@ -181,7 +183,7 @@ class PostWidget extends StatelessWidget {
   Widget _buildContent() {
     String trimmedContent = post.content!.trim();
     bool isLongContent = trimmedContent.length > 200;
-    final int maxCharacters = 200;
+    final int maxCharacters = 150;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -213,24 +215,38 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _buildMedia() {
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: post.photos.length + (post.videos.length),
-        itemBuilder: (context, index) {
-          if (index < post.photos.length) {
-            return Padding(
+  int videoIndex = 0;
+
+  return SizedBox(
+    height: 50,
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: post.photos.length + post.videos.length,
+      itemBuilder: (context, index) {
+        if (index < post.photos.length) {
+          // Imágenes
+          return GestureDetector(
+            onTap: () {
+              Utils.openImageInFullScreen(context, post.photos[index], post);
+            },
+            child: Padding(
               padding: EdgeInsets.only(right: 8.0),
               child: Image.network(
                 post.photos[index],
                 width: 50,
                 fit: BoxFit.cover,
               ),
-            );
-          } else {
-            // Video
-            return Padding(
+            ),
+          );
+        } else {
+          // Videos
+          return GestureDetector(
+            onTap: () {
+              // Obtener el índice del video dentro de la lista de videos
+              videoIndex = index - post.photos.length;
+              Utils.openVideoInFullScreen(context, post.videos[videoIndex], post);
+            },
+            child: Padding(
               padding: EdgeInsets.only(right: 8.0),
               child: Container(
                 color: Colors.grey, // Placeholder color
@@ -242,12 +258,14 @@ class PostWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            );
-          }
-        },
-      ),
-    );
-  }
+            ),
+          );
+        }
+      },
+    ),
+  );
+}
+
 
   Widget _buildQuizz(BuildContext context, Post post) {
     final Size size = MediaQuery.of(context).size;

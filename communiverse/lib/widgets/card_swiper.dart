@@ -59,11 +59,11 @@ class CommunityCarousel extends StatelessWidget {
         community.photo,
         fit: BoxFit.cover,
         width: double.infinity,
-        height: size.height * 0.2, // Ajuste de altura
+        height: size.height * 0.2,
         loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
           if (loadingProgress == null)
             return child;
-          return Center(
+          return Center(child: CircularProgressIndicator(),
           );
         },
       ),

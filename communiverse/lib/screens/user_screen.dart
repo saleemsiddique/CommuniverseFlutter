@@ -15,64 +15,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    final postService = Provider.of<PostService>(context, listen: true);
-    final userService = Provider.of<UserService>(context, listen: true);
-    return Scaffold(
-      body: Padding(
-          padding: EdgeInsets.only(top: 40),
-          child: SingleChildScrollView(
-              child: Column(
-            children: [
-              basicInfo(userService, size),
-              SizedBox(height: size.height * 0.03),
-              DefaultTabController(
-                length: _tabs.length, // Número de pestañas
-                child: Container(
-                  height: size.height,
-                  color: Color.fromRGBO(165, 91, 194, 0.2),
-                  child: Column(
-                    children: [
-                      TabBar(
-                        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                        onTap: (index) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                      ),
-                      Container(
-                        height: size.height * 0.938, // Altura del contenido de la pestaña
-                        child: TabBarView(
-                          children: [
-                            // Contenido de la pestaña Posts
-                            Center(
-                                child: ListView.builder(
+  final Size size = MediaQuery.of(context).size;
+  final postService = Provider.of<PostService>(context, listen: true);
+  final userService = Provider.of<UserService>(context, listen: true);
+  return Scaffold(
+    body: Padding(
+      padding: EdgeInsets.only(top: 40),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            basicInfo(userService, size),
+            SizedBox(height: size.height * 0.05),
+            DefaultTabController(
+              length: _tabs.length,
+              child: Container(
+                height: size.height * 0.9,
+                color: Color.fromRGBO(165, 91, 194, 0.2),
+                child: Column(
+                  children: [
+                    TabBar(
+                      tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                      onTap: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                      indicatorColor: Colors.white,
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          // Contenido de la pestaña Posts
+                          Center(
+                            child: ListView.builder(
                               itemCount: postService.myPosts.length,
                               itemBuilder: (context, index) {
                                 final post = postService.myPosts[index];
                                 return PostWidget(post: post);
                               },
-                            )),
-                            // Contenido de la pestaña Reposts
-                            Center(
-                              child: Text('Contenido de Reposts'),
                             ),
-                            // Contenido de la pestaña Communities
-                            Center(
-                              child: Text('Contenido de Communities'),
-                            ),
-                          ],
-                        ),
+                          ),
+                          // Contenido de la pestaña Reposts
+                          Center(
+                            child: Text('Contenido de Reposts'),
+                          ),
+                          // Contenido de la pestaña Communities
+                          Center(
+                            child: Text('Contenido de Communities'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              )
-            ],
-          ))),
-    );
-  }
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 
   Column basicInfo(UserService userService, Size size) {
     return Column(
@@ -142,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ),
+        SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

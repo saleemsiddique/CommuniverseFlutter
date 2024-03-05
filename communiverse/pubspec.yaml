@@ -38,6 +38,9 @@ dependencies:
   provider: ^6.1.1
   http: ^1.1.0
   carousel_slider: ^4.2.1
+  video_player: ^2.8.2
+  chewie: ^1.7.5
+
 
 dev_dependencies:
   flutter_test:
