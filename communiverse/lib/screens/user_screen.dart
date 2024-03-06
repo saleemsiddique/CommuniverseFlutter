@@ -165,18 +165,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Padding noPosts(Size size) {
     return Padding(
-                                  padding: EdgeInsets.only(
-                                      top: size.height *
-                                          0.15), // Ajusta el espacio superior según sea necesario
-                                  child: Text(
-                                    'There are no posts at the moment',
-                                    textAlign: TextAlign
-                                        .center, // Alinea el texto al centro
-                                  ),
-                                );
+      padding: EdgeInsets.only(
+          top: size.height *
+              0.15), // Ajusta el espacio superior según sea necesario
+      child: Text(
+        'There are no posts at the moment',
+        textAlign: TextAlign.center, // Alinea el texto al centro
+      ),
+    );
   }
-
-  
 
   Widget _buildProgressIndicator() {
     return _loading
