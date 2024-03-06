@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:communiverse/extras/pager.dart';
 import 'package:communiverse/provider/provider_communiverse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,11 +7,14 @@ import 'package:communiverse/models/models.dart';
 
 class PostService extends ChangeNotifier {
   GlobalKey<FormState> formKey = new GlobalKey<FormState>();
+  Post post = Post.empty();
   List<Post> myPosts = [];
   List<Post> myRePosts = [];
-  Post post = Post.empty();
+  int currentPostPage = 0;
+  int currentRepostPage = 0;
+  int pageSize = 5;
 
-  findMyPosts(String id) async {
+  /*findMyPosts(String id) async {
     try {
       final jsonData =
           await CommuniverseProvider.getJsonData('post/posts/${id}');
@@ -27,20 +31,23 @@ class PostService extends ChangeNotifier {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
       throw errorMessage;
     }
-  }
+  }*/
 
-    findMyRePosts(String id) async {
-    try {
-      final jsonData =
-          await CommuniverseProvider.getJsonData('post/reposts/${id}');
-      final List<dynamic> jsonList = json.decode(jsonData);
-      List<Post> newRePosts =
-          jsonList.map((json) => Post.fromJson(json)).toList();
+   findMyPostsPaged(String id) async {
+  try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          'post/posts/$id/$currentPostPage/$pageSize');
+      final dynamic jsonResponse = json.decode(jsonData);
+      final PostPage newPosts = PostPage.fromJson(jsonResponse);
 
-      if (!listEquals(myPosts, newRePosts)) {
-        myRePosts = newRePosts;
-        notifyListeners();
+      // Limpiar la lista si es la primera página
+      if (currentPostPage == 0) {
+        myPosts.clear();
       }
+
+      myPosts.addAll(newPosts.posts);
+      currentPostPage++;
+
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
@@ -48,31 +55,27 @@ class PostService extends ChangeNotifier {
     }
   }
 
-   /*
-   Future<void> findMyRePosts(String id) async {
-    if (isLoading || allDataLoaded) return;
-
+  Future<void> findMyRePostsPaged(String id) async {
     try {
-      isLoading = true;
-      final jsonData = await CommuniverseProvider.getJsonData('post/reposts/$id/$currentPage/10');
+      final jsonData = await CommuniverseProvider.getJsonData(
+          'post/reposts/$id/$currentRepostPage/$pageSize');
       final dynamic jsonResponse = json.decode(jsonData);
       final PostPage newRePosts = PostPage.fromJson(jsonResponse);
 
-      if (newRePosts.posts.isNotEmpty) {
-        myRePosts.posts.addAll(newRePosts.posts);
-        currentPage++;
-      } else {
-        allDataLoaded = true;
+      // Limpiar la lista si es la primera página
+      if (currentRepostPage == 0) {
+        myRePosts.clear();
       }
+
+      myRePosts.addAll(newRePosts.posts);
+      currentRepostPage++;
+
+      notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
       throw errorMessage;
-    } finally {
-      isLoading = false;
-      notifyListeners();
     }
   }
-  */
 
   findPostById(String id) async {
     try {

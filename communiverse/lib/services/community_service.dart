@@ -9,7 +9,7 @@ import 'package:communiverse/models/models.dart';
 class CommunityService extends ChangeNotifier {
   GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   List<Community> top5Communities = [];
-  List<Community> myCommunties = [];
+  List<Community> myCommunities = [];
 
   getTop5Communities() async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;
@@ -28,5 +28,23 @@ class CommunityService extends ChangeNotifier {
       }
     }
   }
+
+    /*getMyCommunities() async {
+    final userLoginRequestService = UserLoginRequestService.userLoginRequest;
+    CommuniverseProvider.apiKey = '${userLoginRequestService.type} ${userLoginRequestService.token}';
+    if (userLoginRequestService != null) {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          '/community/myCommunities');
+      final List<dynamic> jsonList = json.decode(jsonData);
+      List<Community> newMyCommunities =
+          jsonList.map((json) => Community.fromJson(json)).toList();
+
+      if (!listEquals(myCommunities, newMyCommunities)) {
+        myCommunities = newMyCommunities;
+        print("about to notify");
+        notifyListeners();
+      }
+    }
+  }*/
 
 }

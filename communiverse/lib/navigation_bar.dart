@@ -1,3 +1,4 @@
+import 'package:communiverse/extras/pager.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
@@ -30,13 +31,15 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     if (index == 0) {
       try {
         communityService.getTop5Communities();
+        //communityService.getMyCommunities();
       } catch (error) {
         errorTokenExpired(context);
       }
     } else if (index == 1) {
-      postService.findMyPosts("5182b9c5");
-      postService.findMyRePosts("5182b9c5");
-
+      postService.currentPostPage = 0;
+      postService.currentRepostPage = 0;
+      postService.findMyPostsPaged("5182b9c5");
+      postService.findMyRePostsPaged("5182b9c5");
     }
     setState(() {
       _selectedIndex = index;

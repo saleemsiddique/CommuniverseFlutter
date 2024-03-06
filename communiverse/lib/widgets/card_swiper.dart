@@ -12,34 +12,31 @@ class CommunityCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    if (this.communities.isEmpty) {
+    if (communities.isEmpty) {
       return Container(
         width: double.infinity,
         height: size.height * 0.5,
         child: Center(
-          child: Text("Communities not found", style: TextStyle(color: Colors.white))
+          child: Text("Communities not found",
+              style: TextStyle(color: Colors.white)),
         ),
       );
     }
 
     return Container(
       width: double.infinity,
-      child: CarouselSlider.builder(
-        itemCount: communities.length,
+      child: CarouselSlider(
         options: CarouselOptions(
-          aspectRatio: 16 / 9, // Relación de aspecto de las imágenes
-          enlargeCenterPage: true,
+          aspectRatio: size.width / size.height,
           viewportFraction: 0.6,
           initialPage: 0,
           enableInfiniteScroll: true,
-          pauseAutoPlayOnTouch: true,
+          reverse: false,
+          autoPlay: false, // Desactiva la reproducción automática
+          enlargeCenterPage: true,
           scrollDirection: Axis.horizontal,
-          onPageChanged: (index, reason) {
-            // Al cambiar la página del carrusel
-          },
         ),
-        itemBuilder: (BuildContext context, int index, int realIndex) {
-          final Community community = communities[index];
+        items: communities.map((Community community) {
           community.uniqueId = 'carousel-${community.id}';
           return GestureDetector(
             onTap: () {
@@ -51,44 +48,39 @@ class CommunityCarousel extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Stack(
-  alignment: Alignment.bottomCenter,
-  children: <Widget>[
-    ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Image.network(
-        community.photo,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: size.height * 0.2,
-        loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-          if (loadingProgress == null)
-            return child;
-          return Center(child: CircularProgressIndicator(),
-          );
-        },
-      ),
-    ),
-    Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(8.0),
-      color: Colors.transparent,
-      child: Text(
-        community.name,
-        style: TextStyle(
-          fontFamily: 'WorkSans', // Usando Roboto Bold
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          fontSize: 18,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    ),
-  ],
-),
-
+                alignment: Alignment.bottomCenter,
+                children: <Widget>[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
+                      community.photo,
+                      fit: BoxFit.cover,
+                      width: size.width * 0.6,
+                      height: size.height * 0.2,
+                      cacheWidth: (size.width * 0.6).toInt(),
+                      cacheHeight: (size.height * 0.2).toInt(),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(8.0),
+                    color: Colors.transparent,
+                    child: Text(
+                      community.name,
+                      style: TextStyle(
+                        fontFamily: 'WorkSans', // Usando Roboto Bold
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
-        },
+        }).toList(),
       ),
     );
   }

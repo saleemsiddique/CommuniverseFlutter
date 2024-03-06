@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               height: size.height * 0.23,
               child: CommunityCarousel(
-                  communities: communityService.myCommunties),
+                  communities: communityService.myCommunities),
             ),
           ],
         ),

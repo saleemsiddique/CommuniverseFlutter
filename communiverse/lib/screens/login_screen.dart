@@ -154,10 +154,14 @@ class _LoginFormState extends State<LoginForm> {
           print(credentials);
           try {
             await userLoginRequestService.signIn(credentials);
-            await userService.findUserById(UserLoginRequestService.userLoginRequest.id);
-            await postService.findMyPosts(UserLoginRequestService.userLoginRequest.id);
-            await postService.findMyRePosts(UserLoginRequestService.userLoginRequest.id);
+            await userService
+                .findUserById(UserLoginRequestService.userLoginRequest.id);
+            await postService
+                .findMyPostsPaged(UserLoginRequestService.userLoginRequest.id);
+            await postService.findMyRePostsPaged(
+                UserLoginRequestService.userLoginRequest.id);
             await communityService.getTop5Communities();
+            //await communityService.getMyCommunities();
             Navigator.of(context).pushNamed('home');
           } catch (error) {
             showDialog(
