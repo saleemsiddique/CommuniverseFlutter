@@ -16,6 +16,7 @@ class _LoginFormState extends State<LoginForm> {
       TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = true;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +136,7 @@ class _LoginFormState extends State<LoginForm> {
 
     final communityService =
         Provider.of<CommunityService>(context, listen: true);
+
     return ElevatedButton(
       style: ButtonStyle(
         minimumSize: MaterialStateProperty.all<Size>(
@@ -148,43 +150,52 @@ class _LoginFormState extends State<LoginForm> {
           ),
         ),
       ),
-      onPressed: () async {
-        if (_formKey.currentState!.validate()) {
-          Map<String, dynamic> credentials = userLoginRequestService.toJson();
-          print(credentials);
-          try {
-            await userLoginRequestService.signIn(credentials);
-            await userService
-                .findUserById(UserLoginRequestService.userLoginRequest.id);
-            await postService
-                .findMyPostsPaged(UserLoginRequestService.userLoginRequest.id);
-            await postService.findMyRePostsPaged(
-                UserLoginRequestService.userLoginRequest.id);
-            await communityService.getTop5Communities();
-            //await communityService.getMyCommunities();
-            Navigator.of(context).pushNamed('home');
-          } catch (error) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text("Login Error"),
-                  content: Text(error.toString()),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("Accept"),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        }
-      },
-      child: Text('Login'),
+      onPressed: _isLoading
+          ? null
+          : () async {
+              if (_formKey.currentState!.validate()) {
+                setState(() {
+                  _isLoading = true;
+                });
+                Map<String, dynamic> credentials =
+                    userLoginRequestService.toJson();
+                print(credentials);
+                try {
+                  await userLoginRequestService.signIn(credentials);
+                  await userService.findUserById(
+                      UserLoginRequestService.userLoginRequest.id);
+                  await postService.findMyPostsPaged(userService.user.id);
+                  await postService.findMyRePostsPaged(userService.user.id);
+                  await communityService.getTop5Communities();
+                  await communityService.getMyCommunities(userService.user.id);
+                  _isLoading = false;
+                  Navigator.of(context).pushReplacementNamed('home');
+                } catch (error) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      _isLoading = false;
+                      return AlertDialog(
+                        title: Text("Login Error"),
+                        content: Text(error.toString()),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            },
+                            child: Text("Accept"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              }
+            },
+      child: _isLoading ? Text('Logging into account...') : Text('Login'),
     );
   }
 }

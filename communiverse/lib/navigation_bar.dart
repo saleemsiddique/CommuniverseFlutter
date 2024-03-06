@@ -27,19 +27,20 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     final communityService =
         Provider.of<CommunityService>(context, listen: false);
     final postService = Provider.of<PostService>(context, listen: false);
+    final userService = Provider.of<UserService>(context, listen: false);
 
     if (index == 0) {
       try {
         communityService.getTop5Communities();
-        //communityService.getMyCommunities();
+        communityService.getMyCommunities(UserLoginRequestService.userLoginRequest.id);
       } catch (error) {
         errorTokenExpired(context);
       }
     } else if (index == 1) {
       postService.currentPostPage = 0;
       postService.currentRepostPage = 0;
-      postService.findMyPostsPaged("5182b9c5");
-      postService.findMyRePostsPaged("5182b9c5");
+      postService.findMyPostsPaged(userService.user.id);
+      postService.findMyRePostsPaged(userService.user.id);
     }
     setState(() {
       _selectedIndex = index;

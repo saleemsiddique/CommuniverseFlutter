@@ -55,7 +55,7 @@ class PostService extends ChangeNotifier {
     }
   }
 
-  Future<void> findMyRePostsPaged(String id) async {
+  findMyRePostsPaged(String id) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/reposts/$id/$currentRepostPage/$pageSize');
@@ -90,6 +90,18 @@ class PostService extends ChangeNotifier {
   }
 
   Future<User> findPostAuthor(String id) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData('user/${id}');
+      User user = User.fromJson(json.decode(jsonData));
+      print("Este es el usuario del post: $user");
+      return user;
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+    Future<User> findRePostAuthor(String id) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData('user/${id}');
       User user = User.fromJson(json.decode(jsonData));

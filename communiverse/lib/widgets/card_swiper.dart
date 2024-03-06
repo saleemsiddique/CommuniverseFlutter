@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:communiverse/models/models.dart'; // Asegúrate de importar tu modelo de datos aquí
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CommunityCarousel extends StatelessWidget {
   final List<Community> communities;
@@ -52,14 +53,18 @@ class CommunityCarousel extends StatelessWidget {
                 children: <Widget>[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      community.photo,
-                      fit: BoxFit.cover,
-                      width: size.width * 0.6,
-                      height: size.height * 0.2,
-                      cacheWidth: (size.width * 0.6).toInt(),
-                      cacheHeight: (size.height * 0.2).toInt(),
-                    ),
+                    child: CachedNetworkImage(
+                        imageUrl: community.photo,
+                        fit: BoxFit.cover,
+                        width: size.width * 0.6,
+                        height: size.height * 0.2,
+                        errorWidget: (context, url, error) => Container(
+                              color: Colors.grey,
+                              width: size.width * 0.6,
+                              height: size.height * 0.2,
+                              child: Icon(Icons.error),
+                            ) // Widget to display when image fails to load
+                        ),
                   ),
                   Container(
                     width: double.infinity,

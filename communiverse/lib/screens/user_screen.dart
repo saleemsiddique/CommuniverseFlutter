@@ -89,53 +89,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: TabBarView(
                           children: [
                             // Contenido de la pestaña Posts
-                            Center(
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: ListView.builder(
-                                      controller: _scrollController,
-                                      itemCount: postService.myPosts.length +
-                                          1, // +1 para el indicador de progreso
-                                      itemBuilder: (context, index) {
-                                        if (index <
-                                            postService.myPosts.length) {
-                                          final post =
-                                              postService.myPosts[index];
-                                          return PostWidget(post: post);
-                                        } else {
-                                          return _buildProgressIndicator();
-                                        }
-                                      },
+                            postService.myPosts.isEmpty
+                                ? noPosts(size)
+                                : Center(
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                            controller: _scrollController,
+                                            itemCount: postService
+                                                    .myPosts.length +
+                                                1, // +1 para el indicador de progreso
+                                            itemBuilder: (context, index) {
+                                              if (index <
+                                                  postService.myPosts.length) {
+                                                final post =
+                                                    postService.myPosts[index];
+                                                return PostWidget(post: post);
+                                              } else {
+                                                return _buildProgressIndicator();
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
+
                             // Contenido de la pestaña Reposts
-                            Center(
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: ListView.builder(
-                                      controller: _scrollController,
-                                      itemCount: postService.myRePosts.length +
-                                          1, // +1 para el indicador de progreso
-                                      itemBuilder: (context, index) {
-                                        if (index <
-                                            postService.myRePosts.length) {
-                                          final post =
-                                              postService.myRePosts[index];
-                                          return PostWidget(post: post);
-                                        } else {
-                                          return _buildProgressIndicator();
-                                        }
-                                      },
+                            postService.myRePosts.isEmpty
+                                ? noPosts(size)
+                                : Center(
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                            controller: _scrollController,
+                                            itemCount: postService
+                                                    .myRePosts.length +
+                                                1, // +1 para el indicador de progreso
+                                            itemBuilder: (context, index) {
+                                              if (index <
+                                                  postService
+                                                      .myRePosts.length) {
+                                                final post = postService
+                                                    .myRePosts[index];
+                                                return PostWidget(post: post);
+                                              } else {
+                                                return _buildProgressIndicator();
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
 
                             // Contenido de la pestaña Communities
                             Center(
@@ -155,6 +163,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Padding noPosts(Size size) {
+    return Padding(
+                                  padding: EdgeInsets.only(
+                                      top: size.height *
+                                          0.15), // Ajusta el espacio superior según sea necesario
+                                  child: Text(
+                                    'There are no posts at the moment',
+                                    textAlign: TextAlign
+                                        .center, // Alinea el texto al centro
+                                  ),
+                                );
+  }
+
+  
+
   Widget _buildProgressIndicator() {
     return _loading
         ? Padding(
@@ -163,37 +186,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           )
         : Container();
   }
-  /*
-Center(
-  child: NotificationListener<ScrollNotification>(
-    onNotification: (ScrollNotification scrollInfo) {
-      if (!postService.isLoading &&
-          scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-        // Reached the end of the list, load more data if there is more to load
-        if (!postService.allDataLoaded) {
-          postService.findMyRePosts(userService.user.id);
-        }
-      }
-      return true;
-    },
-    child: ListView.builder(
-      itemCount: postService.myRePosts.posts.length + (postService.allDataLoaded ? 0 : 1), // +1 for loading indicator if more data can be loaded
-      itemBuilder: (context, index) {
-        if (index < postService.myRePosts.posts.length) {
-          final post = postService.myRePosts.posts[index];
-          return PostWidget(post: post);
-        } else if (postService.isLoading) {
-          // Show a loading indicator while more content is being loaded
-          return CircularProgressIndicator();
-        } else {
-          // If isLoading is false and all data is loaded, show an empty container
-          return Container();
-        }
-      },
-    ),
-  ),
-),
-  */
 
   Column basicInfo(UserService userService, Size size) {
     return Column(

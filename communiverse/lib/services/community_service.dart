@@ -29,12 +29,12 @@ class CommunityService extends ChangeNotifier {
     }
   }
 
-    /*getMyCommunities() async {
+    getMyCommunities(String id) async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;
     CommuniverseProvider.apiKey = '${userLoginRequestService.type} ${userLoginRequestService.token}';
     if (userLoginRequestService != null) {
       final jsonData = await CommuniverseProvider.getJsonData(
-          '/community/myCommunities');
+          '/community/mycommunities/${id}');
       final List<dynamic> jsonList = json.decode(jsonData);
       List<Community> newMyCommunities =
           jsonList.map((json) => Community.fromJson(json)).toList();
@@ -45,6 +45,6 @@ class CommunityService extends ChangeNotifier {
         notifyListeners();
       }
     }
-  }*/
+  }
 
 }

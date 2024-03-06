@@ -62,7 +62,12 @@ class PostWidget extends StatelessWidget {
   // Almacenar los datos recuperados en variables locales
   final authorFuture = postService.findPostAuthor(post.authorId);
   final communityFuture = postService.findPostCommunity(post.communityId);
-  final repostUserFuture = postService.findPostAuthor(post.repostUserId ?? '');
+  final repostUserId = post.repostUserId;
+  
+  Future<User>? repostUserFuture;
+  if (repostUserId != null && repostUserId != '') {
+    repostUserFuture = postService.findRePostAuthor(repostUserId);
+  }
 
   return FutureBuilder<User>(
     future: authorFuture,
@@ -118,8 +123,9 @@ class PostWidget extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 5),
-                          if (repostUser?.username != null &&
-                              repostUser?.username != '')
+                          if (repostUser != null &&
+                              repostUser.username != null &&
+                              repostUser.username != '')
                             Row(
                               children: [
                                 Icon(
@@ -129,7 +135,7 @@ class PostWidget extends StatelessWidget {
                                 ),
                                 SizedBox(width: 3),
                                 Text(
-                                  '${repostUser?.username}',
+                                  '${repostUser.username}',
                                   style: TextStyle(
                                     color: Colors.grey,
                                   ),

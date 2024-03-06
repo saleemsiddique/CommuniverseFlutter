@@ -20,12 +20,15 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   bool _isPasswordVisible = true;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(backgroundColor: Color.fromRGBO(86, 73, 87, 1),
-      body: SingleChildScrollView( // Wrap your form with SingleChildScrollView
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(86, 73, 87, 1),
+      body: SingleChildScrollView(
+        // Wrap your form with SingleChildScrollView
         child: Form(
           autovalidateMode: AutovalidateMode.onUserInteraction,
           key: _formKey,
@@ -38,7 +41,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 }),
                 SizedBox(height: size.height * 0.02),
                 names("Last Name", _lastNameController, (value) {
-                  Provider.of<UserService>(context, listen: false).lastName = value;
+                  Provider.of<UserService>(context, listen: false).lastName =
+                      value;
                 }),
                 SizedBox(height: size.height * 0.02),
                 email(),
@@ -78,8 +82,8 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       onChanged: onChanged,
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return '$field required';
+        if (value == null || value.isEmpty || value.length < 3) {
+          return 'Valid $field required (min 3 characters)';
         }
         return null;
       },
@@ -105,6 +109,12 @@ class _SignupScreenState extends State<SignupScreen> {
         if (value == null || value.isEmpty) {
           return 'Email required';
         }
+        // Validar el formato del correo electrónico utilizando una expresión regular
+        String emailRegex = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+        RegExp regExp = RegExp(emailRegex);
+        if (!regExp.hasMatch(value)) {
+          return 'Invalid email format';
+        }
         return null;
       },
     );
@@ -126,8 +136,8 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       onChanged: (value) => userService.username = value,
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Username required';
+        if (value == null || value.isEmpty || value.length < 3) {
+          return 'Valid username required (min 3 characters)';
         }
         return null;
       },
@@ -165,8 +175,8 @@ class _SignupScreenState extends State<SignupScreen> {
       obscureText: _isPasswordVisible,
       onChanged: (value) => userService.password = value,
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Password required';
+        if (value == null || value.isEmpty || value.length < 6) {
+          return 'Valid password required (min 6 characters)';
         }
         return null;
       },
@@ -211,7 +221,12 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   ElevatedButton signupButton(BuildContext context) {
-    final userService = Provider.of<UserService>(context, listen: false);
+    final userService = Provider.of<UserService>(context, listen: true);
+    final postService = Provider.of<PostService>(context, listen: false);
+    final userLoginRequestService =
+        Provider.of<UserLoginRequestService>(context, listen: true);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
     return ElevatedButton(
       style: ButtonStyle(
         minimumSize: MaterialStateProperty.all<Size>(
@@ -225,35 +240,56 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
       ),
-      onPressed: () async {
-        if (_formKey.currentState!.validate()) {
-          Map<String, dynamic> credentials = userService.toJson();
-          print(credentials);
-          try {
-            await userService.signUp(credentials);
-            Navigator.of(context).pushNamed('home');
-          } catch (error) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text("Sign Up Error"),
-                  content: Text(error.toString()),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("Accept"),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        }
-      },
-      child: Text('Sign up'),
+      onPressed: _isLoading
+          ? null
+          : () async {
+              if (_formKey.currentState!.validate()) {
+                setState(() {
+                  _isLoading = true;
+                });
+                Map<String, dynamic> credentials = userService.toJson();
+                Map<String, dynamic> credentialsLogIn = {
+                  "emailOrUsername": "${_emailController.text}",
+                  "password": "${_passwordController.text}"
+                };
+                print(credentials);
+                print(credentialsLogIn);
+                try {
+                  await userService.signUp(credentials);
+                  await userLoginRequestService.signIn(credentialsLogIn);
+                  await userService.findUserById(
+                      UserLoginRequestService.userLoginRequest.id);
+                  await postService.findMyPostsPaged(userService.user.id);
+                  await postService.findMyRePostsPaged(userService.user.id);
+                  await communityService.getTop5Communities();
+                  await communityService.getMyCommunities(userService.user.id);
+                  _isLoading = false;
+                  Navigator.of(context).pushReplacementNamed('home');
+                } catch (error) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Sign Up Error"),
+                        content: Text(error.toString()),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            },
+                            child: Text("Accept"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              }
+            },
+      child: _isLoading ? Text('Signing up...') : Text('Sign up'),
     );
   }
 }
