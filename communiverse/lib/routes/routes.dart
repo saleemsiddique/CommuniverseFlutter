@@ -8,6 +8,5 @@ Map<String, WidgetBuilder> getApplicationRoutes() {
   return <String, WidgetBuilder>{
     '/': (BuildContext context) => AccessScreen(),
     'home': (BuildContext context) => CustomBottomNavigationBar(),
-    'edit': (BuildContext context) => ProfileEditScreen(),
   };
 }
