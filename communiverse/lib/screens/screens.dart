@@ -5,3 +5,6 @@ export 'package:communiverse/screens/home_screen.dart';
 export 'package:communiverse/screens/user_screen.dart';
 export 'package:communiverse/screens/fullscreen_image.dart';
 export 'package:communiverse/screens/fullscreen_video.dart';
+export 'package:communiverse/screens/myposts.dart';
+export 'package:communiverse/screens/myreposts.dart';
+export 'package:communiverse/screens/mycommunities.dart';

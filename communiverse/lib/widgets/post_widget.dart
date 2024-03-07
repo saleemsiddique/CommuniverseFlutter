@@ -18,7 +18,7 @@ class PostWidget extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(7),
       child: SizedBox(
-        height: size.height * 0.35,
+        height: size.height * 0.36,
         child: Card(
           color: Color.fromRGBO(46, 30, 47, 1),
           elevation: 3,
@@ -41,7 +41,8 @@ class PostWidget extends StatelessWidget {
                       ] else ...[
                         _buildHeader(context),
                         SizedBox(height: 15),
-                        _buildQuizz(context, post)
+                        _buildQuizz(context, post),
+                        SizedBox(height: 1.4),
                       ]
                     ],
                   ),
@@ -55,108 +56,106 @@ class PostWidget extends StatelessWidget {
     );
   }
 
-  
   Widget _buildHeader(BuildContext context) {
-  final postService = Provider.of<PostService>(context, listen: false);
+    final postService = Provider.of<PostService>(context, listen: false);
 
-  // Almacenar los datos recuperados en variables locales
-  final authorFuture = postService.findPostAuthor(post.authorId);
-  final communityFuture = postService.findPostCommunity(post.communityId);
-  final repostUserId = post.repostUserId;
-  
-  Future<User>? repostUserFuture;
-  if (repostUserId != null && repostUserId != '') {
-    repostUserFuture = postService.findRePostAuthor(repostUserId);
-  }
+    // Almacenar los datos recuperados en variables locales
+    final authorFuture = postService.findPostAuthor(post.authorId);
+    final communityFuture = postService.findPostCommunity(post.communityId);
+    final repostUserId = post.repostUserId;
 
-  return FutureBuilder<User>(
-    future: authorFuture,
-    builder: (context, snapshotUser) {
-      if (snapshotUser.connectionState == ConnectionState.waiting) {
-        return Container();
-      } else if (snapshotUser.hasError) {
-        return Text('Error: ${snapshotUser.error}');
-      } else {
-        final author = snapshotUser.data!;
-        return FutureBuilder<Community>(
-          future: communityFuture,
-          builder: (context, snapshotCommunity) {
-            if (snapshotCommunity.connectionState == ConnectionState.waiting) {
-              return Container();
-            } else if (snapshotCommunity.hasError) {
-              return Text('Error: ${snapshotCommunity.error}');
-            } else {
-              final community = snapshotCommunity.data!;
-              return FutureBuilder<User>(
-                future: repostUserFuture,
-                builder: (context, snapshotRepostUser) {
-                  final repostUser = snapshotRepostUser.data;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${author.name} ${author.lastName}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+    Future<User>? repostUserFuture;
+    if (repostUserId != null && repostUserId != '') {
+      repostUserFuture = postService.findRePostAuthor(repostUserId);
+    }
+
+    return FutureBuilder<User>(
+      future: authorFuture,
+      builder: (context, snapshotUser) {
+        if (snapshotUser.connectionState == ConnectionState.waiting) {
+          return Container();
+        } else if (snapshotUser.hasError) {
+          return Text('Error: ${snapshotUser.error}');
+        } else {
+          final author = snapshotUser.data!;
+          return FutureBuilder<Community>(
+            future: communityFuture,
+            builder: (context, snapshotCommunity) {
+              if (snapshotCommunity.connectionState ==
+                  ConnectionState.waiting) {
+                return Container();
+              } else if (snapshotCommunity.hasError) {
+                return Text('Error: ${snapshotCommunity.error}');
+              } else {
+                final community = snapshotCommunity.data!;
+                return FutureBuilder<User>(
+                  future: repostUserFuture,
+                  builder: (context, snapshotRepostUser) {
+                    final repostUser = snapshotRepostUser.data;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${author.name} ${author.lastName}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '${author.username}',
-                            style: TextStyle(
-                              color: Colors.grey,
+                            Text(
+                              '${author.username}',
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'For: ${community.name}',
-                            style: TextStyle(
-                              color: Colors.grey,
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'For: ${community.name}',
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 5),
-                          if (repostUser != null &&
-                              repostUser.username != null &&
-                              repostUser.username != '')
-                            Row(
-                              children: [
-                                Icon(
-                                  size: 15,
-                                  Icons.repeat,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(width: 3),
-                                Text(
-                                  '${repostUser.username}',
-                                  style: TextStyle(
+                            SizedBox(height: 5),
+                            if (repostUser != null &&
+                                repostUser.username != null &&
+                                repostUser.username != '')
+                              Row(
+                                children: [
+                                  Icon(
+                                    size: 15,
+                                    Icons.repeat,
                                     color: Colors.grey,
                                   ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          },
-        );
-      }
-    },
-  );
-}
-
-
+                                  SizedBox(width: 3),
+                                  Text(
+                                    '${repostUser.username}',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+            },
+          );
+        }
+      },
+    );
+  }
 
   Row _buildInteractions() {
     return Row(
@@ -225,57 +224,57 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _buildMedia() {
-  int videoIndex = 0;
+    int videoIndex = 0;
 
-  return SizedBox(
-    height: 50,
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: post.photos.length + post.videos.length,
-      itemBuilder: (context, index) {
-        if (index < post.photos.length) {
-          // Imágenes
-          return GestureDetector(
-            onTap: () {
-              Utils.openImageInFullScreen(context, post.photos[index], post);
-            },
-            child: Padding(
-              padding: EdgeInsets.only(right: 8.0),
-              child: Image.network(
-                post.photos[index],
-                width: 50,
-                fit: BoxFit.cover,
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: post.photos.length + post.videos.length,
+        itemBuilder: (context, index) {
+          if (index < post.photos.length) {
+            // Imágenes
+            return GestureDetector(
+              onTap: () {
+                Utils.openImageInFullScreen(context, post.photos[index], post);
+              },
+              child: Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Image.network(
+                  post.photos[index],
+                  width: 50,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-          );
-        } else {
-          // Videos
-          return GestureDetector(
-            onTap: () {
-              // Obtener el índice del video dentro de la lista de videos
-              videoIndex = index - post.photos.length;
-              Utils.openVideoInFullScreen(context, post.videos[videoIndex], post);
-            },
-            child: Padding(
-              padding: EdgeInsets.only(right: 8.0),
-              child: Container(
-                color: Colors.grey, // Placeholder color
-                child: Center(
-                  child: Icon(
-                    Icons.play_circle_fill,
-                    size: 50,
-                    color: Colors.white,
+            );
+          } else {
+            // Videos
+            return GestureDetector(
+              onTap: () {
+                // Obtener el índice del video dentro de la lista de videos
+                videoIndex = index - post.photos.length;
+                Utils.openVideoInFullScreen(
+                    context, post.videos[videoIndex], post);
+              },
+              child: Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Container(
+                  color: Colors.grey, // Placeholder color
+                  child: Center(
+                    child: Icon(
+                      Icons.play_circle_fill,
+                      size: 50,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }
-      },
-    ),
-  );
-}
-
+            );
+          }
+        },
+      ),
+    );
+  }
 
   Widget _buildQuizz(BuildContext context, Post post) {
     final Size size = MediaQuery.of(context).size;

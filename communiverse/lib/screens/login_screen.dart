@@ -169,7 +169,7 @@ class _LoginFormState extends State<LoginForm> {
                   await communityService.getTop5Communities();
                   await communityService.getMyCommunities(userService.user.id);
                   _isLoading = false;
-                  Navigator.of(context).pushReplacementNamed('home');
+                  Navigator.of(context).pushNamed('home');
                 } catch (error) {
                   showDialog(
                     context: context,

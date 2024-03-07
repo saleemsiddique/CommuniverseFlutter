@@ -41,6 +41,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       postService.currentRepostPage = 0;
       postService.findMyPostsPaged(userService.user.id);
       postService.findMyRePostsPaged(userService.user.id);
+      communityService.getMyCommunities(userService.user.id);
     }
     setState(() {
       _selectedIndex = index;
