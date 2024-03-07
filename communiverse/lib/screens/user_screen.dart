@@ -1,7 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -13,6 +13,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _currentIndex = 0;
   final List<String> _tabs = ['Posts', 'Reposts', 'Communities'];
   bool _loading = false;
+  bool _editingProfile = false;
 
   ScrollController _scrollController = ScrollController();
 
@@ -71,51 +72,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               basicInfo(userService, size),
               SizedBox(height: size.height * 0.05),
-              DefaultTabController(
-                length: _tabs.length,
-                child: Container(
-                  height: size.height * 0.9,
-                  color: Color.fromRGBO(165, 91, 194, 0.2),
-                  child: Column(
-                    children: [
-                      TabBar(
-                        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                        onTap: (index) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                        indicatorColor: Colors.white,
-                      ),
-                      Expanded(
-                        child: TabBarView(
+              _editingProfile
+                  ? ProfileEditScreen()
+                  : DefaultTabController(
+                      length: _tabs.length,
+                      child: Container(
+                        height: size.height * 0.9,
+                        color: Color.fromRGBO(165, 91, 194, 0.2),
+                        child: Column(
                           children: [
-                            // Contenido de la pestaña Posts
-                            postService.myPosts.isEmpty
-                                ? noPosts(size)
-                                : Center(
-                              child: MyPosts(scrollController: _scrollController, buildProgressIndicator: () => _buildProgressIndicator(),),
+                            TabBar(
+                              tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                              onTap: (index) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              },
+                              indicatorColor: Colors.white,
                             ),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  // Contenido de la pestaña Posts
+                                  postService.myPosts.isEmpty
+                                      ? noPosts(size)
+                                      : Center(
+                                          child: MyPosts(
+                                            scrollController: _scrollController,
+                                            buildProgressIndicator:
+                                                () => _buildProgressIndicator(),
+                                          ),
+                                        ),
 
-                            // Contenido de la pestaña Reposts
-                            postService.myRePosts.isEmpty
-                                ? noPosts(size)
-                                : Center(
-                              child: MyReposts(scrollController: _scrollController, buildProgressIndicator: () => _buildProgressIndicator(),),
-                            ),
-                            // Contenido de la pestaña Communities
-                            postService.myRePosts.isEmpty
-                                ? noPosts(size)
-                                : Center(
-                              child: MyCommunitiesWidget(),
+                                  // Contenido de la pestaña Reposts
+                                  postService.myRePosts.isEmpty
+                                      ? noPosts(size)
+                                      : Center(
+                                          child: MyReposts(
+                                            scrollController: _scrollController,
+                                            buildProgressIndicator:
+                                                () => _buildProgressIndicator(),
+                                          ),
+                                        ),
+                                  // Contenido de la pestaña Communities
+                                  postService.myRePosts.isEmpty
+                                      ? noPosts(size)
+                                      : Center(
+                                          child: MyCommunitiesWidget(),
+                                        ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ],
           ),
         ),
@@ -123,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-    Widget _buildProgressIndicator() {
+  Widget _buildProgressIndicator() {
     return _loading
         ? Padding(
             padding: const EdgeInsets.all(8.0),
@@ -148,74 +159,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+        Stack(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                    ),
+                    CircleAvatar(
+                      backgroundColor: Colors.black,
+                      radius: 55,
+                      backgroundImage: userService.user.photo != ''
+                          ? NetworkImage(userService.user.photo)
+                          : AssetImage('assets/no-user.png')
+                              as ImageProvider<Object>?,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      userService.user.username,
+                      style: TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+                SizedBox(width: size.width * 0.05),
+                Container(
+                  width: size.width *
+                      0.44, // Set your desired width here
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoLabel('Name'),
+                        SizedBox(height: 2),
+                        Text(
+                          '${userService.user.name} ${userService.user.lastName}',
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Color.fromRGBO(222, 139, 255, 1)),
+                        ),
+                        _buildInfoLabel('Description'),
+                        SizedBox(height: 2),
+                        Text(
+                          userService.user.biography,
+                          overflow: TextOverflow.clip,
+                          maxLines: 5,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color.fromRGBO(222, 139, 255, 1),
+                          ),
+                        ),
+                        _buildInfoLabel('Level'),
+                        SizedBox(height: 2),
+                        Text(
+                          '${userService.user.userStats.level}',
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Color.fromRGBO(222, 139, 255, 1)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Row(
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.black,
-                    radius: 55,
-                    backgroundImage: userService.user.photo != ''
-                        ? NetworkImage(userService.user.photo)
-                        : AssetImage('assets/no-user.png')
-                            as ImageProvider<Object>?,
+                  IconButton(
+                    icon: _editingProfile ? Icon(Icons.close, color: Colors.white) : Icon(Icons.edit, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        _editingProfile = !_editingProfile;
+                      });
+                    },
                   ),
-                  SizedBox(
-                    height: 10,
+                  IconButton(
+                    icon: _editingProfile ? Icon(Icons.check, color: Colors.white) : Icon(Icons.settings, color: Colors.white),
+                    onPressed: () {
+                      // Acción al presionar el botón de ajustes
+                    },
                   ),
-                  Text(
-                    userService.user.username,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  )
                 ],
               ),
-              SizedBox(width: size.width * 0.05),
-              Container(
-                width: size.width * 0.44, // Set your desired width here
-                child: Padding(
-                  padding: EdgeInsets.only(left: 40),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInfoLabel('Name'),
-                      SizedBox(height: 2),
-                      Text(
-                        '${userService.user.name} ${userService.user.lastName}',
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Color.fromRGBO(222, 139, 255, 1)),
-                      ),
-                      _buildInfoLabel('Description'),
-                      SizedBox(height: 2),
-                      Text(
-                        userService.user.biography,
-                        overflow: TextOverflow.clip,
-                        maxLines: 5,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Color.fromRGBO(222, 139, 255, 1),
-                        ),
-                      ),
-                      _buildInfoLabel('Level'),
-                      SizedBox(height: 2),
-                      Text(
-                        '${userService.user.userStats.level}',
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Color.fromRGBO(222, 139, 255, 1)),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
+            ),
+          ],
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -232,7 +271,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSection(String title, String value) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8, horizontal: 30),
-      decoration: BoxDecoration(border: Border.all(color: Colors.white)),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.white, width: 0.5)),
       child: Column(
         children: [
           Text(

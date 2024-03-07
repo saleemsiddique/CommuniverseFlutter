@@ -8,3 +8,4 @@ export 'package:communiverse/screens/fullscreen_video.dart';
 export 'package:communiverse/screens/myposts.dart';
 export 'package:communiverse/screens/myreposts.dart';
 export 'package:communiverse/screens/mycommunities.dart';
+export 'package:communiverse/screens/edit_profile.dart';
