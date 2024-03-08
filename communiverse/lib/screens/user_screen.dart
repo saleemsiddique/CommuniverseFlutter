@@ -1,7 +1,8 @@
+import 'package:communiverse/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
-import 'package:communiverse/widgets/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -68,16 +69,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
-  
-  Map<String, dynamic> getEditedUserData() {
-  return {
-    'firstName': _firstNameController.text,
-    'lastName': _lastNameController.text,
-    'biography': _descriptionController.text,
-    'username': _usernameController.text,
-  };
-}
 
+  Map<String, dynamic> getEditedUserData() {
+    return {
+      'firstName': _firstNameController.text,
+      'lastName': _lastNameController.text,
+      'biography': _descriptionController.text,
+      'username': _usernameController.text,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,13 +200,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       height: 40,
                     ),
-                    CircleAvatar(
-                      backgroundColor: Colors.black,
-                      radius: 55,
-                      backgroundImage: userService.user.photo != ''
-                          ? NetworkImage(userService.user.photo)
-                          : AssetImage('assets/no-user.png')
-                              as ImageProvider<Object>?,
+                    GestureDetector(
+                      onTap: () {
+                        if (_editingProfile) {
+                          Utils().showImageOptions(context, userService, userLoginRequestService);
+                        }
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.black,
+                        radius: 55,
+                        backgroundImage: userService.user.photo.isNotEmpty
+                            ? NetworkImage(userService.user.photo)
+                            : AssetImage('assets/no-user.png')
+                                as ImageProvider<Object>?,
+                      ),
                     ),
                     SizedBox(
                       height: 10,
@@ -242,7 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Text(
                                 userService.user.biography,
                                 overflow: TextOverflow.clip,
-                                maxLines: 5,
+                                maxLines: 6,
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color.fromRGBO(222, 139, 255, 1),
@@ -283,7 +290,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.white), // Botón para guardar cambios
                       onPressed: () async {
                         // Obtener los datos editados del ProfileEditScreen
-                        print("Esta es la data para editar: ${getEditedUserData()}");
+                        print(
+                            "Esta es la data para editar: ${getEditedUserData()}");
                         Map<String, dynamic> editedData = getEditedUserData();
 
                         try {
@@ -292,7 +300,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             userService.user.id,
                             editedData,
                           );
-                          await userService.findUserById(UserLoginRequestService.userLoginRequest.id);
+                          await userService.findUserById(
+                              UserLoginRequestService.userLoginRequest.id);
                           // Realizar alguna acción después de editar el usuario, si es necesario
                           setState(() {
                             _editingProfile = !_editingProfile;

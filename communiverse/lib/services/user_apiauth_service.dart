@@ -50,7 +50,26 @@ class UserLoginRequestService extends ChangeNotifier {
           '${CommuniverseProvider.apiAuthRoutes}edit/$id', data);
           print("findByUserId1");
       Map<String, dynamic> credentials = {
-        "emailOrUsername": userForEdit.email,
+        "emailOrUsername": userLoginRequest.email,
+        "password": password
+      };
+      print(credentials);
+      await signIn(credentials);
+      notifyListeners();
+    } catch (error) {
+      // Extraer el mensaje de error de la cadena de excepción
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+    editPhotoUser(String id, Map<String, dynamic> data) async {
+    try {
+      final jsonData = await CommuniverseProvider.putJsonData(
+          '${CommuniverseProvider.apiAuthRoutes}editphoto/$id', data);
+          print("findByUserId1");
+      Map<String, dynamic> credentials = {
+        "emailOrUsername": userLoginRequest.email,
         "password": password
       };
       print(credentials);
