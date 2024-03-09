@@ -38,6 +38,16 @@ findUserById(String id) async {
   }
 }
 
+  void clearData() {
+    formKey = new GlobalKey<FormState>();
+    name = '';
+    lastName = '';
+    email = '';
+    password = '';
+    username = '';
+    user = User.empty();
+  }
+
   Map<String, dynamic> toJson() => {
         "name": name,
         "lastName": lastName,

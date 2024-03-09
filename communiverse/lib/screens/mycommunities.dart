@@ -17,7 +17,9 @@ class MyCommunitiesWidget extends StatelessWidget {
       communityPairs.add(myCommunities.sublist(i, end));
     }
 
-    return ListView.builder(
+    return Padding(
+      padding: EdgeInsets.only(bottom: 50),
+      child: ListView.builder(
       itemCount: communityPairs.length,
       itemBuilder: (context, index) {
         final communities = communityPairs[index];
@@ -28,6 +30,6 @@ class MyCommunitiesWidget extends StatelessWidget {
           }).toList(),
         );
       },
-    );
+    ));
   }
 }

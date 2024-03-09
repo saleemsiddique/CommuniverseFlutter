@@ -30,12 +30,13 @@ class CommunityCard extends StatelessWidget {
               height: 115.0,
               width: 115.0,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16.0),
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(community.photo),
-                ),
-              ),
+                  borderRadius: BorderRadius.circular(16.0),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: community.photo != ""
+                        ? NetworkImage(community.photo)
+                        : Image.asset('assets/no-image.jpg').image,
+                  )),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

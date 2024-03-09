@@ -9,3 +9,4 @@ export 'package:communiverse/screens/myposts.dart';
 export 'package:communiverse/screens/myreposts.dart';
 export 'package:communiverse/screens/mycommunities.dart';
 export 'package:communiverse/screens/edit_profile.dart';
+export 'package:communiverse/screens/settings_screen.dart';

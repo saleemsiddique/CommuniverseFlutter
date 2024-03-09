@@ -82,6 +82,15 @@ class UserLoginRequestService extends ChangeNotifier {
     }
   }
 
+  void clearData() {
+    formKey = new GlobalKey<FormState>();
+    emailOrUsername = '';
+    password = '';
+    userLoginRequest = UserLoginRequest.empty();
+    userForEdit = User.empty();
+    isLoadingForgotPassword = false;
+  }
+
   Map<String, dynamic> toJson() => {
         "emailOrUsername": emailOrUsername,
         "password": password,

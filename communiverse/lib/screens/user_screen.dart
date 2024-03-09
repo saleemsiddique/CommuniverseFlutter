@@ -124,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 children: [
                                   // Contenido de la pestaña Posts
                                   postService.myPosts.isEmpty
-                                      ? noPosts(size)
+                                      ? noPosts(size, "posts")
                                       : Center(
                                           child: MyPosts(
                                             scrollController: _scrollController,
@@ -135,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                   // Contenido de la pestaña Reposts
                                   postService.myRePosts.isEmpty
-                                      ? noPosts(size)
+                                      ? noPosts(size, "reposts")
                                       : Center(
                                           child: MyReposts(
                                             scrollController: _scrollController,
@@ -145,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                   // Contenido de la pestaña Communities
                                   postService.myRePosts.isEmpty
-                                      ? noPosts(size)
+                                      ? noPosts(size, "communities")
                                       : Center(
                                           child: MyCommunitiesWidget(),
                                         ),
@@ -172,13 +172,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         : Container();
   }
 
-  Padding noPosts(Size size) {
+  Padding noPosts(Size size, String content) {
     return Padding(
       padding: EdgeInsets.only(
           top: size.height *
               0.15), // Ajusta el espacio superior según sea necesario
       child: Text(
-        'There are no posts at the moment',
+        'There are no $content at the moment',
         textAlign: TextAlign.center, // Alinea el texto al centro
       ),
     );
@@ -203,7 +203,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     GestureDetector(
                       onTap: () {
                         if (_editingProfile) {
-                          Utils().showImageOptions(context, userService, userLoginRequestService);
+                          Utils().showImageOptions(
+                              context, userService, userLoginRequestService);
                         }
                       },
                       child: CircleAvatar(
@@ -315,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     IconButton(
                       icon: Icon(Icons.settings, color: Colors.white),
                       onPressed: () {
-                        // Acción al presionar el botón de ajustes
+                        Navigator.pushNamed(context, 'settings');
                       },
                     ),
                 ],

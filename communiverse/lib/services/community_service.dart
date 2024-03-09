@@ -47,4 +47,10 @@ class CommunityService extends ChangeNotifier {
     }
   }
 
+  void clearData() {
+    formKey = new GlobalKey<FormState>();
+    top5Communities.clear();
+    myCommunities.clear();
+  }
+
 }

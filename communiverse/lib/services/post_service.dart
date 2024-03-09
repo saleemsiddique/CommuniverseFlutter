@@ -125,4 +125,12 @@ class PostService extends ChangeNotifier {
       throw errorMessage;
     }
   }
+
+   void clearData() {
+    formKey = new GlobalKey<FormState>();
+    myPosts.clear();
+    myRePosts.clear();
+    currentPostPage = 0;
+    currentRepostPage = 0;
+  }
 }
