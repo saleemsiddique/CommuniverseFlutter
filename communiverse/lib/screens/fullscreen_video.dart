@@ -36,7 +36,7 @@ class FullScreenVideo extends StatelessWidget {
                 _buildInteractionIconButton(
                     Icons.favorite_border, post.postInteractions.likes),
                 _buildInteractionIconButton(
-                    Icons.comment, post.postInteractions.comments.length),
+                    Icons.comment, post.postInteractions.commentsId.length),
                 _buildInteractionIconButton(
                     Icons.repeat, post.postInteractions.reposts),
               ],

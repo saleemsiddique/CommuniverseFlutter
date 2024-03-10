@@ -14,47 +14,60 @@ class PostWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final postService = Provider.of<PostService>(context, listen: true);
     final Size size = MediaQuery.of(context).size;
-    return Padding(
-      padding: EdgeInsets.all(7),
-      child: SizedBox(
-        height: size.height * 0.36,
-        child: Card(
-          color: Color.fromRGBO(46, 30, 47, 1),
-          elevation: 3,
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (post.quizz == Quizz.empty()) ...[
-                        _buildHeader(context),
-                        if (post.content != '') _buildContent(),
-                        SizedBox(height: 10),
-                        if (post.photos.isNotEmpty || post.videos.isNotEmpty)
-                          _buildMedia(),
-                      ] else ...[
-                        _buildHeader(context),
-                        SizedBox(height: 15),
-                        _buildQuizz(context, post),
-                        SizedBox(height: 1.4),
-                      ]
-                    ],
+    return GestureDetector(
+      onTap: () {
+        // Navegar a la pantalla de comentarios cuando se toque el post
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CommentsScreen(post: post, postService: postService),
+          ),
+        );
+      },
+      child: Padding(
+        padding: EdgeInsets.all(7),
+        child: SizedBox(
+          height: size.height * 0.36,
+          child: Card(
+            color: Color.fromRGBO(46, 30, 47, 1),
+            elevation: 3,
+            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (post.quizz == Quizz.empty()) ...[
+                          _buildHeader(context),
+                          if (post.content != '') _buildContent(),
+                          SizedBox(height: 10),
+                          if (post.photos.isNotEmpty || post.videos.isNotEmpty)
+                            _buildMedia(),
+                        ] else ...[
+                          _buildHeader(context),
+                          SizedBox(height: 15),
+                          _buildQuizz(context, post),
+                          SizedBox(height: 1.4),
+                        ]
+                      ],
+                    ),
                   ),
-                ),
-                _buildInteractions(),
-              ],
+                  _buildInteractions(),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+
 
   Widget _buildHeader(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: false);
@@ -171,7 +184,7 @@ class PostWidget extends StatelessWidget {
           children: [
             _buildInteractionCount(
               Icons.comment,
-              post.postInteractions.comments.length,
+              post.postInteractions.commentsId.length,
             ),
             SizedBox(width: 10),
             _buildInteractionCount(

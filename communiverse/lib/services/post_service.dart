@@ -10,6 +10,7 @@ class PostService extends ChangeNotifier {
   Post post = Post.empty();
   List<Post> myPosts = [];
   List<Post> myRePosts = [];
+  List<Post> comments = [];
   int currentPostPage = 0;
   int currentRepostPage = 0;
   int pageSize = 5;
@@ -33,19 +34,20 @@ class PostService extends ChangeNotifier {
     }
   }*/
 
-   findMyPostsPaged(String id) async {
-  try {
+  findMyPostsPaged(String id) async {
+    try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/posts/$id/$currentPostPage/$pageSize');
-      final dynamic jsonResponse = json.decode(jsonData);
-      final PostPage newPosts = PostPage.fromJson(jsonResponse);
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      List<Post> newPosts =
+          jsonResponse.map((json) => Post.fromJson(json)).toList();
 
       // Limpiar la lista si es la primera página
       if (currentPostPage == 0) {
         myPosts.clear();
       }
 
-      myPosts.addAll(newPosts.posts);
+      myPosts.addAll(newPosts);
       currentPostPage++;
 
       notifyListeners();
@@ -59,16 +61,40 @@ class PostService extends ChangeNotifier {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/reposts/$id/$currentRepostPage/$pageSize');
-      final dynamic jsonResponse = json.decode(jsonData);
-      final PostPage newRePosts = PostPage.fromJson(jsonResponse);
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      List<Post> newRePosts =
+          jsonResponse.map((json) => Post.fromJson(json)).toList();
 
       // Limpiar la lista si es la primera página
       if (currentRepostPage == 0) {
         myRePosts.clear();
       }
 
-      myRePosts.addAll(newRePosts.posts);
+      myRePosts.addAll(newRePosts);
       currentRepostPage++;
+
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  findMyCommentsPaged(String id) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          'post/comments/$id/$currentPostPage/$pageSize');
+      final dynamic jsonResponse = json.decode(jsonData);
+      List<Post> newPosts =
+          jsonResponse.map((json) => Post.fromJson(json)).toList();
+
+      // Limpiar la lista si es la primera página
+      if (currentPostPage == 0) {
+        comments.clear();
+      }
+
+      comments.addAll(newPosts);
+      currentPostPage++;
 
       notifyListeners();
     } catch (error) {
@@ -101,7 +127,7 @@ class PostService extends ChangeNotifier {
     }
   }
 
-    Future<User> findRePostAuthor(String id) async {
+  Future<User> findRePostAuthor(String id) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData('user/${id}');
       User user = User.fromJson(json.decode(jsonData));
@@ -126,10 +152,11 @@ class PostService extends ChangeNotifier {
     }
   }
 
-   void clearData() {
+  void clearData() {
     formKey = new GlobalKey<FormState>();
     myPosts.clear();
     myRePosts.clear();
+    comments.clear();
     currentPostPage = 0;
     currentRepostPage = 0;
   }
