@@ -30,7 +30,7 @@ class _MyPostsState extends State<MyPosts> {
                     itemBuilder: (context, index) {
                       if (index < postService.myPosts.length) {
                         final post = postService.myPosts[index];
-                        return PostWidget(post: post);
+                        return PostWidget(post: post, isExtend: false);
                       } else {
                         return widget.buildProgressIndicator();
                       }
@@ -42,5 +42,4 @@ class _MyPostsState extends State<MyPosts> {
           );
   }
   
-  // Métodos noPosts omitidos por brevedad
 }

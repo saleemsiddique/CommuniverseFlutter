@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:communiverse/extras/pager.dart';
 import 'package:communiverse/provider/provider_communiverse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,7 @@ class PostService extends ChangeNotifier {
   List<Post> comments = [];
   int currentPostPage = 0;
   int currentRepostPage = 0;
+  int currentCommentPage = 0;
   int pageSize = 5;
 
   /*findMyPosts(String id) async {
@@ -83,18 +83,17 @@ class PostService extends ChangeNotifier {
   findMyCommentsPaged(String id) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
-          'post/comments/$id/$currentPostPage/$pageSize');
-      final dynamic jsonResponse = json.decode(jsonData);
-      List<Post> newPosts =
-          jsonResponse.map((json) => Post.fromJson(json)).toList();
+          'post/comments/$id/$currentCommentPage/$pageSize');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      List<Post> newPosts = jsonResponse.map((json) => Post.fromJson(json)).toList();
 
       // Limpiar la lista si es la primera página
-      if (currentPostPage == 0) {
+      if (currentCommentPage == 0) {
         comments.clear();
       }
 
       comments.addAll(newPosts);
-      currentPostPage++;
+      currentCommentPage++;
 
       notifyListeners();
     } catch (error) {

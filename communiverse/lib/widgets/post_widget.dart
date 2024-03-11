@@ -9,15 +9,17 @@ import 'package:provider/provider.dart';
 
 class PostWidget extends StatelessWidget {
   final Post post;
-
-  const PostWidget({Key? key, required this.post}) : super(key: key);
+  final bool isExtend;
+  const PostWidget({Key? key, required this.post, required this.isExtend}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: true);
     final Size size = MediaQuery.of(context).size;
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        postService.currentCommentPage = 0;
+        await postService.findMyCommentsPaged(post.id);
         // Navegar a la pantalla de comentarios cuando se toque el post
         Navigator.push(
           context,
@@ -203,38 +205,35 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    String trimmedContent = post.content!.trim();
-    bool isLongContent = trimmedContent.length > 200;
-    final int maxCharacters = 150;
+  String trimmedContent = post.content!.trim();
+  bool isLongContent = trimmedContent.length > 200;
+  final int maxCharacters = 150;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              text: isLongContent
-                  ? trimmedContent.substring(0, maxCharacters)
-                  : trimmedContent,
-              style: TextStyle(color: Colors.white),
-              children: <TextSpan>[
-                if (isLongContent)
-                  TextSpan(
-                    text: ' Ver más',
-                    style: TextStyle(color: Colors.blue),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        // Acción para expandir o mostrar más contenido
-                      },
-                  ),
-              ],
-            ),
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: isLongContent
+                ? isExtend ? trimmedContent : trimmedContent.substring(0, maxCharacters)
+                : trimmedContent,
+            style: TextStyle(color: Colors.white),
+            children: <TextSpan>[
+              if (isLongContent && !isExtend)
+                TextSpan(
+                  text: ' Ver más',
+                  style: TextStyle(color: Colors.blue),
+                ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildMedia() {
     int videoIndex = 0;
