@@ -53,14 +53,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _loading = true;
       });
       if (_currentIndex == 0) {
-        postService.currentRepostPage = 0;
         postService.findMyPostsPaged(userService.user.id).then((_) {
           setState(() {
             _loading = false;
           });
         });
       } else if (_currentIndex == 1) {
-        postService.currentPostPage = 0;
         postService.findMyRePostsPaged(userService.user.id).then((_) {
           setState(() {
             _loading = false;
@@ -113,7 +111,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             TabBar(
                               tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
                               onTap: (index) {
-                                setState(() {
+                                setState(() async {
+                                  if (index == 0) {
+                                    postService.currentRepostPage = 0;
+                                    await postService.findMyRePostsPaged(
+                                        UserLoginRequestService
+                                            .userLoginRequest.id);
+                                  } else if (index == 1) {
+                                    postService.currentPostPage = 0;
+                                    await postService.findMyPostsPaged(
+                                        UserLoginRequestService
+                                            .userLoginRequest.id);
+                                  }
                                   _currentIndex = index;
                                 });
                               },

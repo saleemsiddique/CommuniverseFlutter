@@ -52,6 +52,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color.fromRGBO(165, 91, 194, 0.2),
         body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
             child: Column(
