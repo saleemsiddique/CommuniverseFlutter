@@ -219,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: CircleAvatar(
                         backgroundColor: Colors.black,
                         radius: 55,
-                        backgroundImage: userService.user.photo.isNotEmpty
+                        backgroundImage: userService.user.photo != ""
                             ? NetworkImage(userService.user.photo)
                             : AssetImage('assets/no-user.png')
                                 as ImageProvider<Object>?,

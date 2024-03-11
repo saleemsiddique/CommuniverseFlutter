@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:communiverse/models/models.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
@@ -30,18 +33,33 @@ class Utils {
 
   void _pickImage(ImageSource source, UserService userService,
       UserLoginRequestService userLoginRequestService) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: source,
-    );
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
 
-    if (pickedFile != null) {
-      userService.user.photo = pickedFile.path;
-      Map<String, dynamic> data = {
-        'photo': userService.user.photo,
-      };
-      print("data: $data");
-      userLoginRequestService.editPhotoUser(userService.user.id, data);
+      if (pickedFile != null) {
+        // Crear un objeto File a partir de la ruta de la imagen seleccionada
+        File imageFile = File(pickedFile.path);
+        print(pickedFile.path);
+
+        // Convertir la imagen a bytes
+        List<int> imageBytes = await imageFile.readAsBytes();
+
+        // Convertir los bytes de la imagen a base64
+        String base64Image = base64Encode(imageBytes);
+
+        Map<String, dynamic> imageData = {
+          '': base64Image, // Pasar la imagen como base64
+        };
+
+        // Llamar a la función editPhotoUser con los bytes de la imagen
+        await userLoginRequestService.editPhotoUser(
+            userService.user.id, imageData);
+        await userService
+            .findUserById(UserLoginRequestService.userLoginRequest.id);
+      }
+    } catch (error) {
+      print("ERROR EN FOTO");
     }
   }
 
@@ -130,7 +148,7 @@ class Utils {
       UserLoginRequestService userLoginRequestService) {
     userService.user.photo = ''; // Vacía el campo de la foto
     Map<String, dynamic> data = {
-      'photo': userService.user.photo,
+      '': "",
     };
     print("data: $data");
     userLoginRequestService.editPhotoUser(userService.user.id, data);
