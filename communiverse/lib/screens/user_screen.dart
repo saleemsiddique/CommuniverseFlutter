@@ -220,7 +220,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor: Colors.black,
                         radius: 55,
                         backgroundImage: userService.user.photo != ""
-                            ? NetworkImage(userService.user.photo)
+                            ? NetworkImage(
+                                "${userService.user.photo}?${DateTime.now().millisecondsSinceEpoch}")
                             : AssetImage('assets/no-user.png')
                                 as ImageProvider<Object>?,
                       ),

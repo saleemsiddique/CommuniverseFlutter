@@ -31,17 +31,17 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
 
     if (index == 0) {
       try {
-        communityService.getTop5Communities();
-        communityService.getMyCommunities(UserLoginRequestService.userLoginRequest.id);
+        /*communityService.getTop5Communities();
+        communityService.getMyCommunities(UserLoginRequestService.userLoginRequest.id);*/
       } catch (error) {
         errorTokenExpired(context);
       }
     } else if (index == 1) {
-      postService.currentPostPage = 0;
+      /*postService.currentPostPage = 0;
       postService.currentRepostPage = 0;
       postService.findMyPostsPaged(userService.user.id);
       postService.findMyRePostsPaged(userService.user.id);
-      communityService.getMyCommunities(userService.user.id);
+      communityService.getMyCommunities(userService.user.id);*/
     }
     setState(() {
       _selectedIndex = index;

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/post_service.dart';
 import 'package:communiverse/services/services.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/models/models.dart';
 import 'package:provider/provider.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class PostWidget extends StatelessWidget {
   final Post post;
@@ -16,6 +19,13 @@ class PostWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: true);
     final Size size = MediaQuery.of(context).size;
+
+    // Verificar si el post tiene media
+    final bool hasMedia = post.photos.isNotEmpty || post.videos.isNotEmpty;
+    
+    // Definir la altura del Card
+    double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.25;
+
     return GestureDetector(
       onTap: () async {
         postService.currentCommentPage = 0;
@@ -31,7 +41,7 @@ class PostWidget extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(7),
         child: SizedBox(
-          height: size.height * 0.36,
+          height: cardHeight,
           child: Card(
             color: Color.fromRGBO(46, 30, 47, 1),
             elevation: 3,
@@ -49,8 +59,7 @@ class PostWidget extends StatelessWidget {
                           _buildHeader(context),
                           if (post.content != '') _buildContent(),
                           SizedBox(height: 10),
-                          if (post.photos.isNotEmpty || post.videos.isNotEmpty)
-                            _buildMedia(),
+                          if (hasMedia) _buildMedia(),
                         ] else ...[
                           _buildHeader(context),
                           SizedBox(height: 15),
@@ -235,58 +244,83 @@ class PostWidget extends StatelessWidget {
 }
 
 
-  Widget _buildMedia() {
-    int videoIndex = 0;
+Widget _buildMedia() {
+  int videoIndex = 0;
 
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: post.photos.length + post.videos.length,
-        itemBuilder: (context, index) {
-          if (index < post.photos.length) {
-            // Imágenes
-            return GestureDetector(
-              onTap: () {
-                Utils.openImageInFullScreen(context, post.photos[index], post);
-              },
-              child: Padding(
-                padding: EdgeInsets.only(right: 8.0),
-                child: Image.network(
-                  post.photos[index],
-                  width: 50,
-                  fit: BoxFit.cover,
-                ),
+  return SizedBox(
+    height: 50,
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: post.photos.length + post.videos.length,
+      itemBuilder: (context, index) {
+        if (index < post.photos.length) {
+          // Imágenes
+          return GestureDetector(
+            onTap: () {
+              Utils.openImageInFullScreen(context, post.photos[index], post);
+            },
+            child: Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: Image.network(
+                post.photos[index],
+                width: 50,
+                fit: BoxFit.cover,
               ),
-            );
-          } else {
-            // Videos
-            return GestureDetector(
-              onTap: () {
-                // Obtener el índice del video dentro de la lista de videos
-                videoIndex = index - post.photos.length;
-                Utils.openVideoInFullScreen(
-                    context, post.videos[videoIndex], post);
-              },
-              child: Padding(
-                padding: EdgeInsets.only(right: 8.0),
-                child: Container(
-                  color: Colors.grey, // Placeholder color
-                  child: Center(
-                    child: Icon(
-                      Icons.play_circle_fill,
-                      size: 50,
-                      color: Colors.white,
+            ),
+          );
+        } else {
+          // Videos
+          return FutureBuilder<Uint8List?>(
+            future: _getVideoThumbnail(post.videos[index - post.photos.length]),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: Container(
+                    width: 50,
+                    color: Colors.grey, // Placeholder color
+                    child: Center(
+                      child: CircularProgressIndicator(), // Placeholder while loading thumbnail
                     ),
                   ),
-                ),
-              ),
-            );
-          }
-        },
-      ),
-    );
-  }
+                );
+              } else if (snapshot.hasError || snapshot.data == null) {
+                return Container(height: 20, width: 20, color: Colors.red,); // Handle error or no thumbnail available
+              } else {
+                return GestureDetector(
+                  onTap: () {
+                    Utils.openVideoInFullScreen(
+                        context, post.videos[index - post.photos.length], post);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 8.0),
+                    child: Image.memory(
+                      snapshot.data!,
+                      width: 50,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              }
+            },
+          );
+        }
+      },
+    ),
+  );
+}
+
+Future<Uint8List?> _getVideoThumbnail(String videoUrl) async {
+  print("video Url: $videoUrl");
+  // Obtener miniatura del video usando el paquete video_thumbnail
+  final thumbnail = await VideoThumbnail.thumbnailData(
+    video: videoUrl,
+    imageFormat: ImageFormat.JPEG,
+    maxWidth: 100, // Ancho máximo de la miniatura
+    quality: 25, // Calidad de la miniatura (0 - 100)
+  );
+  return thumbnail;
+}
 
   Widget _buildQuizz(BuildContext context, Post post) {
     final Size size = MediaQuery.of(context).size;

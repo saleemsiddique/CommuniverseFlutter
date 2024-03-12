@@ -43,7 +43,7 @@ dependencies:
   cached_network_image: ^3.3.1
   image_picker: ^1.0.7
   camera: ^0.10.5+5
-
+  video_thumbnail: ^0.5.3
 
 dev_dependencies:
   flutter_test:
