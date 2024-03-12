@@ -2,7 +2,6 @@ import 'package:communiverse/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,6 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _descriptionController;
   late TextEditingController _usernameController;
+  bool _imageUpdated = false;
 
   ScrollController _scrollController = ScrollController();
 
@@ -213,15 +213,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onTap: () {
                         if (_editingProfile) {
                           Utils().showImageOptions(
-                              context, userService, userLoginRequestService);
+                            context,
+                            userService,
+                            userLoginRequestService,
+                            () async {
+                              String uniqueIdentifier = DateTime.now()
+                                  .millisecondsSinceEpoch
+                                  .toString();
+                              String updatedPhotoUrl =
+                                  '${userService.user.photo}?$uniqueIdentifier';
+                              setState(() {
+                                userService.user.photo = updatedPhotoUrl;
+                              });
+                            },
+                          );
                         }
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.black,
                         radius: 55,
+                        // Usar la nueva URL con el identificador único para cargar la imagen
                         backgroundImage: userService.user.photo != ""
-                            ? NetworkImage(
-                                "${userService.user.photo}?${DateTime.now().millisecondsSinceEpoch}")
+                            ? NetworkImage(userService.user.photo)
                             : AssetImage('assets/no-user.png')
                                 as ImageProvider<Object>?,
                       ),

@@ -31,8 +31,7 @@ class Utils {
     );
   }
 
-  void _pickImage(ImageSource source, UserService userService,
-      UserLoginRequestService userLoginRequestService) async {
+  void _pickImage(ImageSource source, UserService userService, UserLoginRequestService userLoginRequestService, Function() onImageSelected) async {
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: source);
@@ -55,8 +54,10 @@ class Utils {
         // Llamar a la función editPhotoUser con los bytes de la imagen
         await userLoginRequestService.editPhotoUser(
             userService.user.id, imageData);
-        await userService
-            .findUserById(UserLoginRequestService.userLoginRequest.id);
+            await userService.findUserById(UserLoginRequestService.userLoginRequest.id);
+
+    // Llamar a la función de devolución de llamada
+    await onImageSelected();
       }
     } catch (error) {
       print("ERROR EN FOTO");
@@ -64,7 +65,7 @@ class Utils {
   }
 
   void showImageOptions(BuildContext context, UserService userService,
-      UserLoginRequestService userLoginRequestService) {
+      UserLoginRequestService userLoginRequestService, Function() onImageSelected) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.black, // Cambia el color de fondo a negro
@@ -90,7 +91,7 @@ class Utils {
                 () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery, userService,
-                      userLoginRequestService);
+                      userLoginRequestService, onImageSelected);
                 },
               ),
               Divider(
@@ -107,7 +108,7 @@ class Utils {
                 () {
                   Navigator.pop(context);
                   _pickImage(
-                      ImageSource.camera, userService, userLoginRequestService);
+                      ImageSource.camera, userService, userLoginRequestService, onImageSelected);
                 },
               ),
               Divider(
