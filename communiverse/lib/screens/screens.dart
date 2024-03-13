@@ -11,3 +11,4 @@ export 'package:communiverse/screens/mycommunities.dart';
 export 'package:communiverse/screens/edit_profile.dart';
 export 'package:communiverse/screens/settings_screen.dart';
 export 'package:communiverse/screens/comments_screen.dart';
+export 'package:communiverse/screens/create_post.dart';
