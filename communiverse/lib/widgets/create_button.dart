@@ -1,5 +1,7 @@
+import 'package:communiverse/screens/create_post.dart';
+import 'package:communiverse/services/user_service.dart';
 import 'package:flutter/material.dart';
-import 'package:defer_pointer/defer_pointer.dart';
+import 'package:provider/provider.dart';
 
 class HexagonButton extends StatefulWidget {
   final bool showMenu;
@@ -48,18 +50,21 @@ class _HexagonButtonState extends State<HexagonButton>
             return Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001) // Perspectiva cero para evitar distorsiones visuales
-                ..rotateZ(_animation.value * 0.5 * 3.14), // Reducir escala a la mitad
+                ..setEntry(3, 2,
+                    0.001) // Perspectiva cero para evitar distorsiones visuales
+                ..rotateZ(
+                    _animation.value * 0.5 * 3.14), // Reducir escala a la mitad
               child: Container(
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: widget.showMenu ? Color.fromRGBO(229, 171, 255, 1) : Color.fromRGBO(79, 40, 87, 1),
+                  color: widget.showMenu
+                      ? Color.fromRGBO(229, 171, 255, 1)
+                      : Color.fromRGBO(79, 40, 87, 1),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: Center(
-                  child: Icon(Icons.close_rounded, color: Colors.white)
-                ),
+                    child: Icon(Icons.close_rounded, color: Colors.white)),
               ),
             );
           },
@@ -74,8 +79,6 @@ class _HexagonButtonState extends State<HexagonButton>
     super.dispose();
   }
 }
-
-
 
 class MenuWidget extends StatefulWidget {
   final bool showMenu;
@@ -122,6 +125,7 @@ class _MenuWidgetState extends State<MenuWidget>
 
   @override
   Widget build(BuildContext context) {
+    final userService = Provider.of<UserService>(context, listen: true);
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
@@ -133,11 +137,11 @@ class _MenuWidgetState extends State<MenuWidget>
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                createOption("Community", 'create_post'),
+                createOption("Community", CreatePostScreen(user: userService.user)),
                 SizedBox(height: 10),
-                createOption("Post", 'create_post'),
+                createOption("Post", CreatePostScreen(user: userService.user)),
                 SizedBox(height: 10),
-                createOption("Quiz", 'create_post'),
+                createOption("Quiz", CreatePostScreen(user: userService.user)),
               ],
             ),
           ),
@@ -146,10 +150,15 @@ class _MenuWidgetState extends State<MenuWidget>
     );
   }
 
-  ElevatedButton createOption(String option, String choose_create) {
+  ElevatedButton createOption(String option, Widget choose_create) {
     return ElevatedButton(
       onPressed: () {
-        Navigator.pushNamed(context, choose_create);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  choose_create), // Reemplaza 'NextPage()' con la página a la que deseas navegar
+        );
       },
       child: SizedBox(
         height: 35,

@@ -7,6 +7,5 @@ Map<String, WidgetBuilder> getApplicationRoutes() {
     '/': (BuildContext context) => AccessScreen(),
     'home': (BuildContext context) => CustomBottomNavigationBar(),
     'settings': (BuildContext context) => SettingsScreen(),
-    'create_post': (BuildContext context) => CreatePostScreen(),
   };
 }

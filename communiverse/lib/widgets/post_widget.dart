@@ -216,7 +216,7 @@ class PostWidget extends StatelessWidget {
   Widget _buildContent() {
   String trimmedContent = post.content!.trim();
   bool isLongContent = trimmedContent.length > 200;
-  final int maxCharacters = 150;
+  final int maxCharacters = 200;
 
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),

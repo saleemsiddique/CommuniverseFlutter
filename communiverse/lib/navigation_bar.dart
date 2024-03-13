@@ -78,32 +78,35 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
               toggleMenu: _toggleMenu,
             ),
             if (_showMenu) MenuWidget(showMenu: _showMenu),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.home),
-                  onPressed: () {
-                    _onItemTapped(0);
-                  },
-                  color: _selectedIndex == 0
-                      ? Color.fromRGBO(229, 171, 255, 1)
-                      : Colors.grey,
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-                IconButton(
-                  icon: Icon(Icons.person),
-                  onPressed: () {
-                    _onItemTapped(1);
-                  },
-                  color: _selectedIndex == 1
-                      ? Color.fromRGBO(229, 171, 255, 1)
-                      : Colors.grey,
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.home),
+                    onPressed: () {
+                      _onItemTapped(0);
+                    },
+                    color: _selectedIndex == 0
+                        ? Color.fromRGBO(229, 171, 255, 1)
+                        : Colors.grey,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.person),
+                    onPressed: () {
+                      _onItemTapped(1);
+                    },
+                    color: _selectedIndex == 1
+                        ? Color.fromRGBO(229, 171, 255, 1)
+                        : Colors.grey,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
