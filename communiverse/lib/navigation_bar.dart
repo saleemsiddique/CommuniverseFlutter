@@ -60,7 +60,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 60),
         child: Stack(
-          alignment: AlignmentDirectional.center,
+          alignment: AlignmentDirectional.bottomCenter,
           clipBehavior: Clip.none,
           children: <Widget>[
             Container(

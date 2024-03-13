@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
+import 'package:defer_pointer/defer_pointer.dart';
 
 class HexagonButton extends StatefulWidget {
   final bool showMenu;
@@ -87,7 +86,8 @@ class MenuWidget extends StatefulWidget {
   _MenuWidgetState createState() => _MenuWidgetState();
 }
 
-class _MenuWidgetState extends State<MenuWidget> with SingleTickerProviderStateMixin {
+class _MenuWidgetState extends State<MenuWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -98,7 +98,7 @@ class _MenuWidgetState extends State<MenuWidget> with SingleTickerProviderStateM
       vsync: this,
       duration: Duration(milliseconds: 200),
     );
-    _animation = Tween<double>(begin: 1.0, end: 0.7).animate(_controller);
+    _animation = Tween<double>(begin: 0.3, end: 0.7).animate(_controller);
     if (widget.showMenu) {
       _controller.forward();
     }
@@ -125,35 +125,45 @@ class _MenuWidgetState extends State<MenuWidget> with SingleTickerProviderStateM
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        return Positioned(
-          bottom: 90 + (100 * (1 - _animation.value)), // Adjusts the position of the popup menu
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              createOption("Community"),
-              SizedBox(height: 10),
-              createOption("Post"),
-              SizedBox(height: 10),
-              createOption("Quiz")
-            ],
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Transform.translate(
+            offset: Offset(0.0, -150 + (100 * (1 - _animation.value))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                createOption("Community", 'create_post'),
+                SizedBox(height: 10),
+                createOption("Post", 'create_post'),
+                SizedBox(height: 10),
+                createOption("Quiz", 'create_post'),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  ElevatedButton createOption(String option) {
+  ElevatedButton createOption(String option, String choose_create) {
     return ElevatedButton(
-              onPressed: () {},
-              child: SizedBox(
-                height: 35,
-                width: 120,
-                child: Center(child: Text(option, style: TextStyle(color: Colors.black,))),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(229, 171, 255, 1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-              ),
-            );
+      onPressed: () {
+        Navigator.pushNamed(context, choose_create);
+      },
+      child: SizedBox(
+        height: 35,
+        width: 120,
+        child: Center(
+          child: Text(option, style: TextStyle(color: Colors.black)),
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color.fromRGBO(229, 171, 255, 1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+    );
   }
 }
