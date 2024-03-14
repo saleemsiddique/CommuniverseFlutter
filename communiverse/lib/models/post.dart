@@ -149,7 +149,7 @@ class Quizz {
       );
 
   Map<String, dynamic> toJson() => {
-        "_id": id,
+        "id": id,
         "description": description,
         "questions": List<dynamic>.from(questions.map((x) => x.toJson())),
       };

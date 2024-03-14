@@ -6,6 +6,9 @@ import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_video_info/flutter_video_info.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class Utils {
   static void openImageInFullScreen(
@@ -31,7 +34,11 @@ class Utils {
     );
   }
 
-  void _pickImage(ImageSource source, UserService userService, UserLoginRequestService userLoginRequestService, Function() onImageSelected) async {
+  void _pickImage(
+      ImageSource source,
+      UserService userService,
+      UserLoginRequestService userLoginRequestService,
+      Function() onImageSelected) async {
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: source);
@@ -54,18 +61,22 @@ class Utils {
         // Llamar a la función editPhotoUser con los bytes de la imagen
         await userLoginRequestService.editPhotoUser(
             userService.user.id, imageData);
-            await userService.findUserById(UserLoginRequestService.userLoginRequest.id);
+        await userService
+            .findUserById(UserLoginRequestService.userLoginRequest.id);
 
-    // Llamar a la función de devolución de llamada
-    await onImageSelected();
+        // Llamar a la función de devolución de llamada
+        await onImageSelected();
       }
     } catch (error) {
       print("ERROR EN FOTO");
     }
   }
 
-  void showImageOptions(BuildContext context, UserService userService,
-      UserLoginRequestService userLoginRequestService, Function() onImageSelected) {
+  void showImageOptions(
+      BuildContext context,
+      UserService userService,
+      UserLoginRequestService userLoginRequestService,
+      Function() onImageSelected) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.black, // Cambia el color de fondo a negro
@@ -107,8 +118,8 @@ class Utils {
                         color: Colors.white)), // Texto para tomar una foto
                 () {
                   Navigator.pop(context);
-                  _pickImage(
-                      ImageSource.camera, userService, userLoginRequestService, onImageSelected);
+                  _pickImage(ImageSource.camera, userService,
+                      userLoginRequestService, onImageSelected);
                 },
               ),
               Divider(
@@ -132,6 +143,62 @@ class Utils {
         );
       },
     );
+  }
+
+  static String fileToBase64(File file) {
+    List<int> fileBytes = file.readAsBytesSync();
+    String base64Image = base64Encode(fileBytes);
+    return base64Image;
+  }
+
+  static List<String> filesToBase64List(List<File> files) {
+    List<String> base64List = [];
+    for (File file in files) {
+      base64List.add(fileToBase64(file));
+    }
+    return base64List;
+  }
+
+  static Future<double?> getVideoDuration(String videoUrl) async {
+    try {
+      final info = FlutterVideoInfo();
+      final videoFile = await _downloadFile(videoUrl);
+      if (videoFile != null) {
+        final videoInfo = await info.getVideoInfo(videoFile.path);
+        await videoFile.delete(); // Borra el archivo temporal después de obtener la información del video
+        return videoInfo!.duration;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error obteniendo información del video: $e");
+      return null;
+    }
+  }
+
+  static Future<File?> _downloadFile(String url) async {
+    try {
+      final response = await http.get(Uri.parse(url));
+      final bytes = response.bodyBytes;
+      final tempDir = await getTemporaryDirectory();
+      final filePath = '${tempDir.path}/temp_video.mp4';
+      final file = File(filePath);
+      await file.writeAsBytes(bytes);
+      return file;
+    } catch (e) {
+      print("Error descargando el archivo: $e");
+      return null;
+    }
+  }
+
+    static String formatDuration(double? milliseconds) {
+    print("miliseconds: $milliseconds");
+    if (milliseconds != null) {
+      Duration duration = Duration(milliseconds: milliseconds.floor());
+      return "${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}";
+    } else {
+      return ""; // O cualquier valor predeterminado que desees
+    }
   }
 
   Widget _buildOption(

@@ -61,7 +61,7 @@ class PostService extends ChangeNotifier {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/reposts/$id/$currentRepostPage/$pageSize');
-          print(jsonData);
+      print(jsonData);
       final List<dynamic> jsonResponse = json.decode(jsonData);
       List<Post> newRePosts =
           jsonResponse.map((json) => Post.fromJson(json)).toList();
@@ -86,7 +86,8 @@ class PostService extends ChangeNotifier {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/comments/$id/$currentCommentPage/$pageSize');
       final List<dynamic> jsonResponse = json.decode(jsonData);
-      List<Post> newPosts = jsonResponse.map((json) => Post.fromJson(json)).toList();
+      List<Post> newPosts =
+          jsonResponse.map((json) => Post.fromJson(json)).toList();
 
       // Limpiar la lista si es la primera página
       if (currentCommentPage == 0) {
@@ -146,6 +147,16 @@ class PostService extends ChangeNotifier {
       Community community = Community.fromJson(json.decode(jsonData));
       print("Este es el community del post: $community");
       return community;
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  Future<void> postPost(Map<String, dynamic> data) async {
+    try {
+      final jsonData = await CommuniverseProvider.postJsonData('post', data);
+      notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
       throw errorMessage;

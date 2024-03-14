@@ -21,7 +21,7 @@ class CommuniverseProvider extends ChangeNotifier {
     String jsonData = json.encode(data);
     try {
       final response = await http.post(url, headers: headers, body: jsonData);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         print('Solicitud POST exitosa');
         print(response.body);
         return response.body;
@@ -81,7 +81,7 @@ class CommuniverseProvider extends ChangeNotifier {
     String jsonData = json.encode(data);
     try {
       final response = await http.put(url, headers: headers, body: jsonData);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         print('Solicitud exitosa');
         print(response.body);
         return response.body;

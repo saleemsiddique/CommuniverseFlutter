@@ -13,7 +13,8 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 class PostWidget extends StatelessWidget {
   final Post post;
   final bool isExtend;
-  const PostWidget({Key? key, required this.post, required this.isExtend}) : super(key: key);
+  const PostWidget({Key? key, required this.post, required this.isExtend})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +23,13 @@ class PostWidget extends StatelessWidget {
 
     // Verificar si el post tiene media
     final bool hasMedia = post.photos.isNotEmpty || post.videos.isNotEmpty;
-    
+
     // Definir la altura del Card
-    double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.25;
+    double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.22;
+    // Ajustar la altura del Card si está extendido
+    if (isExtend) {
+      cardHeight *= 1.15; // Ajusta el factor según lo necesites
+    }
 
     return GestureDetector(
       onTap: () async {
@@ -34,7 +39,8 @@ class PostWidget extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CommentsScreen(post: post, postService: postService),
+            builder: (context) =>
+                CommentsScreen(post: post, postService: postService),
           ),
         );
       },
@@ -78,7 +84,6 @@ class PostWidget extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildHeader(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: false);
@@ -214,113 +219,172 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _buildContent() {
-  String trimmedContent = post.content!.trim();
-  bool isLongContent = trimmedContent.length > 200;
-  final int maxCharacters = 200;
+    String trimmedContent = post.content!.trim();
+    bool isLongContent = trimmedContent.length > 100;
+    final int maxCharacters = 100;
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            text: isLongContent
-                ? isExtend ? trimmedContent : trimmedContent.substring(0, maxCharacters)
-                : trimmedContent,
-            style: TextStyle(color: Colors.white),
-            children: <TextSpan>[
-              if (isLongContent && !isExtend)
-                TextSpan(
-                  text: ' Ver más',
-                  style: TextStyle(color: Colors.blue),
-                ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-Widget _buildMedia() {
-  int videoIndex = 0;
-
-  return SizedBox(
-    height: 50,
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: post.photos.length + post.videos.length,
-      itemBuilder: (context, index) {
-        if (index < post.photos.length) {
-          // Imágenes
-          return GestureDetector(
-            onTap: () {
-              Utils.openImageInFullScreen(context, post.photos[index], post);
-            },
-            child: Padding(
-              padding: EdgeInsets.only(right: 8.0),
-              child: Image.network(
-                post.photos[index],
-                width: 50,
-                fit: BoxFit.cover,
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              text: isLongContent
+                  ? isExtend
+                      ? trimmedContent
+                      : trimmedContent.substring(0, maxCharacters)
+                  : trimmedContent,
+              style: TextStyle(color: Colors.white),
+              children: <TextSpan>[
+                if (isLongContent && !isExtend)
+                  TextSpan(
+                    text: ' Ver más',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+              ],
             ),
-          );
-        } else {
-          // Videos
-          return FutureBuilder<Uint8List?>(
-            future: _getVideoThumbnail(post.videos[index - post.photos.length]),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: Container(
-                    width: 50,
-                    color: Colors.grey, // Placeholder color
-                    child: Center(
-                      child: CircularProgressIndicator(), // Placeholder while loading thumbnail
-                    ),
-                  ),
-                );
-              } else if (snapshot.hasError || snapshot.data == null) {
-                return Container(height: 20, width: 20, color: Colors.red,); // Handle error or no thumbnail available
-              } else {
-                return GestureDetector(
-                  onTap: () {
-                    Utils.openVideoInFullScreen(
-                        context, post.videos[index - post.photos.length], post);
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 8.0),
-                    child: Image.memory(
-                      snapshot.data!,
-                      width: 50,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                );
-              }
-            },
-          );
-        }
-      },
-    ),
-  );
-}
+          ),
+        ],
+      ),
+    );
+  }
 
-Future<Uint8List?> _getVideoThumbnail(String videoUrl) async {
-  print("video Url: $videoUrl");
-  // Obtener miniatura del video usando el paquete video_thumbnail
-  final thumbnail = await VideoThumbnail.thumbnailData(
-    video: videoUrl,
-    imageFormat: ImageFormat.JPEG,
-    maxWidth: 100, // Ancho máximo de la miniatura
-    quality: 25, // Calidad de la miniatura (0 - 100)
-  );
-  return thumbnail;
-}
+  Widget _buildMedia() {
+    int videoIndex = 0;
+    print("this is video ${post.videos.first.toString()}");
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: post.photos.length + post.videos.length,
+        itemBuilder: (context, index) {
+          if (index < post.photos.length) {
+            // Imágenes
+            return GestureDetector(
+              onTap: () {
+                Utils.openImageInFullScreen(context, post.photos[index], post);
+              },
+              child: Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Image.network(
+                  post.photos[index],
+                  width: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          } else {
+            // Videos
+            print(
+                "Este video si es el importante ${post.videos[index - post.photos.length]}");
+            return FutureBuilder<Uint8List?>(
+              future:
+                  _getVideoThumbnail(post.videos[index - post.photos.length]),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8.0),
+                    child: Container(
+                      width: 50,
+                      color: Colors.grey, // Placeholder color
+                      child: Center(
+                        child:
+                            CircularProgressIndicator(), // Placeholder while loading thumbnail
+                      ),
+                    ),
+                  );
+                } else if (snapshot.hasError || snapshot.data == null) {
+                  return GestureDetector(
+                    onTap: () {
+                      Utils.openVideoInFullScreen(context,
+                          post.videos[index - post.photos.length], post);
+                    },
+                    child: Container(
+                      height: 20,
+                      width: 50,
+                      color: Colors.red,
+                    ),
+                  ); // Handle error or no thumbnail available
+                } else {
+                  return GestureDetector(
+                    onTap: () {
+                      Utils.openVideoInFullScreen(context,
+                          post.videos[index - post.photos.length], post);
+                    },
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: Image.memory(
+                            snapshot.data!,
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(8),
+                                bottomRight: Radius.circular(8),
+                              ),
+                            ),
+                            child: Icon(
+                              size: 20,
+                              Icons.videocam,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: FutureBuilder<double?>(
+                            future: Utils.getVideoDuration(
+                                post.videos[index - post.photos.length]),
+                            builder: (context, durationSnapshot) {
+                              if (durationSnapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  durationSnapshot.hasError ||
+                                  durationSnapshot.data == null) {
+                                return Container();
+                              } else {
+                                return Text(
+                                    Utils.formatDuration(
+                                        durationSnapshot.data!),
+                                    style: TextStyle(color: Colors.white, fontSize: 15),
+                                );
+                              }
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Future<Uint8List?> _getVideoThumbnail(String videoPath) async {
+    print("video Url: $videoPath");
+    return await VideoThumbnail.thumbnailData(
+      video: videoPath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 100,
+      quality: 25,
+    );
+  }
 
   Widget _buildQuizz(BuildContext context, Post post) {
     final Size size = MediaQuery.of(context).size;

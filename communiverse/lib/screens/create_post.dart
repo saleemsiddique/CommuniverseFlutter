@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:communiverse/models/models.dart';
 import 'package:communiverse/services/services.dart';
+import 'package:communiverse/utils.dart';
+import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_video_info/flutter_video_info.dart';
@@ -22,8 +24,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   List<File> _images = [];
   List<String> _videos = [];
   TextEditingController _textController = TextEditingController();
+  TextEditingController _communityController = TextEditingController();
   bool hasMedia = false;
   int _maxLines = 5;
+  String selectedCommunityName =
+      'Choose Community'; // Variable dentro del estado del widget
 
   @override
   Widget build(BuildContext context) {
@@ -35,140 +40,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           Container(
             color: Color.fromRGBO(165, 91, 194, 0.2),
             height: _images.isNotEmpty || _videos.isNotEmpty
-                ? size.height * 0.63
-                : size.height * 0.48,
+                ? size.height * 0.64
+                : size.height * 0.50,
             child: Padding(
               padding: const EdgeInsets.only(top: 50),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  postHeader(),
+                  postHeader(context),
                   SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: TextField(
-                      controller: _textController,
-                      maxLines: 6,
-                      maxLength: 200,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        hintText: "What's on your mind?",
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        hintStyle: TextStyle(color: Colors.white),
-                        counterStyle: TextStyle(color: Colors.white),
-                      ),
-                      style: TextStyle(color: Colors.white),
-                      onChanged: (text) {
-                        final lines = text.split('\n');
-                        if (lines.length > _maxLines) {
-                          _textController.text =
-                              lines.sublist(0, _maxLines).join('\n');
-                        }
-                      },
-                    ),
-                  ),
+                  postContent(),
                   SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.photo, color: Colors.white),
-                              onPressed: () async {
-                                if (_images.length + _videos.length >= 10) {
-                                  // Mostrar una SnackBar si se excede el límite
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'You have reached the limit of 10 elements between photos & videos'),
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                final picker = ImagePicker();
-                                final pickedFile = await picker.pickImage(
-                                  source: ImageSource.gallery,
-                                );
-                                if (pickedFile != null) {
-                                  setState(() {
-                                    _images.add(File(pickedFile.path));
-                                  });
-                                }
-                              },
-                            ),
-                            SizedBox(width: 20),
-                            IconButton(
-                              icon: Icon(Icons.videocam, color: Colors.white),
-                              onPressed: () async {
-                                if (_images.length + _videos.length >= 10) {
-                                  // Mostrar una SnackBar si se excede el límite
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'Se ha alcanzado el límite máximo de 10 elementos entre fotos y videos.'),
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                final picker = ImagePicker();
-                                final pickedFile = await picker.pickVideo(
-                                  source: ImageSource.gallery,
-                                );
-                                if (pickedFile != null) {
-                                  setState(() {
-                                    _videos.add(pickedFile.path);
-                                  });
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Implementar la lógica para publicar el post
-                          },
-                          child: Text("Post",
-                              style: TextStyle(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromRGBO(165, 91, 194, 1),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  postButtons(context),
                   SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Wrap(
-                        alignment: WrapAlignment.start,
-                        spacing: 12,
-                        runSpacing: 5,
-                        children: [
-                          ..._images
-                              .map((image) => _buildImageThumbnail(image)),
-                          ..._videos
-                              .map((video) => _buildVideoThumbnail(video)),
-                        ],
-                      ),
-                    ),
-                  )
+                  postMedia()
                 ],
               ),
             ),
@@ -179,28 +64,268 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  Padding postHeader() {
+  Padding postMedia() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Wrap(
+          alignment: WrapAlignment.start,
+          spacing: 12,
+          runSpacing: 5,
+          children: [
+            ..._images.map((image) => _buildImageThumbnail(image)),
+            ..._videos.map((video) => _buildVideoThumbnail(video)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  postButtons(BuildContext context) {
+    final postService = Provider.of<PostService>(context, listen: true);
+    return Container(
+      color: Color.fromRGBO(
+          165, 91, 194, 1), // Establece el color de fondo del Container
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.photo, color: Colors.white),
+                onPressed: () async {
+                  if (_images.length + _videos.length >= 10) {
+                    // Mostrar una SnackBar si se excede el límite
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'You have reached the limit of 10 elements between photos & videos'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final picker = ImagePicker();
+                  final pickedFile = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (pickedFile != null) {
+                    setState(() {
+                      _images.add(File(pickedFile.path));
+                    });
+                  }
+                },
+              ),
+              SizedBox(width: 20),
+              IconButton(
+                icon: Icon(Icons.videocam, color: Colors.white),
+                onPressed: () async {
+                  if (_images.length + _videos.length >= 10) {
+                    // Mostrar una SnackBar si se excede el límite
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Se ha alcanzado el límite máximo de 10 elementos entre fotos y videos.'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final picker = ImagePicker();
+                  final pickedFile = await picker.pickVideo(
+                    source: ImageSource.gallery,
+                  );
+                  if (pickedFile != null) {
+                    print("video from createPost: $pickedFile");
+                    setState(() {
+                      _videos.add(pickedFile.path);
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: ElevatedButton(
+              onPressed: selectedCommunityName == 'Choose Community'
+                  ? null
+                  : () async {
+                      showDialog(
+                        context: context,
+                        barrierDismissible:
+                            false, // Evita que se cierre la ventana emergente haciendo clic fuera de ella
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: Row(
+                              children: [
+                                CircularProgressIndicator(), // Indicador de progreso
+                                SizedBox(
+                                    width:
+                                        20), // Espacio entre el indicador y el texto
+                                Text(
+                                    "Posting..."), // Texto que indica que se está publicando
+                              ],
+                            ),
+                          );
+                        },
+                      );
+
+                      try {
+                        Map<String, dynamic> postData = {
+                          "community_id": _communityController.text,
+                          'author_id': widget.user.id,
+                          'content': _textController.text,
+                          'photos': Utils.filesToBase64List(_images),
+                          'videos': _videos.isNotEmpty
+                              ? Utils.filesToBase64List(
+                                  _videos.map((url) => File(url)).toList())
+                              : [],
+                          "postInteractions": PostInteractions.empty(),
+                          "repost_user_id": "",
+                          "quizz": Quizz.empty(),
+                          "comment": false
+                        };
+                        await postService.postPost(postData);
+                        postService.currentPostPage = 0;
+                        await postService.findMyPostsPaged(widget.user.id);
+                        Navigator.pop(
+                            context); // Cierra el diálogo emergente cuando la publicación se ha realizado correctamente
+                        Navigator.pop(
+                            context); // Cierra la pantalla de creación de publicaciones
+                      } catch (error) {
+                        Navigator.pop(
+                            context); // Cierra el diálogo emergente si hay un error
+                        errorTokenExpired(context);
+                      }
+                    },
+              child: Text("Post", style: TextStyle(color: Colors.black)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 40),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Padding postContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextField(
+        controller: _textController,
+        maxLines: 6,
+        maxLength: 200,
+        keyboardType: TextInputType.multiline,
+        decoration: InputDecoration(
+          hintText: "What's on your mind?",
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          hintStyle: TextStyle(color: Colors.white),
+          counterStyle: TextStyle(color: Colors.white),
+        ),
+        style: TextStyle(color: Colors.white),
+        onChanged: (text) {
+          final lines = text.split('\n');
+          if (lines.length > _maxLines) {
+            _textController.text = lines.sublist(0, _maxLines).join('\n');
+          }
+        },
+      ),
+    );
+  }
+
+  Padding postHeader(BuildContext context) {
+    final communityService =
+        Provider.of<CommunityService>(context, listen: false);
+    final communities = communityService.myCommunities;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(widget.user.photo),
-            radius: 20,
-          ),
-          SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Text(
-                '${widget.user.name} ${widget.user.lastName}',
-                style: TextStyle(color: Colors.white),
+              CircleAvatar(
+                backgroundColor: Colors.black,
+                radius: 20,
+                // Usar la nueva URL con el identificador único para cargar la imagen
+                backgroundImage: widget.user.photo != ""
+                    ? NetworkImage(widget.user.photo)
+                    : AssetImage('assets/no-user.png')
+                        as ImageProvider<Object>?,
               ),
-              Text(
-                '@${widget.user.username}',
-                style: TextStyle(color: Colors.white),
+              SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${widget.user.name} ${widget.user.lastName}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    '@${widget.user.username}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
               ),
             ],
+          ),
+          Container(
+            height: 30,
+            width: 150, // Ancho deseado
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30), // Bordes redondos
+              color: Colors.white, // Fondo blanco
+            ),
+            child: DropdownButton<Community>(
+              onChanged: (Community? newValue) {
+                if (newValue != null) {
+                  selectedCommunityName = newValue.name;
+                  _communityController.text = newValue.id;
+                  print(selectedCommunityName);
+                  print(_communityController.text);
+                  setState(() {});
+                }
+              },
+              items: communities
+                  .map<DropdownMenuItem<Community>>((Community community) {
+                return DropdownMenuItem<Community>(
+                  value: community,
+                  child: Text(community
+                      .name), // Suponiendo que el nombre de la comunidad está en la propiedad 'name'
+                );
+              }).toList(),
+              hint: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal:
+                        8.0), // Agrega un pequeño espacio a la izquierda del texto
+                child: Text(
+                  selectedCommunityName,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color:
+                          Color.fromRGBO(165, 91, 194, 1)), // Color del texto
+                ),
+              ),
+              dropdownColor:
+                  Colors.white, // Color de fondo del menú desplegable
+              underline: Container(), // Elimina la línea inferior del ComboBox
+              icon: Icon(Icons.keyboard_arrow_down,
+                  color: Color.fromRGBO(165, 91, 194, 1)),
+              menuMaxHeight: 160,
+            ),
           ),
         ],
       ),
@@ -299,7 +424,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 ),
               ),
               FutureBuilder<double?>(
-                future: getVideoDuration(videoPath),
+                future: _getVideoDuration(videoPath),
                 builder: (context, durationSnapshot) {
                   if (durationSnapshot.connectionState ==
                       ConnectionState.waiting) {
@@ -311,7 +436,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     return Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Text(
-                        _formatDuration(durationSnapshot.data!),
+                        Utils.formatDuration(durationSnapshot.data!),
                         style: TextStyle(color: Colors.white),
                       ),
                     );
@@ -325,16 +450,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  Future<Uint8List?> _getVideoThumbnail(String videoPath) async {
-    return await VideoThumbnail.thumbnailData(
-      video: videoPath,
-      imageFormat: ImageFormat.JPEG,
-      maxWidth: 100,
-      quality: 25,
-    );
-  }
-
-  Future<double?> getVideoDuration(String videoPath) async {
+  Future<double?> _getVideoDuration(String videoPath) async {
     print("videopath: $videoPath");
     try {
       final info = FlutterVideoInfo();
@@ -346,13 +462,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
-  String _formatDuration(double? milliseconds) {
-    print("miliseconds: $milliseconds");
-    if (milliseconds != null) {
-      Duration duration = Duration(milliseconds: milliseconds.floor());
-      return "${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}";
-    } else {
-      return ""; // O cualquier valor predeterminado que desees
-    }
+  Future<Uint8List?> _getVideoThumbnail(String videoPath) async {
+    return await VideoThumbnail.thumbnailData(
+      video: videoPath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 100,
+      quality: 25,
+    );
   }
 }
