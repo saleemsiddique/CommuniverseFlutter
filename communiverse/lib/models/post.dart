@@ -112,16 +112,18 @@ class PostInteractions {
 
 class Quizz {
   String id;
+  String name;
   String description;
   List<Question> questions;
 
   Quizz({
     required this.id,
+    required this.name,
     required this.description,
     required this.questions,
   });
 
-  factory Quizz.empty() => Quizz(id: '', description: '', questions: []);
+  factory Quizz.empty() => Quizz(id: '', name: '', description: '', questions: []);
 
   @override
   bool operator ==(Object other) {
@@ -136,23 +138,25 @@ class Quizz {
 
   @override
   int get hashCode => id.hashCode ^ description.hashCode ^ questions.hashCode;
+      
+factory Quizz.fromRawJson(String str) => Quizz.fromJson(json.decode(str));
 
-  factory Quizz.fromRawJson(String str) => Quizz.fromJson(json.decode(str));
+    String toRawJson() => json.encode(toJson());
 
-  String toRawJson() => json.encode(toJson());
-
-  factory Quizz.fromJson(Map<String, dynamic> json) => Quizz(
+    factory Quizz.fromJson(Map<String, dynamic> json) => Quizz(
         id: json["id"],
+        name: json["name"],
         description: json["description"],
         questions: List<Question>.from(
             json["questions"].map((x) => Question.fromJson(x))),
-      );
+    );
 
-  Map<String, dynamic> toJson() => {
+    Map<String, dynamic> toJson() => {
         "id": id,
+        "name": name,
         "description": description,
         "questions": List<dynamic>.from(questions.map((x) => x.toJson())),
-      };
+    };
 }
 
 class Question {

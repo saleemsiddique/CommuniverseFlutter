@@ -27,8 +27,12 @@ class PostWidget extends StatelessWidget {
     // Definir la altura del Card
     double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.22;
     // Ajustar la altura del Card si está extendido
-    if (isExtend) {
+    if (isExtend && post.quizz == Quizz.empty()) {
       cardHeight *= 1.15; // Ajusta el factor según lo necesites
+    }
+
+    if (post.quizz != Quizz.empty()) {
+      cardHeight *= 1.12; // Ajusta el factor según lo necesites
     }
 
     return GestureDetector(
@@ -356,9 +360,9 @@ class PostWidget extends StatelessWidget {
                                 return Container();
                               } else {
                                 return Text(
-                                    Utils.formatDuration(
-                                        durationSnapshot.data!),
-                                    style: TextStyle(color: Colors.white, fontSize: 15),
+                                  Utils.formatDuration(durationSnapshot.data!),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 15),
                                 );
                               }
                             },

@@ -1,4 +1,4 @@
-import 'package:communiverse/screens/create_post.dart';
+import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -137,11 +137,11 @@ class _MenuWidgetState extends State<MenuWidget>
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                createOption("Community", CreatePostScreen(user: userService.user)),
+                createOption("Community", CreateQuizzScreen(user: userService.user)),
                 SizedBox(height: 10),
                 createOption("Post", CreatePostScreen(user: userService.user)),
                 SizedBox(height: 10),
-                createOption("Quiz", CreatePostScreen(user: userService.user)),
+                createOption("Quiz", CreateQuizzScreen(user: userService.user)),
               ],
             ),
           ),

@@ -221,4 +221,27 @@ class Utils {
     print("data: $data");
     userLoginRequestService.editPhotoUser(userService.user.id, data);
   }
+
+  static String getBase64FromPath(String path) {
+    File file = File(path);
+    print('File is = ' + file.toString());
+    List<int> fileInByte = file.readAsBytesSync();
+    String fileInBase64 = base64Encode(fileInByte);
+    return fileInBase64;
+  }
+
+  Widget _seleccionarPunto(double lat, double lon) {
+    String formattedLat = lat.toStringAsFixed(4);
+    String formattedLon = lon.toStringAsFixed(4);
+
+    return Row(
+      children: [
+        Text('Punto - lat: $formattedLat, lon: $formattedLon',
+            style: TextStyle(color: Colors.grey)),
+        SizedBox(
+          width: 20,
+        ),
+      ],
+    );
+  }
 }

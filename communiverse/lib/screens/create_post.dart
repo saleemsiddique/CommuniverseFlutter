@@ -21,6 +21,7 @@ class CreatePostScreen extends StatefulWidget {
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<File> _images = [];
   List<String> _videos = [];
   TextEditingController _textController = TextEditingController();
@@ -34,32 +35,35 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            color: Color.fromRGBO(165, 91, 194, 0.2),
-            height: _images.isNotEmpty || _videos.isNotEmpty
-                ? size.height * 0.64
-                : size.height * 0.50,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 50),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  postHeader(context),
-                  SizedBox(height: 20),
-                  postContent(),
-                  SizedBox(height: 20),
-                  postButtons(context),
-                  SizedBox(height: 20),
-                  postMedia()
-                ],
+      body: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              color: Color.fromRGBO(165, 91, 194, 0.2),
+              height: _images.isNotEmpty || _videos.isNotEmpty
+                  ? size.height * 0.64
+                  : size.height * 0.50,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 50),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    postHeader(context),
+                    SizedBox(height: 20),
+                    postContent(),
+                    SizedBox(height: 20),
+                    postButtons(context),
+                    SizedBox(height: 20),
+                    postMedia()
+                  ],
+                ),
               ),
             ),
-          ),
-          SizedBox()
-        ],
+            SizedBox()
+          ],
+        ),
       ),
     );
   }
@@ -149,7 +153,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: ElevatedButton(
-              onPressed: selectedCommunityName == 'Choose Community'
+              onPressed: (_formKey.currentState?.validate() != true && _images.isEmpty && _videos.isEmpty)  ||
+              selectedCommunityName == 'Choose Community'
                   ? null
                   : () async {
                       showDialog(
@@ -218,7 +223,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Padding postContent() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: TextField(
+      child: TextFormField(
         controller: _textController,
         maxLines: 6,
         maxLength: 200,
@@ -235,11 +240,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           counterStyle: TextStyle(color: Colors.white),
         ),
         style: TextStyle(color: Colors.white),
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) {
+            return 'Please enter some text';
+          }
+          return null;
+        },
         onChanged: (text) {
           final lines = text.split('\n');
           if (lines.length > _maxLines) {
             _textController.text = lines.sublist(0, _maxLines).join('\n');
           }
+          // Actualizar el estado del formulario
+          setState(() {});
         },
       ),
     );
