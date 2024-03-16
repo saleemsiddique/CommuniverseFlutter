@@ -28,11 +28,15 @@ class PostWidget extends StatelessWidget {
     double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.22;
     // Ajustar la altura del Card si está extendido
     if (isExtend && post.quizz == Quizz.empty()) {
-      cardHeight *= 1.15; // Ajusta el factor según lo necesites
-    }
+      cardHeight *= 1.2; // Ajusta el factor según lo necesites
+    } 
 
     if (post.quizz != Quizz.empty()) {
-      cardHeight *= 1.12; // Ajusta el factor según lo necesites
+      cardHeight = size.height * 0.37; // Ajusta el factor según lo necesites
+    }
+
+    if (isExtend && post.quizz != Quizz.empty()) {
+      cardHeight *= 1.1;
     }
 
     return GestureDetector(
@@ -427,7 +431,7 @@ class PostWidget extends StatelessWidget {
                 quizDescription,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: size.height * 0.1),
+              SizedBox(height: 3),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromRGBO(165, 91, 194, 1),

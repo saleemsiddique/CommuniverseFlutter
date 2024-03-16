@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:communiverse/models/models.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/utils.dart';
+import 'package:communiverse/widgets/community_dropdown.dart';
 import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -295,56 +296,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ],
           ),
-          Container(
-            height: 30,
-            width: 150, // Ancho deseado
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30), // Bordes redondos
-              color: Colors.white, // Fondo blanco
-            ),
-            child: DropdownButton<Community>(
-              onChanged: (Community? newValue) {
-                if (newValue != null) {
-                  selectedCommunityName = newValue.name;
-                  _communityController.text = newValue.id;
-                  print(selectedCommunityName);
-                  print(_communityController.text);
-                  setState(() {});
-                }
-              },
-              items: communities
-                  .map<DropdownMenuItem<Community>>((Community community) {
-                return DropdownMenuItem<Community>(
-                  value: community,
-                  child: Text(community
-                      .name), // Suponiendo que el nombre de la comunidad está en la propiedad 'name'
-                );
-              }).toList(),
-              hint: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal:
-                        8.0), // Agrega un pequeño espacio a la izquierda del texto
-                child: Text(
-                  selectedCommunityName,
-                  style: TextStyle(
-                      fontSize: 12,
-                      color:
-                          Color.fromRGBO(165, 91, 194, 1)), // Color del texto
-                ),
-              ),
-              dropdownColor:
-                  Colors.white, // Color de fondo del menú desplegable
-              underline: Container(), // Elimina la línea inferior del ComboBox
-              icon: Icon(Icons.keyboard_arrow_down,
-                  color: Color.fromRGBO(165, 91, 194, 1)),
-              menuMaxHeight: 160,
-            ),
-          ),
+          CommunityDropdown(communities: communities, communityController: _communityController)
         ],
       ),
     );
   }
 
+ 
   Widget _buildImageThumbnail(File imageFile) {
     return Stack(
       children: [

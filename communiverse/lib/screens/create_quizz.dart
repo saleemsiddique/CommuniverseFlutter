@@ -4,6 +4,7 @@ import 'package:communiverse/models/models.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/utils.dart';
+import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,6 +22,7 @@ class CreateQuizzScreen extends StatefulWidget {
 class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _communityController = TextEditingController();
   final List<Question> _questions = [];
   String? _selectedImage;
   Post createdPost = Post.empty();
@@ -41,7 +43,8 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
         child: Container(
           height: size.height,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+            padding:
+                const EdgeInsets.only(top: 50, bottom: 10, right: 20, left: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -55,11 +58,11 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    communitySelector(communityService.myCommunities)
+                    CommunityDropdown(
+                        communities: communityService.myCommunities,
+                        communityController: _communityController)
                   ],
                 ),
-                SizedBox(height: 16),
-                nameField(),
                 SizedBox(height: 16),
                 descriptionField(),
                 SizedBox(height: 32),
@@ -116,104 +119,125 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: Color.fromRGBO(165, 91, 194, 1),
       ),
-      onPressed: () async {
-        showDialog(
-          context: context,
-          barrierDismissible:
-              false, // Evita que se cierre la ventana emergente haciendo clic fuera de ella
-          builder: (BuildContext context) {
-            return AlertDialog(
-              content: Row(
-                children: [
-                  CircularProgressIndicator(), // Indicador de progreso
-                  SizedBox(width: 20), // Espacio entre el indicador y el texto
-                  Text("Posting..."), // Texto que indica que se está publicando
-                ],
-              ),
-            );
-          },
-        );
-        createdPost.quizz.questions = _questions;
-        createdPost.authorId = widget.user.id;
-        Map<String, dynamic> postData = createdPost.toJson();
-        await postService.postPost(postData);
-        postService.currentPostPage = 0;
-        await postService.findMyPostsPaged(widget.user.id);
-        Navigator.pop(
-            context); // Cierra el diálogo emergente cuando la publicación se ha realizado correctamente
-        Navigator.pop(context);
-      },
+      onPressed: _questions.isEmpty ||
+              selectedCommunityName == 'Choose Community'
+          ? null
+          : () async {
+              showDialog(
+                context: context,
+                barrierDismissible:
+                    false, // Evita que se cierre la ventana emergente haciendo clic fuera de ella
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: Row(
+                      children: [
+                        CircularProgressIndicator(), // Indicador de progreso
+                        SizedBox(
+                            width: 20), // Espacio entre el indicador y el texto
+                        Text(
+                            "Posting..."), // Texto que indica que se está publicando
+                      ],
+                    ),
+                  );
+                },
+              );
+              createdPost.quizz.questions = _questions;
+              createdPost.authorId = widget.user.id;
+              Map<String, dynamic> postData = createdPost.toJson();
+              await postService.postPost(postData);
+              postService.currentPostPage = 0;
+              await postService.findMyPostsPaged(widget.user.id);
+              Navigator.pop(
+                  context); // Cierra el diálogo emergente cuando la publicación se ha realizado correctamente
+              Navigator.pop(context);
+            },
       child: Text('Create Quizz'),
     );
   }
 
-  Expanded questionList() {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: _questions.length,
-        itemBuilder: (context, index) {
-          return Container(
-            margin: EdgeInsets.symmetric(vertical: 8.0),
-            padding: EdgeInsets.all(5.0),
-            decoration: BoxDecoration(
+  Widget questionList() {
+    return SizedBox(
+      height: 200, // Altura deseada para la caja
+      child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
-                ),
-              ],
+              width: 2.0,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _questions[index].question,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Options: ${_questions[index].options.join(', ')}',
-                        style: TextStyle(fontSize: 14, color: Colors.black),
-                      ),
-                      Text(
-                        'Correct Answer: ${_questions[index].correctAnswer}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: _questions.map((question) {
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                  padding: EdgeInsets.all(5.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.close, color: Colors.red),
-                  onPressed: () {
-                    setState(() {
-                      _questions.removeAt(index);
-                    });
-                  },
-                ),
-              ],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              question.question,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Options: ${question.options.join(', ')}',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.black),
+                            ),
+                            Text(
+                              'Correct Answer: ${question.correctAnswer}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.red),
+                        onPressed: () {
+                          setState(() {
+                            _questions.remove(question);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 
+/*
   TextFormField nameField() {
     return TextFormField(
       onChanged: (value) {
@@ -231,6 +255,7 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
       ),
     );
   }
+*/
 
   Container descriptionField() {
     return Container(
@@ -250,7 +275,8 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
           border: InputBorder.none,
           contentPadding: EdgeInsets.all(16.0),
         ),
-        maxLines: 3, // Permitir hasta 5 líneas
+        maxLines: 3,
+        maxLength: 130, // Permitir hasta 5 líneas
       ),
     );
   }
@@ -313,7 +339,7 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
         }
       },
       child: Container(
-        height: 200,
+        height: 150,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: Colors.black),
