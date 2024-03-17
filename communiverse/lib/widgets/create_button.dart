@@ -137,7 +137,7 @@ class _MenuWidgetState extends State<MenuWidget>
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                createOption("Community", CreateQuizzScreen(user: userService.user)),
+                createOption("Community", CreateCommunityScreen(user: userService.user)),
                 SizedBox(height: 10),
                 createOption("Post", CreatePostScreen(user: userService.user)),
                 SizedBox(height: 10),

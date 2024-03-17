@@ -1,33 +1,45 @@
 import 'dart:convert';
 
 class Community {
-    String id;
-    String name;
-    String userCreatorId;
-    String description;
-    String privacy;
-    String photo;
-    int followers;
-    List<dynamic>? postsId;
+  String id;
+  String name;
+  String userCreatorId;
+  String description;
+  String privacy;
+  String photo;
+  int followers;
+  List<dynamic>? postsId;
 
-    String? uniqueId;
+  String? uniqueId;
 
-    Community({
-        required this.id,
-        required this.name,
-        required this.userCreatorId,
-        required this.description,
-        required this.privacy,
-        required this.photo,
-        required this.followers,
-        required this.postsId,
-    });
+  Community({
+    required this.id,
+    required this.name,
+    required this.userCreatorId,
+    required this.description,
+    required this.privacy,
+    required this.photo,
+    required this.followers,
+    required this.postsId,
+  });
 
-    factory Community.fromRawJson(String str) => Community.fromJson(json.decode(str));
+  Community.empty()
+      : id = '',
+        name = '',
+        userCreatorId = '',
+        description = '',
+        privacy = '',
+        photo = '',
+        followers = 0,
+        postsId = [],
+        uniqueId = null;
 
-    String toRawJson() => json.encode(toJson());
+  factory Community.fromRawJson(String str) =>
+      Community.fromJson(json.decode(str));
 
-    factory Community.fromJson(Map<String, dynamic> json) => Community(
+  String toRawJson() => json.encode(toJson());
+
+  factory Community.fromJson(Map<String, dynamic> json) => Community(
         id: json["id"],
         name: json["name"],
         userCreatorId: json["userCreator_id"],
@@ -36,9 +48,9 @@ class Community {
         photo: json["photo"],
         followers: json["followers"],
         postsId: json["posts_id"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
         "userCreator_id": userCreatorId,
@@ -47,5 +59,5 @@ class Community {
         "photo": photo,
         "followers": followers,
         "posts_id": postsId,
-    };
+      };
 }
