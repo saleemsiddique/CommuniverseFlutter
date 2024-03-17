@@ -32,10 +32,6 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final postService = Provider.of<PostService>(context);
-    final userService = Provider.of<UserService>(context);
-    final userLoginRequestService =
-        Provider.of<UserLoginRequestService>(context);
     final communityService = Provider.of<CommunityService>(context);
 
     return Scaffold(
@@ -59,8 +55,14 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
                       ),
                     ),
                     CommunityDropdown(
-                        communities: communityService.myCommunities,
-                        communityController: _communityController)
+                      communities: communityService.myCommunities,
+                      communityController: _communityController,
+                      onChanged: (selectedCommunity) {
+                        setState(() {
+                          // Aquí puedes hacer cualquier acción necesaria después de seleccionar una comunidad
+                        });
+                      },
+                    )
                   ],
                 ),
                 SizedBox(height: 16),
@@ -81,6 +83,10 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
     );
   }
 
+  void updateScreen() {
+    setState(() {}); // Este setState() es para actualizar la pantalla
+  }
+
   Row addQuestion(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,8 +105,10 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
               MaterialPageRoute(
                 builder: (context) => AddQuestionScreen(
                   onQuestionAdded: (question) {
+                    _questions.add(question);
                     setState(() {
-                      _questions.add(question);
+                      print("added question: $question");
+                      print(_questions);
                     });
                   },
                 ),
@@ -115,12 +123,14 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
 
   ElevatedButton createQuizz(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: true);
+    print(_questions.isEmpty);
+    print(_communityController.text == '');
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Color.fromRGBO(165, 91, 194, 1),
       ),
       onPressed: _questions.isEmpty ||
-              selectedCommunityName == 'Choose Community'
+              _communityController.text == ''
           ? null
           : () async {
               showDialog(
@@ -143,7 +153,9 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
               );
               createdPost.quizz.questions = _questions;
               createdPost.authorId = widget.user.id;
+              createdPost.communityId = _communityController.text;
               Map<String, dynamic> postData = createdPost.toJson();
+              print("PostData: $postData");
               await postService.postPost(postData);
               postService.currentPostPage = 0;
               await postService.findMyPostsPaged(widget.user.id);
@@ -277,50 +289,6 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
         ),
         maxLines: 3,
         maxLength: 130, // Permitir hasta 5 líneas
-      ),
-    );
-  }
-
-  Container communitySelector(List<Community> communities) {
-    return Container(
-      height: 30,
-      width: 150, // Ancho deseado
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30), // Bordes redondos
-        color: Colors.white, // Fondo blanco
-      ),
-      child: DropdownButton<Community>(
-        onChanged: (Community? newValue) {
-          if (newValue != null) {
-            selectedCommunityName = newValue.name;
-            createdPost.communityId = newValue.id;
-            setState(() {});
-          }
-        },
-        items:
-            communities.map<DropdownMenuItem<Community>>((Community community) {
-          return DropdownMenuItem<Community>(
-            value: community,
-            child: Text(community
-                .name), // Suponiendo que el nombre de la comunidad está en la propiedad 'name'
-          );
-        }).toList(),
-        hint: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal:
-                  8.0), // Agrega un pequeño espacio a la izquierda del texto
-          child: Text(
-            selectedCommunityName,
-            style: TextStyle(
-                fontSize: 12,
-                color: Color.fromRGBO(165, 91, 194, 1)), // Color del texto
-          ),
-        ),
-        dropdownColor: Colors.white, // Color de fondo del menú desplegable
-        underline: Container(), // Elimina la línea inferior del ComboBox
-        icon: Icon(Icons.keyboard_arrow_down,
-            color: Color.fromRGBO(165, 91, 194, 1)),
-        menuMaxHeight: 160,
       ),
     );
   }

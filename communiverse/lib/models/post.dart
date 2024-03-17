@@ -90,7 +90,7 @@ class PostInteractions {
       : likes = 0,
         reposts = 0,
         commentsId = [];
-        
+
   factory PostInteractions.fromRawJson(String str) =>
       PostInteractions.fromJson(json.decode(str));
 
@@ -123,7 +123,8 @@ class Quizz {
     required this.questions,
   });
 
-  factory Quizz.empty() => Quizz(id: '', name: '', description: '', questions: []);
+  factory Quizz.empty() =>
+      Quizz(id: '', name: '', description: '', questions: []);
 
   @override
   bool operator ==(Object other) {
@@ -138,25 +139,25 @@ class Quizz {
 
   @override
   int get hashCode => id.hashCode ^ description.hashCode ^ questions.hashCode;
-      
-factory Quizz.fromRawJson(String str) => Quizz.fromJson(json.decode(str));
 
-    String toRawJson() => json.encode(toJson());
+  factory Quizz.fromRawJson(String str) => Quizz.fromJson(json.decode(str));
 
-    factory Quizz.fromJson(Map<String, dynamic> json) => Quizz(
+  String toRawJson() => json.encode(toJson());
+
+  factory Quizz.fromJson(Map<String, dynamic> json) => Quizz(
         id: json["id"],
         name: json["name"],
         description: json["description"],
         questions: List<Question>.from(
             json["questions"].map((x) => Question.fromJson(x))),
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
         "description": description,
         "questions": List<dynamic>.from(questions.map((x) => x.toJson())),
-    };
+      };
 }
 
 class Question {
@@ -189,4 +190,9 @@ class Question {
         "options": List<dynamic>.from(options.map((x) => x)),
         "correct_answer": correctAnswer,
       };
+
+  @override
+  String toString() {
+    return 'Question: $question\nOptions: $options\nCorrect Answer: $correctAnswer';
+  }
 }

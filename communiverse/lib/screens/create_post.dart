@@ -154,8 +154,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: ElevatedButton(
-              onPressed: (_formKey.currentState?.validate() != true && _images.isEmpty && _videos.isEmpty)  ||
-              selectedCommunityName == 'Choose Community'
+              onPressed: (_formKey.currentState?.validate() != true &&
+                          _images.isEmpty &&
+                          _videos.isEmpty) ||
+                      _communityController.text == ''
                   ? null
                   : () async {
                       showDialog(
@@ -296,13 +298,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ],
           ),
-          CommunityDropdown(communities: communities, communityController: _communityController)
+          CommunityDropdown(
+            communities: communityService.myCommunities,
+            communityController: _communityController,
+            onChanged: (selectedCommunity) {
+              setState(() {
+                // Aquí puedes hacer cualquier acción necesaria después de seleccionar una comunidad
+              });
+            },
+          )
         ],
       ),
     );
   }
 
- 
   Widget _buildImageThumbnail(File imageFile) {
     return Stack(
       children: [

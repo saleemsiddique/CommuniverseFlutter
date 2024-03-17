@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:communiverse/models/community.dart';
 
+typedef void CommunityChangedCallback(Community selectedCommunity);
+
 class CommunityDropdown extends StatefulWidget {
   final List<Community> communities;
   final TextEditingController communityController;
+  final CommunityChangedCallback onChanged;
 
   const CommunityDropdown({
     Key? key,
     required this.communities,
     required this.communityController,
+    required this.onChanged,
   }) : super(key: key);
 
   @override
@@ -34,8 +38,10 @@ class _CommunityDropdownState extends State<CommunityDropdown> {
               selectedCommunityName = newValue.name;
               widget.communityController.text = newValue.id;
             });
+            widget.onChanged(newValue); // Llama a la devolución de llamada
           }
         },
+
         items: widget.communities
             .map<DropdownMenuItem<Community>>((Community community) {
           return DropdownMenuItem<Community>(
@@ -52,12 +58,10 @@ class _CommunityDropdownState extends State<CommunityDropdown> {
             selectedCommunityName,
             style: TextStyle(
                 fontSize: 12,
-                color: Color.fromRGBO(165, 91, 194,
-                    1)), // Color del texto
+                color: Color.fromRGBO(165, 91, 194, 1)), // Color del texto
           ),
         ),
-        dropdownColor:
-            Colors.white, // Color de fondo del menú desplegable
+        dropdownColor: Colors.white, // Color de fondo del menú desplegable
         underline: Container(), // Elimina la línea inferior del ComboBox
         icon: Icon(Icons.keyboard_arrow_down,
             color: Color.fromRGBO(165, 91, 194, 1)),
