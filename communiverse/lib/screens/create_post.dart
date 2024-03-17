@@ -44,7 +44,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             Container(
               color: Color.fromRGBO(165, 91, 194, 0.2),
               height: _images.isNotEmpty || _videos.isNotEmpty
-                  ? size.height * 0.64
+                  ? size.height * 0.60
                   : size.height * 0.50,
               child: Padding(
                 padding: const EdgeInsets.only(top: 50),
