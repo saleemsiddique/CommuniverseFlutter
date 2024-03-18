@@ -48,12 +48,29 @@ class UserLoginRequestService extends ChangeNotifier {
     try {
       final jsonData = await CommuniverseProvider.putJsonData(
           '${CommuniverseProvider.apiAuthRoutes}edit/$id', data);
-          print("findByUserId1");
       Map<String, dynamic> credentials = {
         "emailOrUsername": userLoginRequest.email,
         "password": password
       };
-      print(credentials);
+      print("edit user $credentials");
+      await signIn(credentials);
+      notifyListeners();
+    } catch (error) {
+      // Extraer el mensaje de error de la cadena de excepción
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+    editUserCommunities(String id, Map<String, dynamic> data) async {
+    try {
+      final jsonData = await CommuniverseProvider.putJsonData(
+          '${CommuniverseProvider.apiAuthRoutes}editUserCommunities/$id', data);
+      Map<String, dynamic> credentials = {
+        "emailOrUsername": userLoginRequest.email,
+        "password": password
+      };
+      print("edit user $credentials");
       await signIn(credentials);
       notifyListeners();
     } catch (error) {
@@ -67,7 +84,6 @@ class UserLoginRequestService extends ChangeNotifier {
     try {
       final jsonData = await CommuniverseProvider.putJsonData(
           '${CommuniverseProvider.apiAuthRoutes}editphoto/$id', data);
-          print("findByUserId1");
       Map<String, dynamic> credentials = {
         "emailOrUsername": userLoginRequest.email,
         "password": password

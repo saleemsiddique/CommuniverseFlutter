@@ -10,12 +10,12 @@ class User {
   String photo;
   String biography;
   UserStats userStats;
-  List<dynamic> createdCommunities;
-  List<dynamic> moderatedCommunities;
-  List<dynamic> memberCommunities;
+  List<String> createdCommunities;
+  List<String> moderatedCommunities;
+  List<String> memberCommunities;
   Interactions interactions;
-  List<dynamic> followersId;
-  List<dynamic> followedId;
+  List<String> followersId;
+  List<String> followedId;
 
   User({
     required this.id,
@@ -70,14 +70,14 @@ class User {
         biography: json["biography"],
         userStats: UserStats.fromJson(json["userStats"]),
         createdCommunities:
-            List<dynamic>.from(json["createdCommunities"].map((x) => x)),
+            List<String>.from(json["createdCommunities"].map((x) => x)),
         moderatedCommunities:
-            List<dynamic>.from(json["moderatedCommunities"].map((x) => x)),
+            List<String>.from(json["moderatedCommunities"].map((x) => x)),
         memberCommunities:
-            List<dynamic>.from(json["memberCommunities"].map((x) => x)),
+            List<String>.from(json["memberCommunities"].map((x) => x)),
         interactions: Interactions.fromJson(json["interactions"]),
-        followersId: List<dynamic>.from(json["followers_id"].map((x) => x)),
-        followedId: List<dynamic>.from(json["followed_id"].map((x) => x)),
+        followersId: List<String>.from(json["followers_id"].map((x) => x)),
+        followedId: List<String>.from(json["followed_id"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -91,15 +91,19 @@ class User {
         "biography": biography,
         "userStats": userStats.toJson(),
         "createdCommunities":
-            List<dynamic>.from(createdCommunities.map((x) => x)),
+            List<String>.from(createdCommunities.map((x) => x)),
         "moderatedCommunities":
-            List<dynamic>.from(moderatedCommunities.map((x) => x)),
-        "memberCommunities":
-            List<dynamic>.from(memberCommunities.map((x) => x)),
+            List<String>.from(moderatedCommunities.map((x) => x)),
+        "memberCommunities": List<String>.from(memberCommunities.map((x) => x)),
         "interactions": interactions.toJson(),
-        "followers_id": List<dynamic>.from(followersId.map((x) => x)),
-        "followed_id": List<dynamic>.from(followedId.map((x) => x)),
+        "followers_id": List<String>.from(followersId.map((x) => x)),
+        "followed_id": List<String>.from(followedId.map((x) => x)),
       };
+
+  @override
+  String toString() {
+    return 'User{id: $id, name: $name, lastName: $lastName, email: $email, username: $username, createdCommunities: $createdCommunities}';
+  }
 }
 
 class Interactions {

@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:communiverse/models/models.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:communiverse/utils.dart';
+import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class CreateCommunityScreen extends StatefulWidget {
   final User user;
@@ -50,6 +53,9 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                   filled: true,
                   fillColor: Colors.white,
                 ),
+                onChanged: (value) {
+                  createdCommunity.name = value;
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty || value.length < 3) {
                     return 'Please enter a valid community name (minimum 3 characters)';
@@ -75,6 +81,9 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                 maxLines: 4,
                 maxLength: 200,
                 textInputAction: TextInputAction.done,
+                onChanged: (value) {
+                  createdCommunity.description = value;
+                },
               ),
               SizedBox(height: 20.0),
               Text(
@@ -98,6 +107,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                           onChanged: (value) {
                             setState(() {
                               _privacySetting = value!;
+                              createdCommunity.privacy = value.toUpperCase();
                             });
                           },
                         ),
@@ -118,6 +128,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                           onChanged: (value) {
                             setState(() {
                               _privacySetting = value!;
+                              createdCommunity.privacy = value.toUpperCase();
                             });
                           },
                         ),
@@ -128,26 +139,68 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                 ],
               ),
               SizedBox(height: 20.0),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(165, 91, 194, 1),
-                ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Aquí puedes procesar la creación de la comunidad
-                    // Puedes acceder a los valores de los controladores:
-                    // _communityNameController.text
-                    // _descriptionController.text
-                    // _privacySetting
-                  }
-                },
-                child: Text('Create'),
-              ),
+              createCommunity(),
               SizedBox(height: 20.0),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  ElevatedButton createCommunity() {
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
+    final userService = Provider.of<UserService>(context, listen: true);
+    final userLoginRequest =
+        Provider.of<UserLoginRequestService>(context, listen: true);
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color.fromRGBO(165, 91, 194, 1),
+      ),
+      onPressed: () async {
+        if (_formKey.currentState!.validate()) {
+          showDialog(
+            context: context,
+            barrierDismissible:
+                false, // Evita que se cierre la ventana emergente haciendo clic fuera de ella
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: Row(
+                  children: [
+                    CircularProgressIndicator(), // Indicador de progreso
+                    SizedBox(
+                        width: 20), // Espacio entre el indicador y el texto
+                    Text(
+                        "Posting..."), // Texto que indica que se está publicando
+                  ],
+                ),
+              );
+            },
+          );
+          try {
+            createdCommunity.userCreatorId = userService.user.id;
+            Map<String, dynamic> communityData = createdCommunity.toJson();
+            print("PostData: $communityData");
+            await communityService.postCommunity(communityData);
+            userService.user.createdCommunities
+                .add(communityService.createdCommunity.id);
+            print("Prev: ${userService.user}");
+            Map<String, dynamic> userData = userService.user.toJson();
+            print("PouserService: ${userService.user}");
+            await userLoginRequest.editUserCommunities(
+                userService.user.id, userData);
+            communityService.getMyCommunities(userService.user.id);
+            Navigator.pop(context);
+            Navigator.pop(context);
+          } catch (error) {
+            Navigator.pop(
+                context); // Cierra el diálogo emergente si hay un error
+            errorTokenExpired(context);
+          }
+        }
+      },
+      child: Text('Create'),
     );
   }
 
@@ -173,7 +226,7 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
         child: _selectedImage != null
             ? Image.file(
                 File(_selectedImage!),
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
               )
             : Icon(
                 Icons.add_photo_alternate,

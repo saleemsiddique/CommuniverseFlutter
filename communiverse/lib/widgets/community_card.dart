@@ -38,25 +38,32 @@ class CommunityCard extends StatelessWidget {
                         : Image.asset('assets/no-image.jpg').image,
                   )),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  community.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14.0,
-                    color: Colors.grey,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Flexible(
+                    child: Text(
+                      community.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.0,
+                        color: Colors.grey,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                Text(
-                  community.followers.toString(),
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey,
+                  SizedBox(width: 7,),
+                  Text(
+                    community.followers.toString(),
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

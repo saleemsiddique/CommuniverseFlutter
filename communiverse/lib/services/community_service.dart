@@ -10,6 +10,7 @@ class CommunityService extends ChangeNotifier {
   GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   List<Community> top5Communities = [];
   List<Community> myCommunities = [];
+  Community createdCommunity = Community.empty();
 
   getTop5Communities() async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;
@@ -46,6 +47,19 @@ class CommunityService extends ChangeNotifier {
       }
     }
   }
+
+Future<void> postCommunity(Map<String, dynamic> data) async {
+  try {
+    final jsonData = await CommuniverseProvider.postJsonData('community', data);
+    final createdCommunityJson = json.decode(jsonData);
+    createdCommunity = Community.fromJson(createdCommunityJson);
+    notifyListeners();
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}
+
 
   void clearData() {
     formKey = new GlobalKey<FormState>();

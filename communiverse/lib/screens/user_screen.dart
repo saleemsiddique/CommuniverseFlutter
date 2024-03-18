@@ -70,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Map<String, dynamic> getEditedUserData() {
     return {
-      'firstName': _firstNameController.text,
+      'name': _firstNameController.text,
       'lastName': _lastNameController.text,
       'biography': _descriptionController.text,
       'username': _usernameController.text,
@@ -84,6 +84,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final userService = Provider.of<UserService>(context, listen: true);
     final userLoginRequestService =
         Provider.of<UserLoginRequestService>(context, listen: true);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: 40),
@@ -153,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         ),
                                   // Contenido de la pestaña Communities
-                                  postService.myRePosts.isEmpty
+                                  communityService.myCommunities.isEmpty
                                       ? noPosts(size, "communities")
                                       : Center(
                                           child: MyCommunitiesWidget(),

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:communiverse/models/post.dart';
+
 class Community {
   String id;
   String name;
@@ -8,7 +10,7 @@ class Community {
   String privacy;
   String photo;
   int followers;
-  List<dynamic>? postsId;
+  List<String>? postsId;
 
   String? uniqueId;
 
@@ -28,7 +30,7 @@ class Community {
         name = '',
         userCreatorId = '',
         description = '',
-        privacy = '',
+        privacy = 'PUBLIC',
         photo = '',
         followers = 0,
         postsId = [],
@@ -47,7 +49,7 @@ class Community {
         privacy: json["privacy"],
         photo: json["photo"],
         followers: json["followers"],
-        postsId: json["posts_id"],
+        postsId: List<String>.from(json["posts_id"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -58,6 +60,6 @@ class Community {
         "privacy": privacy,
         "photo": photo,
         "followers": followers,
-        "posts_id": postsId,
+        "posts_id": postsId?.map((postId) => postId.toString()).toList(),
       };
 }
