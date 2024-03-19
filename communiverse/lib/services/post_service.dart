@@ -12,12 +12,14 @@ class PostService extends ChangeNotifier {
   List<Post> comments = [];
   List<Post> communityPosts = [];
   List<Post> communityQuizzes = [];
+  List<Post> communitymySpacePosts = [];
 
   int currentPostPage = 0;
   int currentRepostPage = 0;
   int currentCommentPage = 0;
   int currentCommunityPostPage = 0;
   int currentCommunityQuizzPage = 0;
+  int currentMySpacePage = 0;
   int pageSize = 5;
 
   /*findMyPosts(String id) async {
@@ -111,7 +113,7 @@ class PostService extends ChangeNotifier {
 
     Future<void> getAllPostsFromCommunity(String communityId) async {
     try {
-      final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/$currentCommunityPostPage/5');
+      final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/$currentCommunityPostPage/$pageSize');
       final List<dynamic> jsonResponse = json.decode(jsonData);
       List<Post> postsFromCommunity = jsonResponse.map((json) => Post.fromJson(json)).toList();
 
@@ -132,7 +134,7 @@ class PostService extends ChangeNotifier {
 
   Future<void> getAllQuizzFromCommunity(String communityId) async {
     try {
-      final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/quizz/$currentCommunityQuizzPage/5');
+      final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/quizz/$currentCommunityQuizzPage/$pageSize');
       final List<dynamic> jsonResponse = json.decode(jsonData);
       List<Post> quizzFromCommunity = jsonResponse.map((json) => Post.fromJson(json)).toList();
 
@@ -143,6 +145,28 @@ class PostService extends ChangeNotifier {
 
       communityQuizzes.addAll(quizzFromCommunity);
       currentCommunityQuizzPage++;
+
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+    Future<void> getMySpaceFromCommunity(String communityId, List<String> followedList) async {
+    String followed = followedList.join(',');
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/myspace/$followed/$currentMySpacePage/$pageSize');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      List<Post> quizzFromCommunity = jsonResponse.map((json) => Post.fromJson(json)).toList();
+
+      // Limpiar la lista si es la primera página
+      if (currentMySpacePage == 0) {
+        communitymySpacePosts.clear();
+      }
+
+      communitymySpacePosts.addAll(quizzFromCommunity);
+      currentMySpacePage++;
 
       notifyListeners();
     } catch (error) {

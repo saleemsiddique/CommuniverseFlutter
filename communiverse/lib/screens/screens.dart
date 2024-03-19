@@ -18,3 +18,4 @@ export 'package:communiverse/screens/create_community.dart';
 export 'package:communiverse/screens/community_screen.dart';
 export 'package:communiverse/screens/community_posts.dart';
 export 'package:communiverse/screens/community_quizzes.dart';
+export 'package:communiverse/screens/community_myspace.dart';

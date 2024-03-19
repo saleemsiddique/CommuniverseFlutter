@@ -1,5 +1,4 @@
 import 'package:communiverse/models/models.dart';
-import 'package:communiverse/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
@@ -68,6 +67,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
             _loading = false;
           });
         });
+      } else if (_currentIndex == 2) {
+        postService
+            .getMySpaceFromCommunity(
+                userService.user.id, userService.user.followedId)
+            .then((_) {
+          setState(() {
+            _loading = false;
+          });
+        });
       }
     }
   }
@@ -108,11 +116,26 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         onTap: (index) {
                           setState(() async {
                             if (index == 0) {
+                              postService.currentMySpacePage = 0;
+                              postService.currentCommunityQuizzPage = 0;
+                              await postService.getMySpaceFromCommunity(
+                                  widget.community.id,
+                                  userService.user.followedId);
+                              await postService.getAllQuizzFromCommunity(
+                                  widget.community.id);
+                            } else if (index == 1) {
+                              postService.currentMySpacePage = 0;
+                              postService.currentCommunityPostPage = 0;
+                              await postService.getMySpaceFromCommunity(
+                                  widget.community.id,
+                                  userService.user.followedId);
+                              await postService.getAllQuizzFromCommunity(
+                                  widget.community.id);
+                            } else if (index == 2) {
+                              postService.currentCommunityQuizzPage = 0;
                               postService.currentCommunityPostPage = 0;
                               await postService.getAllPostsFromCommunity(
                                   widget.community.id);
-                            } else if (index == 1) {
-                              postService.currentCommunityQuizzPage = 0;
                               await postService.getAllQuizzFromCommunity(
                                   widget.community.id);
                             }
@@ -146,11 +169,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
                                     ),
                                   ),
                             // Contenido de la pestaña Communities
-                            communityService.myCommunities.isEmpty
-                                ? noPosts(size, "communities")
+                            postService.communitymySpacePosts.isEmpty
+                                ? noPosts(size, "posts")
                                 : Center(
-                                    child: MyCommunitiesWidget(),
-                                  ),
+                                    child: CommunityMySpace(
+                                    scrollController: _scrollController,
+                                    buildProgressIndicator: () =>
+                                        _buildProgressIndicator(),
+                                  )),
                           ],
                         ),
                       ),
