@@ -1,3 +1,4 @@
+import 'package:communiverse/screens/screens.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:communiverse/models/models.dart'; // Asegúrate de importar tu modelo de datos aquí
@@ -41,7 +42,8 @@ class CommunityCarousel extends StatelessWidget {
           community.uniqueId = 'carousel-${community.id}';
           return GestureDetector(
             onTap: () {
-              // Acción al hacer clic en una comunidad
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CommunityScreen(community: community,)));
             },
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 5.0),

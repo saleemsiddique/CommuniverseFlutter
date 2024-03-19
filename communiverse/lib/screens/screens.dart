@@ -15,3 +15,4 @@ export 'package:communiverse/screens/create_post.dart';
 export 'package:communiverse/screens/create_quizz.dart';
 export 'package:communiverse/screens/create_question.dart';
 export 'package:communiverse/screens/create_community.dart';
+export 'package:communiverse/screens/community_screen.dart';
