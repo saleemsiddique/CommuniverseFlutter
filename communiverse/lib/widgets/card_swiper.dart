@@ -1,8 +1,10 @@
 import 'package:communiverse/screens/screens.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:communiverse/models/models.dart'; // Asegúrate de importar tu modelo de datos aquí
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 
 class CommunityCarousel extends StatelessWidget {
   final List<Community> communities;
@@ -13,6 +15,7 @@ class CommunityCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    final postService = Provider.of<PostService>(context, listen: true);
 
     if (communities.isEmpty) {
       return Container(
@@ -41,9 +44,19 @@ class CommunityCarousel extends StatelessWidget {
         items: communities.map((Community community) {
           community.uniqueId = 'carousel-${community.id}';
           return GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CommunityScreen(community: community,)));
+            onTap: () async {
+              final postService =
+                  Provider.of<PostService>(context, listen: false);
+              postService.currentCommunityPostPage = 0;
+              postService.currentCommunityQuizzPage = 0;
+              await postService.getAllPostsFromCommunity(community.id);
+              await postService.getAllQuizzFromCommunity(community.id);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CommunityScreen(
+                            community: community,
+                          )));
             },
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 5.0),

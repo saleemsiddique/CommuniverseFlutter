@@ -10,9 +10,14 @@ class PostService extends ChangeNotifier {
   List<Post> myPosts = [];
   List<Post> myRePosts = [];
   List<Post> comments = [];
+  List<Post> communityPosts = [];
+  List<Post> communityQuizzes = [];
+
   int currentPostPage = 0;
   int currentRepostPage = 0;
   int currentCommentPage = 0;
+  int currentCommunityPostPage = 0;
+  int currentCommunityQuizzPage = 0;
   int pageSize = 5;
 
   /*findMyPosts(String id) async {
@@ -96,6 +101,48 @@ class PostService extends ChangeNotifier {
 
       comments.addAll(newPosts);
       currentCommentPage++;
+
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+    Future<void> getAllPostsFromCommunity(String communityId) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/$currentCommunityPostPage/5');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      List<Post> postsFromCommunity = jsonResponse.map((json) => Post.fromJson(json)).toList();
+
+      // Limpiar la lista si es la primera página
+      if (currentCommunityPostPage == 0) {
+        communityPosts.clear();
+      }
+
+      communityPosts.addAll(postsFromCommunity);
+      currentCommunityPostPage++;
+
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  Future<void> getAllQuizzFromCommunity(String communityId) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/quizz/$currentCommunityQuizzPage/5');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      List<Post> quizzFromCommunity = jsonResponse.map((json) => Post.fromJson(json)).toList();
+
+      // Limpiar la lista si es la primera página
+      if (currentCommunityQuizzPage == 0) {
+        communityQuizzes.clear();
+      }
+
+      communityQuizzes.addAll(quizzFromCommunity);
+      currentCommunityQuizzPage++;
 
       notifyListeners();
     } catch (error) {

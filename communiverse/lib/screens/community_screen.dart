@@ -16,14 +16,12 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen> {
   int _currentIndex = 0;
-  final List<String> _tabs = ['Posts', 'Reposts', 'Communities'];
+  final List<String> _tabs = ['Popular Posts', 'Pupular Quizzes', 'My Space'];
   bool _loading = false;
-  bool _editingProfile = false;
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _descriptionController;
   late TextEditingController _usernameController;
-  bool _imageUpdated = false;
 
   ScrollController _scrollController = ScrollController();
 
@@ -43,6 +41,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   void dispose() {
+    print("dispose community screen");
     _scrollController.dispose();
     super.dispose();
   }
@@ -58,13 +57,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
         _loading = true;
       });
       if (_currentIndex == 0) {
-        postService.findMyPostsPaged(userService.user.id).then((_) {
+        postService.getAllPostsFromCommunity(userService.user.id).then((_) {
           setState(() {
             _loading = false;
           });
         });
       } else if (_currentIndex == 1) {
-        postService.findMyRePostsPaged(userService.user.id).then((_) {
+        postService.getAllQuizzFromCommunity(userService.user.id).then((_) {
           setState(() {
             _loading = false;
           });
@@ -87,8 +86,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
     final Size size = MediaQuery.of(context).size;
     final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
-    final userLoginRequestService =
-        Provider.of<UserLoginRequestService>(context, listen: true);
     final communityService =
         Provider.of<CommunityService>(context, listen: true);
     return Scaffold(
@@ -99,79 +96,68 @@ class _CommunityScreenState extends State<CommunityScreen> {
             children: [
               _buildCommunityInfo(size, userService),
               SizedBox(height: size.height * 0.03),
-              _editingProfile
-                  ? ProfileEditScreen(
-                      user: userService.user,
-                      firstNameController: _firstNameController,
-                      lastNameController: _lastNameController,
-                      descriptionController: _descriptionController,
-                      usernameController: _usernameController,
-                      getEditedUserData: () => getEditedUserData(),
-                    )
-                  : DefaultTabController(
-                      length: _tabs.length,
-                      child: Container(
-                        height: size.height * 0.9,
-                        color: Color.fromRGBO(165, 91, 194, 0.2),
-                        child: Column(
+              DefaultTabController(
+                length: _tabs.length,
+                child: Container(
+                  height: size.height * 0.9,
+                  color: Color.fromRGBO(165, 91, 194, 0.2),
+                  child: Column(
+                    children: [
+                      TabBar(
+                        tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                        onTap: (index) {
+                          setState(() async {
+                            if (index == 0) {
+                              postService.currentCommunityPostPage = 0;
+                              await postService.getAllPostsFromCommunity(
+                                  widget.community.id);
+                            } else if (index == 1) {
+                              postService.currentCommunityQuizzPage = 0;
+                              await postService.getAllQuizzFromCommunity(
+                                  widget.community.id);
+                            }
+                            _currentIndex = index;
+                          });
+                        },
+                        indicatorColor: Colors.white,
+                      ),
+                      Expanded(
+                        child: TabBarView(
                           children: [
-                            TabBar(
-                              tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                              onTap: (index) {
-                                setState(() async {
-                                  if (index == 0) {
-                                    postService.currentRepostPage = 0;
-                                    await postService.findMyRePostsPaged(
-                                        UserLoginRequestService
-                                            .userLoginRequest.id);
-                                  } else if (index == 1) {
-                                    postService.currentPostPage = 0;
-                                    await postService.findMyPostsPaged(
-                                        UserLoginRequestService
-                                            .userLoginRequest.id);
-                                  }
-                                  _currentIndex = index;
-                                });
-                              },
-                              indicatorColor: Colors.white,
-                            ),
-                            Expanded(
-                              child: TabBarView(
-                                children: [
-                                  // Contenido de la pestaña Posts
-                                  postService.myPosts.isEmpty
-                                      ? noPosts(size, "posts")
-                                      : Center(
-                                          child: MyPosts(
-                                            scrollController: _scrollController,
-                                            buildProgressIndicator: () =>
-                                                _buildProgressIndicator(),
-                                          ),
-                                        ),
+                            // Contenido de la pestaña Posts
+                            postService.communityPosts.isEmpty
+                                ? noPosts(size, "posts")
+                                : Center(
+                                    child: CommunityPosts(
+                                      scrollController: _scrollController,
+                                      buildProgressIndicator: () =>
+                                          _buildProgressIndicator(),
+                                    ),
+                                  ),
 
-                                  // Contenido de la pestaña Reposts
-                                  postService.myRePosts.isEmpty
-                                      ? noPosts(size, "reposts")
-                                      : Center(
-                                          child: MyReposts(
-                                            scrollController: _scrollController,
-                                            buildProgressIndicator: () =>
-                                                _buildProgressIndicator(),
-                                          ),
-                                        ),
-                                  // Contenido de la pestaña Communities
-                                  communityService.myCommunities.isEmpty
-                                      ? noPosts(size, "communities")
-                                      : Center(
-                                          child: MyCommunitiesWidget(),
-                                        ),
-                                ],
-                              ),
-                            ),
+                            // Contenido de la pestaña Quizzes
+                            postService.communityQuizzes.isEmpty
+                                ? noPosts(size, "quizzes")
+                                : Center(
+                                    child: CommunityQuizzes(
+                                      scrollController: _scrollController,
+                                      buildProgressIndicator: () =>
+                                          _buildProgressIndicator(),
+                                    ),
+                                  ),
+                            // Contenido de la pestaña Communities
+                            communityService.myCommunities.isEmpty
+                                ? noPosts(size, "communities")
+                                : Center(
+                                    child: MyCommunitiesWidget(),
+                                  ),
                           ],
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -273,7 +259,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
       ),
     );
   }
-
 
   Widget _buildSection(String title, String value) {
     return Container(
