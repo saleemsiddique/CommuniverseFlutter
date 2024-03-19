@@ -17,10 +17,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   int _currentIndex = 0;
   final List<String> _tabs = ['Popular Posts', 'Pupular Quizzes', 'My Space'];
   bool _loading = false;
-  late TextEditingController _firstNameController;
-  late TextEditingController _lastNameController;
-  late TextEditingController _descriptionController;
-  late TextEditingController _usernameController;
+
 
   ScrollController _scrollController = ScrollController();
 
@@ -29,19 +26,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
     final userService = Provider.of<UserService>(context, listen: false);
     super.initState();
     _scrollController.addListener(_scrollListener);
-    _firstNameController = TextEditingController(text: userService.user.name);
-    _lastNameController =
-        TextEditingController(text: userService.user.lastName);
-    _descriptionController =
-        TextEditingController(text: userService.user.biography);
-    _usernameController =
-        TextEditingController(text: userService.user.username);
   }
 
   @override
   void dispose() {
     print("dispose community screen");
     _scrollController.dispose();
+    final postService = Provider.of<PostService>(context, listen: false);
+    postService.communityPosts = [];
+    postService.communityQuizzes = [];
+    postService.communitymySpacePosts = [];
     super.dispose();
   }
 
@@ -56,13 +50,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
         _loading = true;
       });
       if (_currentIndex == 0) {
-        postService.getAllPostsFromCommunity(userService.user.id).then((_) {
+        postService.getAllPostsFromCommunity(widget.community.id).then((_) {
           setState(() {
             _loading = false;
           });
         });
       } else if (_currentIndex == 1) {
-        postService.getAllQuizzFromCommunity(userService.user.id).then((_) {
+        postService.getAllQuizzFromCommunity(widget.community.id).then((_) {
           setState(() {
             _loading = false;
           });
@@ -70,7 +64,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       } else if (_currentIndex == 2) {
         postService
             .getMySpaceFromCommunity(
-                userService.user.id, userService.user.followedId)
+                widget.community.id, userService.user.followedId)
             .then((_) {
           setState(() {
             _loading = false;
@@ -80,22 +74,11 @@ class _CommunityScreenState extends State<CommunityScreen> {
     }
   }
 
-  Map<String, dynamic> getEditedUserData() {
-    return {
-      'name': _firstNameController.text,
-      'lastName': _lastNameController.text,
-      'biography': _descriptionController.text,
-      'username': _usernameController.text,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
-    final communityService =
-        Provider.of<CommunityService>(context, listen: true);
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.only(top: 40),
@@ -129,7 +112,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                               await postService.getMySpaceFromCommunity(
                                   widget.community.id,
                                   userService.user.followedId);
-                              await postService.getAllQuizzFromCommunity(
+                              await postService.getAllPostsFromCommunity(
                                   widget.community.id);
                             } else if (index == 2) {
                               postService.currentCommunityQuizzPage = 0;
@@ -282,43 +265,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
       child: Text(
         'There are no $content at the moment',
         textAlign: TextAlign.center, // Alinea el texto al centro
-      ),
-    );
-  }
-
-  Widget _buildSection(String title, String value) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 30),
-      decoration:
-          BoxDecoration(border: Border.all(color: Colors.white, width: 0.5)),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(222, 139, 255, 1)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoLabel(String label) {
-    return Container(
-      padding: EdgeInsets.only(top: 8, bottom: 4),
-      child: Text(
-        label,
-        style: TextStyle(color: Colors.white),
       ),
     );
   }

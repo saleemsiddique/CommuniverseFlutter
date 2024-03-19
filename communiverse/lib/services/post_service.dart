@@ -159,6 +159,8 @@ class PostService extends ChangeNotifier {
       final jsonData = await CommuniverseProvider.getJsonData('post/community/$communityId/myspace/$followed/$currentMySpacePage/$pageSize');
       final List<dynamic> jsonResponse = json.decode(jsonData);
       List<Post> quizzFromCommunity = jsonResponse.map((json) => Post.fromJson(json)).toList();
+      
+      print("Page $currentMySpacePage: $quizzFromCommunity");
 
       // Limpiar la lista si es la primera página
       if (currentMySpacePage == 0) {
