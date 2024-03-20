@@ -29,7 +29,7 @@ class PostWidget extends StatelessWidget {
     // Ajustar la altura del Card si está extendido
     if (isExtend && post.quizz == Quizz.empty()) {
       cardHeight *= 1.2; // Ajusta el factor según lo necesites
-    } 
+    }
 
     if (post.quizz != Quizz.empty()) {
       cardHeight = size.height * 0.37; // Ajusta el factor según lo necesites
@@ -440,7 +440,11 @@ class PostWidget extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  // Action to play the quiz
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => QuizScreen(quiz: post.quizz)
+                              ));
                 },
                 child: Row(
                   children: [
