@@ -11,6 +11,7 @@ class CommunityService extends ChangeNotifier {
   List<Community> top5Communities = [];
   List<Community> myCommunities = [];
   Community createdCommunity = Community.empty();
+  Community chosenCommunity = Community.empty();
 
   getTop5Communities() async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;

@@ -8,3 +8,5 @@ export 'package:communiverse/widgets/video_player.dart';
 export 'package:communiverse/widgets/community_card.dart';
 export 'package:communiverse/widgets/post_widget.dart';
 export 'package:communiverse/widgets/community_dropdown.dart';
+export 'package:communiverse/widgets/bubble_widget.dart';
+export 'package:communiverse/widgets/superior_quizz.dart';

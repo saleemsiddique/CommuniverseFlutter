@@ -136,11 +136,14 @@ class PostWidget extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${author.name} ${author.lastName}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              width: 120,
+                              child: Text(
+                                '${author.name} ${author.lastName}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             Text(
@@ -154,10 +157,14 @@ class PostWidget extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              'For: ${community.name}',
-                              style: TextStyle(
-                                color: Colors.grey,
+                            Container(
+                              width: 150,
+                              child: Text(
+                                'For: ${community.name}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             SizedBox(height: 5),
@@ -443,8 +450,8 @@ class PostWidget extends StatelessWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => QuizScreen(quiz: post.quizz)
-                              ));
+                          builder: (context) =>
+                              QuizScreen(quiz: post.quizz, post: post)));
                 },
                 child: Row(
                   children: [
