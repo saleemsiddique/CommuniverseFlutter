@@ -162,12 +162,32 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 IconButton(
                   icon: Icon(Icons.camera_alt),
                   onPressed: () {
+                    if (_images.length + _videos.length >= 10) {
+                      // Mostrar una SnackBar si se excede el límite
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Se ha alcanzado el límite máximo de 10 elementos entre fotos y videos.'),
+                        ),
+                      );
+                      return;
+                    }
                     _pickImage();
                   },
                 ),
                 IconButton(
                   icon: Icon(Icons.videocam),
                   onPressed: () {
+                    if (_images.length + _videos.length >= 10) {
+                      // Mostrar una SnackBar si se excede el límite
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Se ha alcanzado el límite máximo de 10 elementos entre fotos y videos.'),
+                        ),
+                      );
+                      return;
+                    }
                     _pickVideo();
                   },
                 ),
@@ -224,19 +244,21 @@ class _CommentsScreenState extends State<CommentsScreen> {
     );
   }
 
-  Padding postMedia() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Wrap(
-          alignment: WrapAlignment.start,
-          spacing: 12,
-          runSpacing: 5,
-          children: [
-            ..._images.map((image) => _buildImageThumbnail(image)),
-            ..._videos.map((video) => _buildVideoThumbnail(video)),
-          ],
+  postMedia() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 12,
+            runSpacing: 5,
+            children: [
+              ..._images.map((image) => _buildImageThumbnail(image)),
+              ..._videos.map((video) => _buildVideoThumbnail(video)),
+            ],
+          ),
         ),
       ),
     );
@@ -324,8 +346,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
     return Stack(
       children: [
         Container(
-          width: 100,
-          height: 100,
+          width: 63,
+          height: 63,
           decoration: BoxDecoration(
             image: DecorationImage(
               image: FileImage(imageFile),
