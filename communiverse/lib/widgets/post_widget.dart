@@ -265,131 +265,127 @@ class PostWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildMedia() {
-    int videoIndex = 0;
-    print("this is video ${post.videos.first.toString()}");
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: post.photos.length + post.videos.length,
-        itemBuilder: (context, index) {
-          if (index < post.photos.length) {
-            // Imágenes
-            return GestureDetector(
-              onTap: () {
-                Utils.openImageInFullScreen(context, post.photos[index], post);
-              },
-              child: Padding(
-                padding: EdgeInsets.only(right: 8.0),
-                child: Image.network(
-                  post.photos[index],
-                  width: 50,
-                  fit: BoxFit.cover,
-                ),
+Widget _buildMedia() {
+  return SizedBox(
+    height: 50,
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: post.photos.length + post.videos.length,
+      itemBuilder: (context, index) {
+        if (index < post.photos.length) {
+          // Imágenes
+          return GestureDetector(
+            onTap: () {
+              Utils.openImageInFullScreen(context, post.photos[index], post);
+            },
+            child: Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: Image.network(
+                post.photos[index],
+                width: 50,
+                fit: BoxFit.cover,
               ),
-            );
-          } else {
-            // Videos
-            print(
-                "Este video si es el importante ${post.videos[index - post.photos.length]}");
-            return FutureBuilder<Uint8List?>(
-              future:
-                  _getVideoThumbnail(post.videos[index - post.photos.length]),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Padding(
-                    padding: EdgeInsets.only(right: 8.0),
-                    child: Container(
-                      width: 50,
-                      color: Colors.grey, // Placeholder color
-                      child: Center(
-                        child:
-                            CircularProgressIndicator(), // Placeholder while loading thumbnail
+            ),
+          );
+        } else {
+          // Videos
+          int videoIndex = index - post.photos.length;
+          String videoUrl = post.videos[videoIndex];
+          return FutureBuilder<Uint8List?>(
+            future: _getVideoThumbnail(videoUrl),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: Container(
+                    width: 50,
+                    color: Colors.grey, // Placeholder color
+                    child: Center(
+                      child: CircularProgressIndicator(), // Placeholder while loading thumbnail
+                    ),
+                  ),
+                );
+              } else if (snapshot.hasError || snapshot.data == null) {
+                return GestureDetector(
+                  onTap: () {
+                    Utils.openVideoInFullScreen(context, videoUrl, post);
+                  },
+                  child: Container(
+                    height: 20,
+                    width: 50,
+                    color: Colors.red,
+                  ),
+                ); // Handle error or no thumbnail available
+              } else {
+                return GestureDetector(
+                  onTap: () {
+                    Utils.openVideoInFullScreen(context, videoUrl, post);
+                  },
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Image.memory(
+                          snapshot.data!,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                  );
-                } else if (snapshot.hasError || snapshot.data == null) {
-                  return GestureDetector(
-                    onTap: () {
-                      Utils.openVideoInFullScreen(context,
-                          post.videos[index - post.photos.length], post);
-                    },
-                    child: Container(
-                      height: 20,
-                      width: 50,
-                      color: Colors.red,
-                    ),
-                  ); // Handle error or no thumbnail available
-                } else {
-                  return GestureDetector(
-                    onTap: () {
-                      Utils.openVideoInFullScreen(context,
-                          post.videos[index - post.photos.length], post);
-                    },
-                    child: Stack(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(right: 8.0),
-                          child: Image.memory(
-                            snapshot.data!,
-                            height: 50,
-                            width: 50,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          child: Container(
-                            padding: EdgeInsets.all(1),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(8),
-                                bottomRight: Radius.circular(8),
-                              ),
-                            ),
-                            child: Icon(
-                              size: 20,
-                              Icons.videocam,
-                              color: Colors.white,
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(8),
+                              bottomRight: Radius.circular(8),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: FutureBuilder<double?>(
-                            future: Utils.getVideoDuration(
-                                post.videos[index - post.photos.length]),
-                            builder: (context, durationSnapshot) {
-                              if (durationSnapshot.connectionState ==
-                                      ConnectionState.waiting ||
-                                  durationSnapshot.hasError ||
-                                  durationSnapshot.data == null) {
-                                return Container();
-                              } else {
-                                return Text(
-                                  Utils.formatDuration(durationSnapshot.data!),
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 15),
-                                );
-                              }
-                            },
+                          child: Icon(
+                            size: 20,
+                            Icons.videocam,
+                            color: Colors.white,
                           ),
-                        )
-                      ],
-                    ),
-                  );
-                }
-              },
-            );
-          }
-        },
-      ),
-    );
-  }
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: FutureBuilder<double?>(
+                          future: Utils.getVideoDuration(videoUrl),
+                          builder: (context, durationSnapshot) {
+                            if (durationSnapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                durationSnapshot.hasError ||
+                                durationSnapshot.data == null) {
+                              return Container();
+                            } else {
+                              return Text(
+                                Utils.formatDuration(durationSnapshot.data!),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              }
+            },
+          );
+        }
+      },
+    ),
+  );
+}
+
 
   Future<Uint8List?> _getVideoThumbnail(String videoPath) async {
     print("video Url: $videoPath");

@@ -156,7 +156,7 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
               createdPost.communityId = _communityController.text;
               Map<String, dynamic> postData = createdPost.toJson();
               print("PostData: $postData");
-              await postService.postPost(postData);
+              await postService.postPost(postData, "none");
               postService.currentPostPage = 0;
               await postService.findMyPostsPaged(widget.user.id);
               Navigator.pop(

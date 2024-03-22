@@ -226,9 +226,9 @@ class PostService extends ChangeNotifier {
     }
   }
 
-  Future<void> postPost(Map<String, dynamic> data) async {
+  Future<void> postPost(Map<String, dynamic> data, String parentPostId) async {
     try {
-      final jsonData = await CommuniverseProvider.postJsonData('post', data);
+      final jsonData = await CommuniverseProvider.postJsonData('post/${parentPostId}', data);
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
