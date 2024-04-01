@@ -11,6 +11,7 @@ class Post {
   List<dynamic> videos;
   PostInteractions postInteractions;
   String repostUserId;
+  List<dynamic> likeUsersId;
   Quizz quizz;
   DateTime dateTime;
   bool isComment;
@@ -24,6 +25,7 @@ class Post {
     required this.videos,
     required this.postInteractions,
     required this.repostUserId,
+    required this.likeUsersId,
     required this.quizz,
     required this.dateTime,
     required this.isComment,
@@ -38,6 +40,7 @@ class Post {
       videos: [],
       postInteractions: PostInteractions.empty(),
       repostUserId: '',
+      likeUsersId: [],
       quizz: Quizz.empty(),
       dateTime: DateTime.now(),
       isComment: false);
@@ -55,6 +58,7 @@ class Post {
         videos: List<dynamic>.from(json["videos"].map((x) => x)),
         postInteractions: PostInteractions.fromJson(json["postInteractions"]),
         repostUserId: json["repost_user_id"],
+        likeUsersId: List<dynamic>.from(json["likeUsersId"] ?? []),
         quizz: Quizz.fromJson(json["quizz"]),
         dateTime: DateTime.parse(json["dateTime"]),
         isComment: json["comment"],
@@ -69,6 +73,7 @@ class Post {
         "videos": List<dynamic>.from(videos.map((x) => x)),
         "postInteractions": postInteractions.toJson(),
         "repost_user_id": repostUserId,
+        "likeUsersId": List<dynamic>.from(likeUsersId.map((x) => x)),
         "quizz": quizz.toJson(),
         "dateTime": dateTime.toIso8601String(),
         "comment": isComment,
