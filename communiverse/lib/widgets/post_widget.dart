@@ -83,7 +83,7 @@ class PostWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _buildInteractions(),
+                  _buildInteractions(context),
                 ],
               ),
             ),
@@ -178,7 +178,6 @@ class PostWidget extends StatelessWidget {
                                     Icons.repeat,
                                     color: Colors.grey,
                                   ),
-                                  SizedBox(width: 3),
                                   Text(
                                     '${repostUser.username}',
                                     style: TextStyle(
@@ -201,7 +200,36 @@ class PostWidget extends StatelessWidget {
     );
   }
 
-  Row _buildInteractions() {
+  Widget _buildInteractionCount(
+  IconData icon,
+  int count,
+  bool likedByCurrentUser,
+  VoidCallback? onPressed,
+) {
+  return Row(
+    children: [
+      IconButton(
+        icon: Icon(
+          icon,
+          size: 18,
+          color: likedByCurrentUser ? Colors.red : Colors.grey,
+        ),
+        onPressed: onPressed,
+      ),
+      Text(
+        '$count',
+        style: TextStyle(
+          color: Colors.grey,
+        ),
+      ),
+    ],
+  );
+}
+
+  Row _buildInteractions(BuildContext context) {
+    final userService = Provider.of<UserService>(context, listen: false);
+    final postService = Provider.of<PostService>(context, listen: false);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -216,16 +244,34 @@ class PostWidget extends StatelessWidget {
             _buildInteractionCount(
               Icons.comment,
               post.postInteractions.commentsId.length,
+              false, // likedByCurrentUser: false
+              () {
+                // Aquí puedes definir la función onPressed para comentarios
+              },
             ),
             SizedBox(width: 10),
             _buildInteractionCount(
               Icons.repeat,
               post.postInteractions.reposts,
+              false, // likedByCurrentUser: false
+              () {
+                // Aquí puedes definir la función onPressed para reposts
+              },
             ),
             SizedBox(width: 10),
             _buildInteractionCount(
-              Icons.favorite_border,
+              Icons.favorite,
               post.postInteractions.likes,
+              post.likeUsersId
+                  .contains(userService.user.id), // likedByCurrentUser
+              () async {
+                try {
+                  await postService.addLike(post.id, userService.user.id);
+                } catch (error) {
+                  // Manejar el error, por ejemplo, mostrar un mensaje de error al usuario
+                  print('Error adding like: $error');
+                }
+              },
             ),
           ],
         ),
@@ -265,127 +311,127 @@ class PostWidget extends StatelessWidget {
     );
   }
 
-Widget _buildMedia() {
-  return SizedBox(
-    height: 50,
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: post.photos.length + post.videos.length,
-      itemBuilder: (context, index) {
-        if (index < post.photos.length) {
-          // Imágenes
-          return GestureDetector(
-            onTap: () {
-              Utils.openImageInFullScreen(context, post.photos[index], post);
-            },
-            child: Padding(
-              padding: EdgeInsets.only(right: 8.0),
-              child: Image.network(
-                post.photos[index],
-                width: 50,
-                fit: BoxFit.cover,
+  Widget _buildMedia() {
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: post.photos.length + post.videos.length,
+        itemBuilder: (context, index) {
+          if (index < post.photos.length) {
+            // Imágenes
+            return GestureDetector(
+              onTap: () {
+                Utils.openImageInFullScreen(context, post.photos[index], post);
+              },
+              child: Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: Image.network(
+                  post.photos[index],
+                  width: 50,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-          );
-        } else {
-          // Videos
-          int videoIndex = index - post.photos.length;
-          String videoUrl = post.videos[videoIndex];
-          return FutureBuilder<Uint8List?>(
-            future: _getVideoThumbnail(videoUrl),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: Container(
-                    width: 50,
-                    color: Colors.grey, // Placeholder color
-                    child: Center(
-                      child: CircularProgressIndicator(), // Placeholder while loading thumbnail
-                    ),
-                  ),
-                );
-              } else if (snapshot.hasError || snapshot.data == null) {
-                return GestureDetector(
-                  onTap: () {
-                    Utils.openVideoInFullScreen(context, videoUrl, post);
-                  },
-                  child: Container(
-                    height: 20,
-                    width: 50,
-                    color: Colors.red,
-                  ),
-                ); // Handle error or no thumbnail available
-              } else {
-                return GestureDetector(
-                  onTap: () {
-                    Utils.openVideoInFullScreen(context, videoUrl, post);
-                  },
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: Image.memory(
-                          snapshot.data!,
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
-                        ),
+            );
+          } else {
+            // Videos
+            int videoIndex = index - post.photos.length;
+            String videoUrl = post.videos[videoIndex];
+            return FutureBuilder<Uint8List?>(
+              future: _getVideoThumbnail(videoUrl),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Padding(
+                    padding: EdgeInsets.only(right: 8.0),
+                    child: Container(
+                      width: 50,
+                      color: Colors.grey, // Placeholder color
+                      child: Center(
+                        child:
+                            CircularProgressIndicator(), // Placeholder while loading thumbnail
                       ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(1),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(8),
-                              bottomRight: Radius.circular(8),
+                    ),
+                  );
+                } else if (snapshot.hasError || snapshot.data == null) {
+                  return GestureDetector(
+                    onTap: () {
+                      Utils.openVideoInFullScreen(context, videoUrl, post);
+                    },
+                    child: Container(
+                      height: 20,
+                      width: 50,
+                      color: Colors.red,
+                    ),
+                  ); // Handle error or no thumbnail available
+                } else {
+                  return GestureDetector(
+                    onTap: () {
+                      Utils.openVideoInFullScreen(context, videoUrl, post);
+                    },
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: Image.memory(
+                            snapshot.data!,
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(1),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(8),
+                                bottomRight: Radius.circular(8),
+                              ),
+                            ),
+                            child: Icon(
+                              size: 20,
+                              Icons.videocam,
+                              color: Colors.white,
                             ),
                           ),
-                          child: Icon(
-                            size: 20,
-                            Icons.videocam,
-                            color: Colors.white,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: FutureBuilder<double?>(
+                            future: Utils.getVideoDuration(videoUrl),
+                            builder: (context, durationSnapshot) {
+                              if (durationSnapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  durationSnapshot.hasError ||
+                                  durationSnapshot.data == null) {
+                                return Container();
+                              } else {
+                                return Text(
+                                  Utils.formatDuration(durationSnapshot.data!),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                  ),
+                                );
+                              }
+                            },
                           ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: FutureBuilder<double?>(
-                          future: Utils.getVideoDuration(videoUrl),
-                          builder: (context, durationSnapshot) {
-                            if (durationSnapshot.connectionState ==
-                                    ConnectionState.waiting ||
-                                durationSnapshot.hasError ||
-                                durationSnapshot.data == null) {
-                              return Container();
-                            } else {
-                              return Text(
-                                Utils.formatDuration(durationSnapshot.data!),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
-            },
-          );
-        }
-      },
-    ),
-  );
-}
-
+                        )
+                      ],
+                    ),
+                  );
+                }
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
 
   Future<Uint8List?> _getVideoThumbnail(String videoPath) async {
     print("video Url: $videoPath");
@@ -465,25 +511,6 @@ Widget _buildMedia() {
                 ),
               ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInteractionCount(IconData icon, int count) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: 18,
-          color: Colors.grey,
-        ),
-        SizedBox(width: 3),
-        Text(
-          '$count',
-          style: TextStyle(
-            color: Colors.grey,
           ),
         ),
       ],

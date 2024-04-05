@@ -322,6 +322,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
               : [],
           "postInteractions": PostInteractions.empty(),
           "repost_user_id": "",
+          "like_users_id": [],
           "quizz": Quizz.empty(),
           "comment": true
         };
