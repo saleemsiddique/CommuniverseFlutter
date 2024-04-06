@@ -10,11 +10,25 @@ import 'package:communiverse/models/models.dart';
 import 'package:provider/provider.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
-class PostWidget extends StatelessWidget {
+class PostWidget extends StatefulWidget {
   final Post post;
   final bool isExtend;
   const PostWidget({Key? key, required this.post, required this.isExtend})
       : super(key: key);
+
+  @override
+  State<PostWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  late bool isLiked; // Declarar isLiked como una variable miembro
+
+  @override
+  void initState() {
+    super.initState();
+    final userService = Provider.of<UserService>(context, listen: false);
+    isLiked = widget.post.likeUsersId.contains(userService.user.id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,33 +36,34 @@ class PostWidget extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
 
     // Verificar si el post tiene media
-    final bool hasMedia = post.photos.isNotEmpty || post.videos.isNotEmpty;
+    final bool hasMedia =
+        widget.post.photos.isNotEmpty || widget.post.videos.isNotEmpty;
 
     // Definir la altura del Card
     double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.22;
     // Ajustar la altura del Card si está extendido
-    if (isExtend && post.quizz == Quizz.empty()) {
+    if (widget.isExtend && widget.post.quizz == Quizz.empty()) {
       cardHeight *= 1.2; // Ajusta el factor según lo necesites
     }
 
-    if (post.quizz != Quizz.empty()) {
+    if (widget.post.quizz != Quizz.empty()) {
       cardHeight = size.height * 0.37; // Ajusta el factor según lo necesites
     }
 
-    if (isExtend && post.quizz != Quizz.empty()) {
+    if (widget.isExtend && widget.post.quizz != Quizz.empty()) {
       cardHeight *= 1.1;
     }
 
     return GestureDetector(
       onTap: () async {
         postService.currentCommentPage = 0;
-        await postService.findMyCommentsPaged(post.id);
+        await postService.findMyCommentsPaged(widget.post.id);
         // Navegar a la pantalla de comentarios cuando se toque el post
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
-                CommentsScreen(post: post, postService: postService),
+                CommentsScreen(post: widget.post, postService: postService),
           ),
         );
       },
@@ -59,7 +74,7 @@ class PostWidget extends StatelessWidget {
           child: Card(
             color: Color.fromRGBO(46, 30, 47, 1),
             elevation: 3,
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -69,15 +84,15 @@ class PostWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (post.quizz == Quizz.empty()) ...[
+                        if (widget.post.quizz == Quizz.empty()) ...[
                           _buildHeader(context),
-                          if (post.content != '') _buildContent(),
+                          if (widget.post.content != '') _buildContent(),
                           SizedBox(height: 10),
                           if (hasMedia) _buildMedia(),
                         ] else ...[
                           _buildHeader(context),
                           SizedBox(height: 15),
-                          _buildQuizz(context, post),
+                          _buildQuizz(context, widget.post),
                           SizedBox(height: 1.4),
                         ]
                       ],
@@ -97,9 +112,10 @@ class PostWidget extends StatelessWidget {
     final postService = Provider.of<PostService>(context, listen: false);
 
     // Almacenar los datos recuperados en variables locales
-    final authorFuture = postService.findPostAuthor(post.authorId);
-    final communityFuture = postService.findPostCommunity(post.communityId);
-    final repostUserId = post.repostUserId;
+    final authorFuture = postService.findPostAuthor(widget.post.authorId);
+    final communityFuture =
+        postService.findPostCommunity(widget.post.communityId);
+    final repostUserId = widget.post.repostUserId;
 
     Future<User>? repostUserFuture;
     if (repostUserId != null && repostUserId != '') {
@@ -201,40 +217,42 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _buildInteractionCount(
-  IconData icon,
-  int count,
-  bool likedByCurrentUser,
-  VoidCallback? onPressed,
-) {
-  return Row(
-    children: [
-      IconButton(
-        icon: Icon(
-          icon,
-          size: 18,
-          color: likedByCurrentUser ? Colors.red : Colors.grey,
+    IconData icon,
+    int count,
+    Color color,
+    bool likedByCurrentUser,
+    VoidCallback? onPressed,
+  ) {
+    return Row(
+      children: [
+        IconButton(
+          icon: Icon(
+            icon,
+            size: 22,
+            color: color,
+          ),
+          onPressed: onPressed,
         ),
-        onPressed: onPressed,
-      ),
-      Text(
-        '$count',
-        style: TextStyle(
-          color: Colors.grey,
+        Text(
+          '$count',
+          style: TextStyle(
+            color: Colors.grey,
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   Row _buildInteractions(BuildContext context) {
     final userService = Provider.of<UserService>(context, listen: false);
     final postService = Provider.of<PostService>(context, listen: false);
+    Color likeButtonColor = isLiked ? Colors.red : Colors.grey;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          _formatDateTime(post.dateTime),
+          _formatDateTime(widget.post.dateTime),
           style: TextStyle(
             color: Colors.grey,
           ),
@@ -243,33 +261,54 @@ class PostWidget extends StatelessWidget {
           children: [
             _buildInteractionCount(
               Icons.comment,
-              post.postInteractions.commentsId.length,
+              widget.post.postInteractions.commentsId.length,
+              Colors.grey,
               false, // likedByCurrentUser: false
               () {
                 // Aquí puedes definir la función onPressed para comentarios
               },
             ),
-            SizedBox(width: 10),
+            SizedBox(width: 5),
             _buildInteractionCount(
               Icons.repeat,
-              post.postInteractions.reposts,
+              widget.post.postInteractions.reposts,
+              Colors.grey,
               false, // likedByCurrentUser: false
               () {
                 // Aquí puedes definir la función onPressed para reposts
               },
             ),
-            SizedBox(width: 10),
+            SizedBox(width: 5),
             _buildInteractionCount(
               Icons.favorite,
-              post.postInteractions.likes,
-              post.likeUsersId
-                  .contains(userService.user.id), // likedByCurrentUser
+              widget.post.postInteractions.likes,
+              likeButtonColor, // Cambiado según el estado de "me gusta"
+              isLiked, // likedByCurrentUser
               () async {
                 try {
-                  await postService.addLike(post.id, userService.user.id);
+                  if (isLiked) {
+                    await postService.lessLike(
+                        widget.post.id, userService.user.id);
+                    setState(() {
+                      isLiked = !isLiked;
+                      likeButtonColor = Colors.grey;
+                      widget.post.postInteractions.likes =
+                          widget.post.postInteractions.likes -
+                              1; // Actualizar el contador de likes
+                    });
+                  } else {
+                    await postService.addLike(
+                        widget.post.id, userService.user.id);
+                    setState(() {
+                      isLiked = !isLiked;
+                      likeButtonColor = Colors.red;
+                      widget.post.postInteractions.likes =
+                          widget.post.postInteractions.likes +
+                              1; // Actualizar el contador de likes
+                    });
+                  }
                 } catch (error) {
-                  // Manejar el error, por ejemplo, mostrar un mensaje de error al usuario
-                  print('Error adding like: $error');
+                  print('Error adding or removing like: $error');
                 }
               },
             ),
@@ -280,7 +319,7 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    String trimmedContent = post.content!.trim();
+    String trimmedContent = widget.post.content!.trim();
     bool isLongContent = trimmedContent.length > 100;
     final int maxCharacters = 100;
 
@@ -292,13 +331,13 @@ class PostWidget extends StatelessWidget {
           RichText(
             text: TextSpan(
               text: isLongContent
-                  ? isExtend
+                  ? widget.isExtend
                       ? trimmedContent
                       : trimmedContent.substring(0, maxCharacters)
                   : trimmedContent,
               style: TextStyle(color: Colors.white),
               children: <TextSpan>[
-                if (isLongContent && !isExtend)
+                if (isLongContent && !widget.isExtend)
                   TextSpan(
                     text: ' Ver más',
                     style: TextStyle(color: Colors.blue),
@@ -316,18 +355,19 @@ class PostWidget extends StatelessWidget {
       height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: post.photos.length + post.videos.length,
+        itemCount: widget.post.photos.length + widget.post.videos.length,
         itemBuilder: (context, index) {
-          if (index < post.photos.length) {
+          if (index < widget.post.photos.length) {
             // Imágenes
             return GestureDetector(
               onTap: () {
-                Utils.openImageInFullScreen(context, post.photos[index], post);
+                Utils.openImageInFullScreen(
+                    context, widget.post.photos[index], widget.post);
               },
               child: Padding(
                 padding: EdgeInsets.only(right: 8.0),
                 child: Image.network(
-                  post.photos[index],
+                  widget.post.photos[index],
                   width: 50,
                   fit: BoxFit.cover,
                 ),
@@ -335,8 +375,8 @@ class PostWidget extends StatelessWidget {
             );
           } else {
             // Videos
-            int videoIndex = index - post.photos.length;
-            String videoUrl = post.videos[videoIndex];
+            int videoIndex = index - widget.post.photos.length;
+            String videoUrl = widget.post.videos[videoIndex];
             return FutureBuilder<Uint8List?>(
               future: _getVideoThumbnail(videoUrl),
               builder: (context, snapshot) {
@@ -355,7 +395,8 @@ class PostWidget extends StatelessWidget {
                 } else if (snapshot.hasError || snapshot.data == null) {
                   return GestureDetector(
                     onTap: () {
-                      Utils.openVideoInFullScreen(context, videoUrl, post);
+                      Utils.openVideoInFullScreen(
+                          context, videoUrl, widget.post);
                     },
                     child: Container(
                       height: 20,
@@ -366,7 +407,8 @@ class PostWidget extends StatelessWidget {
                 } else {
                   return GestureDetector(
                     onTap: () {
-                      Utils.openVideoInFullScreen(context, videoUrl, post);
+                      Utils.openVideoInFullScreen(
+                          context, videoUrl, widget.post);
                     },
                     child: Stack(
                       children: [
