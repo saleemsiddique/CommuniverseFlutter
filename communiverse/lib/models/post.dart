@@ -10,7 +10,6 @@ class Post {
   List<dynamic> photos;
   List<dynamic> videos;
   PostInteractions postInteractions;
-  String repostUserId;
   Quizz quizz;
   DateTime dateTime;
   bool isComment;
@@ -23,7 +22,6 @@ class Post {
     required this.photos,
     required this.videos,
     required this.postInteractions,
-    required this.repostUserId,
     required this.quizz,
     required this.dateTime,
     required this.isComment,
@@ -37,7 +35,6 @@ class Post {
         photos: [],
         videos: [],
         postInteractions: PostInteractions.empty(),
-        repostUserId: '',
         quizz: Quizz.empty(),
         dateTime: DateTime.now(),
         isComment: false,
@@ -55,7 +52,6 @@ class Post {
         photos: List<dynamic>.from(json["photos"].map((x) => x)),
         videos: List<dynamic>.from(json["videos"].map((x) => x)),
         postInteractions: PostInteractions.fromJson(json["postInteractions"]),
-        repostUserId: json["repost_user_id"],
         quizz: Quizz.fromJson(json["quizz"]),
         dateTime: DateTime.parse(json["dateTime"]),
         isComment: json["comment"],
@@ -69,7 +65,6 @@ class Post {
         "photos": List<dynamic>.from(photos.map((x) => x)),
         "videos": List<dynamic>.from(videos.map((x) => x)),
         "postInteractions": postInteractions.toJson(),
-        "repost_user_id": repostUserId,
         "quizz": quizz.toJson(),
         "dateTime": dateTime.toIso8601String(),
         "comment": isComment,
@@ -99,8 +94,10 @@ class PostInteractions {
 
   factory PostInteractions.fromJson(Map<String, dynamic> json) =>
       PostInteractions(
-        likeUsersId: List<String>.from(json["like_users_id"].map((x) => x)),
-        repostUsersId: List<String>.from(json["repost_users_id"].map((x) => x)),
+        likeUsersId:
+            List<String>.from(json["like_users_id"].map((x) => x)),
+        repostUsersId:
+            List<String>.from(json["repost_users_id"].map((x) => x)),
         commentsId: List<String>.from(json["comments_id"].map((x) => x)),
       );
 
@@ -110,6 +107,7 @@ class PostInteractions {
         "comments_id": List<dynamic>.from(commentsId.map((x) => x)),
       };
 }
+
 
 class Quizz {
   String id;

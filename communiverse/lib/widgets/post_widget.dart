@@ -30,8 +30,8 @@ class _PostWidgetState extends State<PostWidget> {
     final userService = Provider.of<UserService>(context, listen: false);
     isLiked =
         widget.post.postInteractions.likeUsersId.contains(userService.user.id);
-    isReposted = widget.post.postInteractions.repostUsersId
-        .contains(userService.user.id);
+    isReposted = 
+        widget.post.postInteractions.repostUsersId.contains(userService.user.id);
   }
 
   @override
@@ -114,11 +114,21 @@ class _PostWidgetState extends State<PostWidget> {
 
   Widget _buildHeader(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: false);
+    final userService = Provider.of<UserService>(context, listen: false);
     // Almacenar los datos recuperados en variables locales
     final authorFuture = postService.findPostAuthor(widget.post.authorId);
     final communityFuture =
         postService.findPostCommunity(widget.post.communityId);
-    final repostUserId = widget.post.repostUserId;
+    final List<String> repostUserIds =
+        widget.post.postInteractions.repostUsersId;
+
+// Ahora, para buscar un valor específico dentro de la lista, podrías hacer algo como esto:
+    String? repostUserId;
+    final int index =
+        repostUserIds.indexWhere((id) => id == userService.user.id);
+    if (index != -1) {
+      repostUserId = repostUserIds[index];
+    }
 
     Future<User>? repostUserFuture;
     if (repostUserId != null && repostUserId != '') {

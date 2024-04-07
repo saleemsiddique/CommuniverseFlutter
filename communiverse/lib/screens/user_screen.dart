@@ -248,7 +248,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       userService.user.username,
                       style:
                           TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    )
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Lógica para seguir al usuario
+                      },
+                      style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                        backgroundColor:
+                            Color.fromRGBO(222, 139, 255, 1), // Color de fondo
+                      ),
+                      child: Text('Follow'),
+                    ),
                   ],
                 ),
                 SizedBox(width: size.width * 0.05),

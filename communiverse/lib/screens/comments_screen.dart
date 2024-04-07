@@ -321,7 +321,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   _videos.map((url) => File(url)).toList())
               : [],
           "postInteractions": PostInteractions.empty(),
-          "repost_user_id": "",
           "quizz": Quizz.empty(),
           "comment": true
         };
