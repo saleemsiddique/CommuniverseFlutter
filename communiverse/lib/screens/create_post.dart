@@ -191,8 +191,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   _videos.map((url) => File(url)).toList())
                               : [],
                           "postInteractions": PostInteractions.empty(),
-                          "repost_user_id": "",
-                          "like_users_id": [],
+                          "repost_user_id": '',
                           "quizz": Quizz.empty(),
                           "comment": false
                         };

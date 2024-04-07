@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:communiverse/provider/provider_communiverse.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class PostService extends ChangeNotifier {
 
       myPosts.addAll(newPosts);
       currentPostPage++;
-
+      print("Posts termino");
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
@@ -80,6 +81,7 @@ class PostService extends ChangeNotifier {
 
       myRePosts.addAll(newRePosts);
       currentRepostPage++;
+      print("Reposts termino");
 
       notifyListeners();
     } catch (error) {
@@ -159,7 +161,7 @@ class PostService extends ChangeNotifier {
 
   Future<void> getMySpaceFromCommunity(
       String communityId, List<String> followedList) async {
-    String followed = followedList.join(',');
+    String followed = followedList.isNotEmpty ? followedList.join(',') : "none";
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/community/$communityId/myspace/$followed/$currentMySpacePage/$pageSize');
@@ -244,22 +246,10 @@ class PostService extends ChangeNotifier {
     }
   }
 
-  addLike(String postId, String userId) async {
+  likeOrRepost(String action, String postId, String userId) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
-          'post/addLike/$postId/$userId');
-      Post postUpdated = Post.fromJson(json.decode(jsonData));
-      print("Este es el post encotrado por ID: $postUpdated");
-      notifyListeners();
-    } catch (error) {
-      throw Exception('Failed to add like: $error');
-    }
-  }
-
-  lessLike(String postId, String userId) async {
-    try {
-      final jsonData = await CommuniverseProvider.getJsonData(
-          'post/lessLike/$postId/$userId');
+          'post/$action/$postId/$userId');
       Post postUpdated = Post.fromJson(json.decode(jsonData));
       print("Este es el post encotrado por ID: $postUpdated");
       notifyListeners();

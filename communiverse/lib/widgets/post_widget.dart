@@ -22,12 +22,16 @@ class PostWidget extends StatefulWidget {
 
 class _PostWidgetState extends State<PostWidget> {
   late bool isLiked; // Declarar isLiked como una variable miembro
+  late bool isReposted; // Declarar isLiked como una variable miembro
 
   @override
   void initState() {
     super.initState();
     final userService = Provider.of<UserService>(context, listen: false);
-    isLiked = widget.post.likeUsersId.contains(userService.user.id);
+    isLiked =
+        widget.post.postInteractions.likeUsersId.contains(userService.user.id);
+    isReposted = widget.post.postInteractions.repostUsersId
+        .contains(userService.user.id);
   }
 
   @override
@@ -40,7 +44,7 @@ class _PostWidgetState extends State<PostWidget> {
         widget.post.photos.isNotEmpty || widget.post.videos.isNotEmpty;
 
     // Definir la altura del Card
-    double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.22;
+    double cardHeight = hasMedia ? size.height * 0.32 : size.height * 0.23;
     // Ajustar la altura del Card si está extendido
     if (widget.isExtend && widget.post.quizz == Quizz.empty()) {
       cardHeight *= 1.2; // Ajusta el factor según lo necesites
@@ -110,7 +114,6 @@ class _PostWidgetState extends State<PostWidget> {
 
   Widget _buildHeader(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: false);
-
     // Almacenar los datos recuperados en variables locales
     final authorFuture = postService.findPostAuthor(widget.post.authorId);
     final communityFuture =
@@ -247,6 +250,7 @@ class _PostWidgetState extends State<PostWidget> {
     final userService = Provider.of<UserService>(context, listen: false);
     final postService = Provider.of<PostService>(context, listen: false);
     Color likeButtonColor = isLiked ? Colors.red : Colors.grey;
+    Color repostButtonColor = isReposted ? Colors.blue : Colors.grey;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -271,40 +275,60 @@ class _PostWidgetState extends State<PostWidget> {
             SizedBox(width: 5),
             _buildInteractionCount(
               Icons.repeat,
-              widget.post.postInteractions.reposts,
-              Colors.grey,
+              widget.post.postInteractions.repostUsersId.length,
+              repostButtonColor,
               false, // likedByCurrentUser: false
-              () {
-                // Aquí puedes definir la función onPressed para reposts
+              () async {
+                if (isReposted) {
+                  await postService.likeOrRepost(
+                      "removeRepost", widget.post.id, userService.user.id);
+                  setState(() {
+                    isReposted = !isReposted;
+                    repostButtonColor = Colors.grey;
+                    // Remover el ID del usuario de la lista
+                    widget.post.postInteractions.repostUsersId
+                        .remove(userService.user.id);
+                  });
+                } else {
+                  await postService.likeOrRepost(
+                      "addRepost", widget.post.id, userService.user.id);
+                  setState(() {
+                    isReposted = !isReposted;
+                    repostButtonColor = Colors.blue;
+                    // Agregar el ID del usuario a la lista
+                    widget.post.postInteractions.repostUsersId
+                        .add(userService.user.id);
+                  });
+                }
               },
             ),
             SizedBox(width: 5),
             _buildInteractionCount(
               Icons.favorite,
-              widget.post.postInteractions.likes,
+              widget.post.postInteractions.likeUsersId.length,
               likeButtonColor, // Cambiado según el estado de "me gusta"
               isLiked, // likedByCurrentUser
               () async {
                 try {
                   if (isLiked) {
-                    await postService.lessLike(
-                        widget.post.id, userService.user.id);
+                    await postService.likeOrRepost(
+                        "removeLike", widget.post.id, userService.user.id);
                     setState(() {
                       isLiked = !isLiked;
                       likeButtonColor = Colors.grey;
-                      widget.post.postInteractions.likes =
-                          widget.post.postInteractions.likes -
-                              1; // Actualizar el contador de likes
+                      // Remover el ID del usuario de la lista
+                      widget.post.postInteractions.likeUsersId
+                          .remove(userService.user.id);
                     });
                   } else {
-                    await postService.addLike(
-                        widget.post.id, userService.user.id);
+                    await postService.likeOrRepost(
+                        "addLike", widget.post.id, userService.user.id);
                     setState(() {
                       isLiked = !isLiked;
                       likeButtonColor = Colors.red;
-                      widget.post.postInteractions.likes =
-                          widget.post.postInteractions.likes +
-                              1; // Actualizar el contador de likes
+                      // Agregar el ID del usuario a la lista
+                      widget.post.postInteractions.likeUsersId
+                          .add(userService.user.id);
                     });
                   }
                 } catch (error) {

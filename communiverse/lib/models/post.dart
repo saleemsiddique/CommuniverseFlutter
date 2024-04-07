@@ -11,7 +11,6 @@ class Post {
   List<dynamic> videos;
   PostInteractions postInteractions;
   String repostUserId;
-  List<dynamic> likeUsersId;
   Quizz quizz;
   DateTime dateTime;
   bool isComment;
@@ -25,25 +24,24 @@ class Post {
     required this.videos,
     required this.postInteractions,
     required this.repostUserId,
-    required this.likeUsersId,
     required this.quizz,
     required this.dateTime,
     required this.isComment,
   });
 
   factory Post.empty() => Post(
-      id: '',
-      communityId: '',
-      authorId: '',
-      content: '',
-      photos: [],
-      videos: [],
-      postInteractions: PostInteractions.empty(),
-      repostUserId: '',
-      likeUsersId: [],
-      quizz: Quizz.empty(),
-      dateTime: DateTime.now(),
-      isComment: false);
+        id: '',
+        communityId: '',
+        authorId: '',
+        content: '',
+        photos: [],
+        videos: [],
+        postInteractions: PostInteractions.empty(),
+        repostUserId: '',
+        quizz: Quizz.empty(),
+        dateTime: DateTime.now(),
+        isComment: false,
+      );
 
   factory Post.fromRawJson(String str) => Post.fromJson(json.decode(str));
 
@@ -58,7 +56,6 @@ class Post {
         videos: List<dynamic>.from(json["videos"].map((x) => x)),
         postInteractions: PostInteractions.fromJson(json["postInteractions"]),
         repostUserId: json["repost_user_id"],
-        likeUsersId: List<dynamic>.from(json["like_users_id"] ?? []),
         quizz: Quizz.fromJson(json["quizz"]),
         dateTime: DateTime.parse(json["dateTime"]),
         isComment: json["comment"],
@@ -73,7 +70,6 @@ class Post {
         "videos": List<dynamic>.from(videos.map((x) => x)),
         "postInteractions": postInteractions.toJson(),
         "repost_user_id": repostUserId,
-        "like_users_id": List<dynamic>.from(likeUsersId.map((x) => x)),
         "quizz": quizz.toJson(),
         "dateTime": dateTime.toIso8601String(),
         "comment": isComment,
@@ -81,19 +77,19 @@ class Post {
 }
 
 class PostInteractions {
-  int likes;
-  int reposts;
+  List<String> likeUsersId;
+  List<String> repostUsersId;
   List<String> commentsId;
 
   PostInteractions({
-    required this.likes,
-    required this.reposts,
+    required this.likeUsersId,
+    required this.repostUsersId,
     required this.commentsId,
   });
 
   PostInteractions.empty()
-      : likes = 0,
-        reposts = 0,
+      : likeUsersId = [],
+        repostUsersId = [],
         commentsId = [];
 
   factory PostInteractions.fromRawJson(String str) =>
@@ -103,14 +99,14 @@ class PostInteractions {
 
   factory PostInteractions.fromJson(Map<String, dynamic> json) =>
       PostInteractions(
-        likes: json["likes"],
-        reposts: json["reposts"],
+        likeUsersId: List<String>.from(json["like_users_id"].map((x) => x)),
+        repostUsersId: List<String>.from(json["repost_users_id"].map((x) => x)),
         commentsId: List<String>.from(json["comments_id"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
-        "likes": likes,
-        "reposts": reposts,
+        "like_users_id": List<dynamic>.from(likeUsersId.map((x) => x)),
+        "repost_users_id": List<dynamic>.from(repostUsersId.map((x) => x)),
         "comments_id": List<dynamic>.from(commentsId.map((x) => x)),
       };
 }

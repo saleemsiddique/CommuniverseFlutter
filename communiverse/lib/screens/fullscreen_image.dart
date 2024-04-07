@@ -38,11 +38,11 @@ class FullScreenImage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildInteractionIconButton(
-                    Icons.favorite_border, post.postInteractions.likes),
+                    Icons.favorite_border, post.postInteractions.likeUsersId.length),
                 _buildInteractionIconButton(
                     Icons.comment, post.postInteractions.commentsId.length),
                 _buildInteractionIconButton(
-                    Icons.repeat, post.postInteractions.reposts),
+                    Icons.repeat, post.postInteractions.repostUsersId.length),
               ],
             )
           ],
