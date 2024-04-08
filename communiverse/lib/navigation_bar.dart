@@ -55,7 +55,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       extendBody: true,
       body: IndexedStack(
         index: _selectedIndex,
-        children: [HomeScreen(), ProfileScreen()],
+        children: [HomeScreen(), ProfileScreen(username: UserLoginRequestService.userLoginRequest.username,)],
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 60),

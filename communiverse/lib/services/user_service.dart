@@ -11,6 +11,7 @@ class UserService extends ChangeNotifier {
   String password = '';
   String username = "";
   User user = new User.empty();
+  User searchedUser = new User.empty();
 
 signUp(Map<String, dynamic> data) async {
   try {
@@ -30,6 +31,18 @@ findUserById(String id) async {
   try {
     final jsonData = await CommuniverseProvider.getJsonData('user/${id}');
     user = User.fromJson(json.decode(jsonData));
+    print("Este es el usuario encotrado por ID: $user");
+    notifyListeners();
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}
+
+searchOtherUsers(String username) async {
+  try {
+    final jsonData = await CommuniverseProvider.getJsonData('user/${username}');
+    searchedUser = User.fromJson(json.decode(jsonData));
     print("Este es el usuario encotrado por ID: $user");
     notifyListeners();
   } catch (error) {

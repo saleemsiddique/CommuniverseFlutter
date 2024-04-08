@@ -5,6 +5,9 @@ import 'package:communiverse/services/services.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final String username; // Nuevo parámetro username
+  ProfileScreen({required this.username}); // Constructor
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -26,14 +29,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     final userService = Provider.of<UserService>(context, listen: false);
     super.initState();
+    _loadUserData(); // Llama a una función para cargar los datos del usuario
     _scrollController.addListener(_scrollListener);
-    _firstNameController = TextEditingController(text: userService.user.name);
+    _firstNameController =
+        TextEditingController(text: userService.searchedUser.name);
     _lastNameController =
-        TextEditingController(text: userService.user.lastName);
+        TextEditingController(text: userService.searchedUser.lastName);
     _descriptionController =
-        TextEditingController(text: userService.user.biography);
+        TextEditingController(text: userService.searchedUser.biography);
     _usernameController =
-        TextEditingController(text: userService.user.username);
+        TextEditingController(text: userService.searchedUser.username);
+  }
+
+  void _loadUserData() async {
+    final userService = Provider.of<UserService>(context, listen: false);
+    try {
+      await userService.searchOtherUsers(
+          widget.username); // Utiliza el username proporcionado
+    } catch (error) {
+      // Manejar el error
+    }
   }
 
   @override
@@ -256,7 +271,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () {
                         // Lógica para seguir al usuario
                       },
-                      style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                      style: ElevatedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                         backgroundColor:
                             Color.fromRGBO(222, 139, 255, 1), // Color de fondo
                       ),
