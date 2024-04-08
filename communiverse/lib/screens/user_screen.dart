@@ -68,13 +68,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _loading = true;
       });
       if (_currentIndex == 0) {
-        postService.findMyPostsPaged(userService.user.id).then((_) {
+        postService.findMyPostsPaged(userService.searchedUser.id).then((_) {
           setState(() {
             _loading = false;
           });
         });
       } else if (_currentIndex == 1) {
-        postService.findMyRePostsPaged(userService.user.id).then((_) {
+        postService.findMyRePostsPaged(userService.searchedUser.id).then((_) {
           setState(() {
             _loading = false;
           });
@@ -111,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: size.height * 0.03),
               _editingProfile
                   ? ProfileEditScreen(
-                      user: userService.user,
+                      user: userService.searchedUser,
                       firstNameController: _firstNameController,
                       lastNameController: _lastNameController,
                       descriptionController: _descriptionController,
@@ -238,9 +238,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   .millisecondsSinceEpoch
                                   .toString();
                               String updatedPhotoUrl =
-                                  '${userService.user.photo}?$uniqueIdentifier';
+                                  '${userService.searchedUser.photo}?$uniqueIdentifier';
                               setState(() {
-                                userService.user.photo = updatedPhotoUrl;
+                                userService.searchedUser.photo = updatedPhotoUrl;
                               });
                             },
                           );
@@ -250,8 +250,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor: Colors.black,
                         radius: 55,
                         // Usar la nueva URL con el identificador único para cargar la imagen
-                        backgroundImage: userService.user.photo != ""
-                            ? NetworkImage(userService.user.photo)
+                        backgroundImage: userService.searchedUser.photo != ""
+                            ? NetworkImage(userService.searchedUser.photo)
                             : AssetImage('assets/no-user.png')
                                 as ImageProvider<Object>?,
                       ),
@@ -260,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 10,
                     ),
                     Text(
-                      userService.user.username,
+                      userService.searchedUser.username,
                       style:
                           TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
@@ -295,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildInfoLabel('Name'),
                               SizedBox(height: 2),
                               Text(
-                                '${userService.user.name} ${userService.user.lastName}',
+                                '${userService.searchedUser.name} ${userService.searchedUser.lastName}',
                                 style: TextStyle(
                                     fontSize: 15,
                                     color: Color.fromRGBO(222, 139, 255, 1)),
@@ -303,7 +303,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildInfoLabel('Description'),
                               SizedBox(height: 2),
                               Text(
-                                userService.user.biography,
+                                userService.searchedUser.biography,
                                 overflow: TextOverflow.clip,
                                 maxLines: 6,
                                 style: TextStyle(
@@ -314,7 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _buildInfoLabel('Level'),
                               SizedBox(height: 2),
                               Text(
-                                '${userService.user.userStats.level}',
+                                '${userService.searchedUser.userStats.level}',
                                 style: TextStyle(
                                     fontSize: 15,
                                     color: Color.fromRGBO(222, 139, 255, 1)),
@@ -353,7 +353,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         try {
                           // Llamar a la función editUser de UserLoginRequestService con los datos editados
                           await userLoginRequestService.editUser(
-                            userService.user.id,
+                            userService.searchedUser.id,
                             editedData,
                           );
                           await userService.findUserById(
@@ -384,9 +384,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildSection(
-                'Followers', userService.user.followersId.length.toString()),
+                'Followers', userService.searchedUser.followersId.length.toString()),
             _buildSection(
-                'Followed', userService.user.followedId.length.toString()),
+                'Followed', userService.searchedUser.followedId.length.toString()),
           ],
         ),
       ],
