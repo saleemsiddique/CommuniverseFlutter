@@ -21,3 +21,4 @@ export 'package:communiverse/screens/community_quizzes.dart';
 export 'package:communiverse/screens/community_myspace.dart';
 export 'package:communiverse/screens/quizz_screen.dart';
 export 'package:communiverse/screens/quizz_summary.dart';
+export 'package:communiverse/screens/search_profile.dart';
