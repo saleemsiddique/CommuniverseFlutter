@@ -1,3 +1,5 @@
+import 'package:communiverse/screens/user_screen.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/services/user_service.dart';
 import 'package:provider/provider.dart'; // Importa el servicio de usuario
@@ -7,13 +9,17 @@ class UserProfileItem extends StatelessWidget {
   final String username;
   final String fullname;
 
-  UserProfileItem({required this.username, required this.profilePic, required this.fullname});
+  UserProfileItem(
+      {required this.username,
+      required this.profilePic,
+      required this.fullname});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: NetworkImage(profilePic), // Asigna la imagen del perfil como avatar
+        backgroundImage:
+            NetworkImage(profilePic), // Asigna la imagen del perfil como avatar
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +54,10 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -62,6 +71,11 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
                 // Llama a la función de búsqueda cada vez que cambia el texto
                 if (value.length >= 3) {
                   userService.searchUsersList(value);
+                }
+                if (value.length < 3) {
+                  setState(() {
+                    userService.searchedUsersList.clear();
+                  });
                 }
               },
               decoration: InputDecoration(
@@ -79,17 +93,25 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
                   onPressed: () {
                     _searchController.clear(); // Limpiar el campo de búsqueda
                     setState(() {
-                      userService.searchedUsersList.clear(); // Limpiar los resultados de búsqueda
+                      userService.searchedUsersList
+                          .clear(); // Limpiar los resultados de búsqueda
                     });
                   },
+                  color: Color.fromRGBO(222, 139, 255, 1), // Color del icono
                 ),
               ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                // Cierra el teclado al presionar el botón
+                FocusScope.of(context).unfocus();
                 // La búsqueda se realiza automáticamente al escribir al menos 3 letras
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    Color.fromRGBO(222, 139, 255, 1), // Color del botón
+              ),
               child: Text('Search'),
             ),
             SizedBox(height: 20),
@@ -97,10 +119,33 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
               child: ListView.builder(
                 itemCount: userService.searchedUsersList.length,
                 itemBuilder: (context, index) {
-                  return UserProfileItem(
-                    username: userService.searchedUsersList[index].username,
-                    fullname: "${userService.searchedUsersList[index].name} ${userService.searchedUsersList[index].lastName}",
-                    profilePic: userService.searchedUsersList[index].photo,
+                  return GestureDetector(
+                    onTap: () async {
+                      await userService.searchOtherUsers(
+                          userService.searchedUsersList[index].username);
+                      await postService.findMyPostsPaged(
+                          userService.searchedUsersList[index].id);
+                      await postService.findMyRePostsPaged(
+                          userService.searchedUsersList[index].id);
+                      await communityService.getMyCommunities(
+                          userService.searchedUsersList[index].id);
+
+                      // Realizar la navegación a la nueva pantalla cuando se seleccione un elemento
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProfileScreen(
+                              username: userService
+                                  .searchedUsersList[index].username),
+                        ),
+                      );
+                    },
+                    child: UserProfileItem(
+                      username: userService.searchedUsersList[index].username,
+                      fullname:
+                          "${userService.searchedUsersList[index].name} ${userService.searchedUsersList[index].lastName}",
+                      profilePic: userService.searchedUsersList[index].photo,
+                    ),
                   );
                 },
               ),

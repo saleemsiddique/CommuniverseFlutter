@@ -29,7 +29,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     final userService = Provider.of<UserService>(context, listen: false);
     super.initState();
-    _loadUserData(); // Llama a una función para cargar los datos del usuario
     _scrollController.addListener(_scrollListener);
     _firstNameController =
         TextEditingController(text: userService.searchedUser.name);
@@ -41,15 +40,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         TextEditingController(text: userService.searchedUser.username);
   }
 
-  void _loadUserData() async {
-    final userService = Provider.of<UserService>(context, listen: false);
-    try {
-      await userService.searchOtherUsers(
-          widget.username); // Utiliza el username proporcionado
-    } catch (error) {
-      // Manejar el error
-    }
-  }
 
   @override
   void dispose() {
@@ -132,13 +122,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   if (index == 0) {
                                     postService.currentRepostPage = 0;
                                     await postService.findMyRePostsPaged(
-                                        UserLoginRequestService
-                                            .userLoginRequest.id);
+                                        userService.searchedUser.id);
                                   } else if (index == 1) {
                                     postService.currentPostPage = 0;
                                     await postService.findMyPostsPaged(
-                                        UserLoginRequestService
-                                            .userLoginRequest.id);
+                                        userService.searchedUser.id);
                                   }
                                   _currentIndex = index;
                                 });
@@ -353,7 +341,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         try {
                           // Llamar a la función editUser de UserLoginRequestService con los datos editados
                           await userLoginRequestService.editUser(
-                            userService.searchedUser.id,
+                             UserLoginRequestService.userLoginRequest.id,
                             editedData,
                           );
                           await userService.findUserById(

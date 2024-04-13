@@ -23,7 +23,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     });
   }
 
-  void _onItemTapped(int index) {
+  Future<void> _onItemTapped(int index) async {
     final communityService =
         Provider.of<CommunityService>(context, listen: false);
     final postService = Provider.of<PostService>(context, listen: false);
@@ -37,11 +37,10 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         errorTokenExpired(context);
       }
     } else if (index == 1) {
-      /*postService.currentPostPage = 0;
-      postService.currentRepostPage = 0;
-      postService.findMyPostsPaged(userService.user.id);
-      postService.findMyRePostsPaged(userService.user.id);
-      communityService.getMyCommunities(userService.user.id);*/
+      await userService.searchOtherUsers(userService.user.username);
+      await postService.findMyPostsPaged(userService.searchedUser.id);
+      await postService.findMyRePostsPaged(userService.searchedUser.id);
+      await communityService.getMyCommunities(userService.user.id);
     }
     setState(() {
       _selectedIndex = index;
@@ -55,7 +54,12 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       extendBody: true,
       body: IndexedStack(
         index: _selectedIndex,
-        children: [HomeScreen(), ProfileScreen(username: UserLoginRequestService.userLoginRequest.username,)],
+        children: [
+          HomeScreen(),
+          ProfileScreen(
+            username: UserLoginRequestService.userLoginRequest.username,
+          )
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 60),
