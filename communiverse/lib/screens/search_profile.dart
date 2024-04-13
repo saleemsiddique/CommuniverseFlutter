@@ -121,6 +121,8 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () async {
+                      postService.currentPostPage = 0;
+                      postService.currentRepostPage = 0;
                       await userService.searchOtherUsers(
                           userService.searchedUsersList[index].username);
                       await postService.findMyPostsPaged(

@@ -21,7 +21,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _descriptionController;
   late TextEditingController _usernameController;
-  bool _imageUpdated = false;
 
   ScrollController _scrollController = ScrollController();
 
@@ -39,7 +38,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _usernameController =
         TextEditingController(text: userService.searchedUser.username);
   }
-
 
   @override
   void dispose() {
@@ -228,7 +226,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               String updatedPhotoUrl =
                                   '${userService.searchedUser.photo}?$uniqueIdentifier';
                               setState(() {
-                                userService.searchedUser.photo = updatedPhotoUrl;
+                                userService.searchedUser.photo =
+                                    updatedPhotoUrl;
                               });
                             },
                           );
@@ -256,8 +255,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 10,
                     ),
                     ElevatedButton(
-                      onPressed: () {
-                        // Lógica para seguir al usuario
+                      onPressed: () async {
+                        if (_editingProfile) {
+                          // Lógica para guardar los cambios
+                          Map<String, dynamic> editedData = getEditedUserData();
+                          try {
+                            await userLoginRequestService.editUser(
+                              UserLoginRequestService.userLoginRequest.id,
+                              editedData,
+                            );
+                            await userService.findUserById(
+                              UserLoginRequestService.userLoginRequest.id,
+                            );
+                            // Realizar alguna acción después de editar el usuario, si es necesario
+                            setState(() {
+                              _editingProfile =
+                                  false; // Cambiar de nuevo al modo de visualización
+                            });
+                          } catch (error) {
+                            // Manejar el error si falla la edición del usuario
+                          }
+                        } else if (userService.searchedUser.id ==
+                            userService.user.id) {
+                          setState(() {
+                            _editingProfile = true; // Cambiar a modo de edición
+                          });
+                        } else {
+                          // Lógica para seguir al usuario
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         padding:
@@ -265,8 +290,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor:
                             Color.fromRGBO(222, 139, 255, 1), // Color de fondo
                       ),
-                      child: Text('Follow'),
-                    ),
+                      child: Text(
+                        _editingProfile
+                            ? 'Save'
+                            : userService.searchedUser.id == userService.user.id
+                                ? 'Edit'
+                                : 'Follow',
+                      ),
+                    )
                   ],
                 ),
                 SizedBox(width: size.width * 0.05),
@@ -313,68 +344,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
               ],
             ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: _editingProfile
-                        ? Icon(Icons.close, color: Colors.white)
-                        : Icon(Icons.edit, color: Colors.white),
-                    onPressed: () {
-                      setState(() {
-                        _editingProfile = !_editingProfile;
-                      });
-                    },
-                  ),
-                  if (_editingProfile)
+            if (userService.searchedUser.id == userService.user.id)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Row(
+                  children: [
                     IconButton(
-                      icon: Icon(Icons.save,
-                          color: Colors.white), // Botón para guardar cambios
-                      onPressed: () async {
-                        // Obtener los datos editados del ProfileEditScreen
-                        print(
-                            "Esta es la data para editar: ${getEditedUserData()}");
-                        Map<String, dynamic> editedData = getEditedUserData();
-
-                        try {
-                          // Llamar a la función editUser de UserLoginRequestService con los datos editados
-                          await userLoginRequestService.editUser(
-                             UserLoginRequestService.userLoginRequest.id,
-                            editedData,
-                          );
-                          await userService.findUserById(
-                              UserLoginRequestService.userLoginRequest.id);
-                          // Realizar alguna acción después de editar el usuario, si es necesario
-                          setState(() {
-                            _editingProfile = !_editingProfile;
-                          });
-                        } catch (error) {
-                          // Manejar el error si falla la edición del usuario
-                        }
-                      },
-                    ),
-                  if (!_editingProfile)
-                    IconButton(
-                      icon: Icon(Icons.settings, color: Colors.white),
+                      icon: _editingProfile
+                          ? Icon(Icons.close, color: Colors.white)
+                          : Icon(Icons.edit, color: Colors.white),
                       onPressed: () {
-                        Navigator.pushNamed(context, 'settings');
+                        setState(() {
+                          _editingProfile = !_editingProfile;
+                        });
                       },
                     ),
-                ],
+                    if (_editingProfile)
+                      IconButton(
+                        icon: Icon(Icons.save, color: Colors.white),
+                        onPressed: () async {
+                          // Lógica para guardar los cambios
+                          Map<String, dynamic> editedData = getEditedUserData();
+                          try {
+                            await userLoginRequestService.editUser(
+                              UserLoginRequestService.userLoginRequest.id,
+                              editedData,
+                            );
+                            await userService.findUserById(
+                              UserLoginRequestService.userLoginRequest.id,
+                            );
+                            // Realizar alguna acción después de editar el usuario, si es necesario
+                            setState(() {
+                              _editingProfile =
+                                  false; // Cambiar de nuevo al modo de visualización
+                            });
+                          } catch (error) {
+                            // Manejar el error si falla la edición del usuario
+                          }
+                        },
+                      ),
+                    if (!_editingProfile)
+                      IconButton(
+                        icon: Icon(Icons.settings, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pushNamed(context, 'settings');
+                        },
+                      ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
         SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSection(
-                'Followers', userService.searchedUser.followersId.length.toString()),
-            _buildSection(
-                'Followed', userService.searchedUser.followedId.length.toString()),
+            _buildSection('Followers',
+                userService.searchedUser.followersId.length.toString()),
+            _buildSection('Followed',
+                userService.searchedUser.followedId.length.toString()),
           ],
         ),
       ],

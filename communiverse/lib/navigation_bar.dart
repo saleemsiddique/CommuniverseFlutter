@@ -30,17 +30,14 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     final userService = Provider.of<UserService>(context, listen: false);
 
     if (index == 0) {
-      try {
-        /*communityService.getTop5Communities();
-        communityService.getMyCommunities(UserLoginRequestService.userLoginRequest.id);*/
-      } catch (error) {
-        errorTokenExpired(context);
-      }
+      
     } else if (index == 1) {
+      postService.currentPostPage = 0;
+      postService.currentRepostPage = 0;
       await userService.searchOtherUsers(userService.user.username);
       await postService.findMyPostsPaged(userService.searchedUser.id);
       await postService.findMyRePostsPaged(userService.searchedUser.id);
-      await communityService.getMyCommunities(userService.user.id);
+      await communityService.getMyCommunities(userService.searchedUser.id);
     }
     setState(() {
       _selectedIndex = index;

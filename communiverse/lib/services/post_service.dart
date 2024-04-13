@@ -57,7 +57,6 @@ class PostService extends ChangeNotifier {
 
       myPosts.addAll(newPosts);
       currentPostPage++;
-      print("Posts termino");
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
@@ -81,8 +80,6 @@ class PostService extends ChangeNotifier {
 
       myRePosts.addAll(newRePosts);
       currentRepostPage++;
-      print("Reposts termino");
-
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
@@ -105,7 +102,6 @@ class PostService extends ChangeNotifier {
 
       comments.addAll(newPosts);
       currentCommentPage++;
-
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
@@ -128,7 +124,6 @@ class PostService extends ChangeNotifier {
 
       communityPosts.addAll(postsFromCommunity);
       currentCommunityPostPage++;
-
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
