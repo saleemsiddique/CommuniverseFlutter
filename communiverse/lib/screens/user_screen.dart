@@ -1,4 +1,5 @@
 import 'package:communiverse/utils.dart';
+import 'package:communiverse/widgets/error_tokenExpired.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
@@ -29,14 +30,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final userService = Provider.of<UserService>(context, listen: false);
     super.initState();
     _scrollController.addListener(_scrollListener);
-    _firstNameController =
-        TextEditingController(text: userService.searchedUser.name);
+    _firstNameController = TextEditingController(text: userService.user.name);
     _lastNameController =
-        TextEditingController(text: userService.searchedUser.lastName);
+        TextEditingController(text: userService.user.lastName);
     _descriptionController =
-        TextEditingController(text: userService.searchedUser.biography);
+        TextEditingController(text: userService.user.biography);
     _usernameController =
-        TextEditingController(text: userService.searchedUser.username);
+        TextEditingController(text: userService.user.username);
   }
 
   @override
@@ -256,10 +256,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () async {
-                        if (_editingProfile) {
-                          // Lógica para guardar los cambios
-                          Map<String, dynamic> editedData = getEditedUserData();
-                          try {
+                        try {
+                          if (_editingProfile) {
+                            // Lógica para guardar los cambios
+                            Map<String, dynamic> editedData =
+                                getEditedUserData();
                             await userLoginRequestService.editUser(
                               UserLoginRequestService.userLoginRequest.id,
                               editedData,
@@ -272,16 +273,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               _editingProfile =
                                   false; // Cambiar de nuevo al modo de visualización
                             });
-                          } catch (error) {
-                            // Manejar el error si falla la edición del usuario
+                          } else if (userService.searchedUser.id ==
+                              userService.user.id) {
+                            setState(() {
+                              _editingProfile =
+                                  true; // Cambiar a modo de edición
+                            });
+                          } else {
+                            // Lógica para seguir o dejar de seguir al usuario
+                            if (userService.user.followedId
+                                .contains(userService.searchedUser.id)) {
+                              // El usuario actual ya sigue al usuario buscado, dejar de seguir
+                              await userService.follow(
+                                UserLoginRequestService.userLoginRequest.id,
+                                userService.searchedUser.id,
+                              );
+                            } else {
+                              // El usuario actual aún no sigue al usuario buscado, seguir
+                              await userService.follow(
+                                UserLoginRequestService.userLoginRequest.id,
+                                userService.searchedUser.id,
+                              );
+                            }
                           }
-                        } else if (userService.searchedUser.id ==
-                            userService.user.id) {
-                          setState(() {
-                            _editingProfile = true; // Cambiar a modo de edición
-                          });
-                        } else {
-                          // Lógica para seguir al usuario
+                        } catch (error) {
+                          // Manejar el error si falla la operación
+                          errorTokenExpired(context);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -295,7 +312,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ? 'Save'
                             : userService.searchedUser.id == userService.user.id
                                 ? 'Edit'
-                                : 'Follow',
+                                : userService.searchedUser.followersId
+                                        .contains(userService.user.id)
+                                    ? 'Followed'
+                                    : 'Follow',
                       ),
                     )
                   ],

@@ -66,6 +66,35 @@ searchUsersList(String username) async {
   }
 }
 
+Future<User> findById(String id) async {
+  try {
+    final jsonData = await CommuniverseProvider.getJsonData('user/${id}');
+    User user = User.fromJson(json.decode(jsonData));
+    print("Este es el usuario encontrado por ID: $user");
+    return user;
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}
+
+follow(String idFollowing, String idFollowed) async {
+  try {
+    await CommuniverseProvider.getJsonData('user/follow/${idFollowing}/${idFollowed}');
+    print('$idFollowing has started following $idFollowed');
+    // Obtener el usuario seguido por su id
+    User followedUser = await findById(idFollowed);
+    // Buscar otros usuarios relacionados con el usuario seguido
+    await searchOtherUsers(followedUser.username);
+    // Notificar a los listeners después de completar todas las operaciones
+    notifyListeners();
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}
+
+
   void clearData() {
     formKey = new GlobalKey<FormState>();
     name = '';
