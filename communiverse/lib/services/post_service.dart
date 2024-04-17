@@ -87,6 +87,19 @@ class PostService extends ChangeNotifier {
     }
   }
 
+  /*Future<void> findMyPostsAndRePostsPaged(String id) async {
+  try {
+    await Future.wait([
+      findMyPostsPaged(id),
+      findMyRePostsPaged(id),
+    ]);
+    notifyListeners(); // Notificar una vez que ambas operaciones hayan completado
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}*/
+
   findMyCommentsPaged(String id) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
