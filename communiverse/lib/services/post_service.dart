@@ -42,7 +42,7 @@ class PostService extends ChangeNotifier {
     }
   }*/
 
-  findMyPostsPaged(String id) async {
+  Future<void> findMyPostsPaged(String id) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/posts/$id/$currentPostPage/$pageSize');
@@ -64,7 +64,7 @@ class PostService extends ChangeNotifier {
     }
   }
 
-  findMyRePostsPaged(String id) async {
+  Future<void> findMyRePostsPaged(String id) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'post/reposts/$id/$currentRepostPage/$pageSize');

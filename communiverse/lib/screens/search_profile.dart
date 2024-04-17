@@ -125,13 +125,14 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
                       postService.currentRepostPage = 0;
                       await userService.searchOtherUsers(
                           userService.searchedUsersList[index].username);
-                      await postService.findMyPostsPaged(
-                          userService.searchedUsersList[index].id);
-                      await postService.findMyRePostsPaged(
-                          userService.searchedUsersList[index].id);
-                      await communityService.getMyCommunities(
-                          userService.searchedUsersList[index].id);
-
+                      await Future.wait([
+                        postService.findMyPostsPaged(
+                            userService.searchedUsersList[index].id),
+                        postService.findMyRePostsPaged(
+                            userService.searchedUsersList[index].id),
+                            communityService.getMyCommunities(
+                          userService.searchedUsersList[index].id)
+                      ]); // Si no probar con intentar meter todas las funciones en una y llamar el notifyListener ahi, quitando el notifyListener de las funciones individuales
                       // Realizar la navegación a la nueva pantalla cuando se seleccione un elemento
                       Navigator.push(
                         context,

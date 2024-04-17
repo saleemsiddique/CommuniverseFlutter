@@ -31,7 +31,7 @@ class CommunityService extends ChangeNotifier {
     }
   }
 
-    getMyCommunities(String id) async {
+    Future<void>getMyCommunities(String id) async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;
     CommuniverseProvider.apiKey = '${userLoginRequestService.type} ${userLoginRequestService.token}';
     if (userLoginRequestService != null) {
