@@ -30,15 +30,16 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     final userService = Provider.of<UserService>(context, listen: false);
 
     if (index == 0) {
+      
     } else if (index == 1) {
       postService.currentPostPage = 0;
       postService.currentRepostPage = 0;
       await userService.searchOtherUsers(userService.user.username);
       await Future.wait([
-        postService.findMyPostsPaged(userService.searchedUsersList[index].id),
-        postService.findMyRePostsPaged(userService.searchedUsersList[index].id),
+        postService.findMyPostsPaged(userService.searchedUser.id),
+        postService.findMyRePostsPaged(userService.searchedUser.id),
         communityService
-            .getMyCommunities(userService.searchedUsersList[index].id)
+            .getMyCommunities(userService.searchedUser.id)
       ]);
     } // Si no probar con intentar meter todas las funciones en una y llamar el notifyListener ahi, quitando el notifyListener de las funciones individuales
     setState(() {
