@@ -86,11 +86,19 @@ class UserService extends ChangeNotifier {
           'user/follow/${idFollowing}/${idFollowed}');
       searchedUser = User.fromJson(json.decode(jsonData));
       print('$idFollowing has started following $idFollowed');
-      // Obtener el usuario seguido por su id
-      // User followedUser = await findById(idFollowed);
-      // Buscar otros usuarios relacionados con el usuario seguido
-      // await searchOtherUsers(followedUser.username);
-      // Notificar a los listeners después de completar todas las operaciones
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+    joinCommunity(String idCommunity, String idUser) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          'user/join/${idCommunity}/${idUser}');
+      user = User.fromJson(json.decode(jsonData));
+      print('$idUser has joined community $idCommunity');
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');

@@ -174,79 +174,105 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
-  Widget _buildCommunityInfo(Size size, UserService userService) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Foto de la comunidad
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: NetworkImage(widget.community.photo),
+ Widget _buildCommunityInfo(Size size, UserService userService) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 20),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Foto de la comunidad
+        Container(
+          width: 150,
+          height: 150,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: NetworkImage(widget.community.photo),
+            ),
+          ),
+        ),
+        SizedBox(width: 20),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment
+                .spaceBetween, // Alinea los elementos en el espacio vertical disponible
+            children: [
+              // Nombre de la comunidad
+              Text(
+                widget.community.name,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ),
-          SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment
-                  .spaceBetween, // Alinea los elementos en el espacio vertical disponible
-              children: [
-                // Nombre de la comunidad
-                Text(
-                  widget.community.name,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+              SizedBox(
+                  height:
+                      10), // Agrega espacio entre el nombre y el siguiente elemento
+              // Número de miembros
+              Text(
+                '${widget.community.followers} Members',
+                style: TextStyle(
+                  color: Colors.grey,
                 ),
-                SizedBox(
-                    height:
-                        10), // Agrega espacio entre el nombre y el siguiente elemento
-                // Número de miembros
-                Text(
-                  '${widget.community.followers} Members',
-                  style: TextStyle(
-                    color: Colors.grey,
+              ),
+              SizedBox(
+                  height:
+                      10), // Agrega más espacio entre el número de miembros y el botón
+              ElevatedButton(
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all<Size>(
+                      Size(double.infinity, 40)), // Set button size
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    Color.fromRGBO(
+                        165, 91, 194, 1), // Set button background color
                   ),
-                ),
-                SizedBox(
-                    height:
-                        10), // Agrega más espacio entre el número de miembros y el botón
-                ElevatedButton(
-                  style: ButtonStyle(
-                    minimumSize: MaterialStateProperty.all<Size>(
-                        Size(double.infinity, 40)), // Set button size
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromRGBO(
-                          165, 91, 194, 1), // Set button background color
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(10.0), // Set border radius
                     ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10.0), // Set border radius
+                  ),
+                ),
+                onPressed: () {
+                  if (userService.user.memberCommunities.contains(widget.community.id)) {
+                    // Si el usuario ya es miembro de la comunidad, debe dejarla
+                    userService.joinCommunity(widget.community.id, userService.user.id);
+                  } else if (userService.user.moderatedCommunities.contains(widget.community.id) || 
+                      userService.user.createdCommunities.contains(widget.community.id)) {
+                    // Si el usuario es moderador o creador de la comunidad, dirigirlo a la página de administración
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommunityManageScreen(
+                          community: widget.community,
+                        ),
                       ),
-                    ),
-                  ),
-                  onPressed: () {
-                    // Implementa la lógica para unirse o dejar la comunidad
-                  },
-                  child: Text('Leave'),
+                    );
+                  } else {
+                    // Si el usuario no es miembro de la comunidad, debe unirse
+                    userService.joinCommunity(widget.community.id, userService.user.id);
+                  }
+                },
+                child: Text(
+                  userService.user.memberCommunities.contains(widget.community.id) 
+                      ? 'Leave' 
+                      : (userService.user.moderatedCommunities.contains(widget.community.id) || 
+                          userService.user.createdCommunities.contains(widget.community.id)) 
+                          ? 'Manage' 
+                          : 'Join',
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   Widget _buildProgressIndicator() {
     return _loading
