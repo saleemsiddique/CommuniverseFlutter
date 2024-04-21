@@ -1,42 +1,9 @@
 import 'package:communiverse/screens/user_screen.dart';
 import 'package:communiverse/services/services.dart';
+import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/services/user_service.dart';
 import 'package:provider/provider.dart'; // Importa el servicio de usuario
-
-class UserProfileItem extends StatelessWidget {
-  final String profilePic;
-  final String username;
-  final String fullname;
-
-  UserProfileItem(
-      {required this.username,
-      required this.profilePic,
-      required this.fullname});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundImage:
-            NetworkImage(profilePic), // Asigna la imagen del perfil como avatar
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            username,
-            style: TextStyle(color: Colors.white),
-          ),
-          Text(
-            fullname,
-            style: TextStyle(color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class SearchProfilesPage extends StatefulWidget {
   @override

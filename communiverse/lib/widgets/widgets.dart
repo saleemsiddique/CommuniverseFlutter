@@ -10,3 +10,4 @@ export 'package:communiverse/widgets/post_widget.dart';
 export 'package:communiverse/widgets/community_dropdown.dart';
 export 'package:communiverse/widgets/bubble_widget.dart';
 export 'package:communiverse/widgets/superior_quizz.dart';
+export 'package:communiverse/widgets/user_list.dart';

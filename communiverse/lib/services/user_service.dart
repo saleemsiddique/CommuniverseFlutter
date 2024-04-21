@@ -13,6 +13,7 @@ class UserService extends ChangeNotifier {
   User user = new User.empty();
   User searchedUser = new User.empty();
   List<User> searchedUsersList = [];
+  List<User> searchedCommunityUsersList = [];
 
   signUp(Map<String, dynamic> data) async {
     try {
@@ -93,7 +94,7 @@ class UserService extends ChangeNotifier {
     }
   }
 
-    joinCommunity(String idCommunity, String idUser) async {
+  joinCommunity(String idCommunity, String idUser) async {
     try {
       final jsonData = await CommuniverseProvider.getJsonData(
           'user/join/${idCommunity}/${idUser}');
@@ -105,6 +106,74 @@ class UserService extends ChangeNotifier {
       throw errorMessage;
     }
   }
+
+  searchCommunityUsersList(String communityId) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          'user/community/$communityId/members');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      searchedCommunityUsersList =
+          jsonResponse.map((json) => User.fromJson(json)).toList();
+      print("Usuarios encontrados $searchedCommunityUsersList");
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  kickFromCommunity(String idCommunity, String idUser) async {
+    try {
+      final jsonData = await CommuniverseProvider.deleteJsonData(
+          'user/$idUser/community/$idCommunity');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      searchedCommunityUsersList =
+          jsonResponse.map((json) => User.fromJson(json)).toList();
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  promoteInCommunity(String idCommunity, String idUser, String idCreator) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          'user/$idCreator/$idUser/community/$idCommunity/promote');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      searchedCommunityUsersList =
+          jsonResponse.map((json) => User.fromJson(json)).toList();
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  demoteInCommunity(String idCommunity, String idUser) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          'user/$idUser/community/$idCommunity/demote');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      searchedCommunityUsersList =
+          jsonResponse.map((json) => User.fromJson(json)).toList();
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  deleteCommunity(String id) async {
+  try {
+    final jsonData = await CommuniverseProvider.deleteJsonData('community/$id');
+     user = User.fromJson(json.decode(jsonData));
+    notifyListeners();
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}
 
   void clearData() {
     formKey = new GlobalKey<FormState>();
