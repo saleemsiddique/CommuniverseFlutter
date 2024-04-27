@@ -23,7 +23,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   void initState() {
-    final userService = Provider.of<UserService>(context, listen: false);
+    final communityService = Provider.of<CommunityService>(context, listen: false);
+    communityService.chosenCommunity = widget.community;
     super.initState();
     _scrollController.addListener(_scrollListener);
   }

@@ -25,7 +25,8 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
   Widget build(BuildContext context) {
     print("La otra");
     final userService = Provider.of<UserService>(context, listen: true);
-    final communityService = Provider.of<CommunityService>(context, listen: true);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
 
     bool isCreator =
         widget.user.createdCommunities.contains(widget.community.id);
@@ -72,7 +73,11 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
             onPressed: isMember || isModerator && iAmCreator && !imHim
                 ? () async {
                     bool? promote = await showPromoteConfirmationDialog(
-                        context, widget.user, widget.community.id, userService, communityService);
+                        context,
+                        widget.user,
+                        widget.community.id,
+                        userService,
+                        communityService);
                     if (promote != null && promote) {
                       await userService.promoteInCommunity(widget.community.id,
                           widget.user.id, userService.user.id);
@@ -154,8 +159,12 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
     );
   }
 
-  Future<bool?> showPromoteConfirmationDialog(BuildContext context, User user,
-      String communityId, UserService userService, CommunityService communityService) async {
+  Future<bool?> showPromoteConfirmationDialog(
+      BuildContext context,
+      User user,
+      String communityId,
+      UserService userService,
+      CommunityService communityService) async {
     bool isModerator = user.moderatedCommunities.contains(communityId);
     return showDialog<bool?>(
       context: context,
@@ -214,11 +223,12 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
                                         communityId,
                                         user.id,
                                         userService.user.id);
-                                            await communityService.getMyCommunities(
-                                            userService.user.id);
-                                            await userService.findUserById(userService.user.id);
-                                        Navigator.pushReplacementNamed(
-                                            context, 'home');
+                                    await communityService
+                                        .getMyCommunities(userService.user.id);
+                                    await userService
+                                        .findUserById(userService.user.id);
+                                    Navigator.pushReplacementNamed(
+                                        context, 'home');
                                   } else {
                                     // Show an error message
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -440,7 +450,15 @@ class _CommunityManageScreenState extends State<CommunityManageScreen> {
                       title: Text('Change Community Info',
                           style: TextStyle(color: Colors.white)),
                       onTap: () {
-                        // Navegar a la pantalla de cambio de información de la comunidad
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CreateCommunityScreen(
+                              user: userService.user,
+                              communityToEdit: communityService.chosenCommunity,
+                            ),
+                          ),
+                        );
                       },
                     ),
                     Divider(color: Colors.white),
@@ -486,7 +504,8 @@ class _CommunityManageScreenState extends State<CommunityManageScreen> {
                                             widget.community.id);
                                         await communityService.getMyCommunities(
                                             userService.user.id);
-                                        await userService.findUserById(userService.user.id);
+                                        await userService
+                                            .findUserById(userService.user.id);
                                         Navigator.pushReplacementNamed(
                                             context, 'home');
                                       } else {

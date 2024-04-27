@@ -61,6 +61,18 @@ Future<void> postCommunity(Map<String, dynamic> data) async {
   }
 }
 
+Future<void> editCommunity(String id, Map<String, dynamic> data) async {
+  try {
+    final jsonData = await CommuniverseProvider.putJsonData('community/$id', data);
+    final editedCommunityJson = json.decode(jsonData);
+    chosenCommunity = Community.fromJson(editedCommunityJson);
+    notifyListeners();
+  } catch (error) {
+    String errorMessage = error.toString().replaceAll('Exception: ', '');
+    throw errorMessage;
+  }
+}
+
 
   void clearData() {
     formKey = new GlobalKey<FormState>();

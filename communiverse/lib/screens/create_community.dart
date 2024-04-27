@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:communiverse/models/models.dart';
+import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/utils.dart';
 import 'package:communiverse/widgets/widgets.dart';
@@ -10,8 +11,13 @@ import 'package:provider/provider.dart';
 
 class CreateCommunityScreen extends StatefulWidget {
   final User user;
+  final Community? communityToEdit; // Comunidad opcional para editar
 
-  const CreateCommunityScreen({Key? key, required this.user}) : super(key: key);
+  const CreateCommunityScreen({
+    Key? key,
+    required this.user,
+    this.communityToEdit, // Se puede pasar una comunidad para editar
+  }) : super(key: key);
 
   @override
   _CreateCommunityScreenState createState() => _CreateCommunityScreenState();
@@ -25,6 +31,28 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
   String _privacySetting = 'Public';
   String? _selectedImage;
   Community createdCommunity = Community.empty();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.communityToEdit != null) {
+      _communityNameController.text = widget.communityToEdit!.name ?? '';
+      _descriptionController.text = widget.communityToEdit!.description ?? '';
+      _privacySetting = widget.communityToEdit!.privacy ?? 'PUBLIC';
+      if (_privacySetting == 'PUBLIC') {
+        setState(() {
+          _privacySetting = 'Public';
+        });
+      } else {
+        setState(() {
+          _privacySetting = 'Private';
+        });
+      }
+      _selectedImage = widget.communityToEdit!.photo == ""
+          ? null
+          : widget.communityToEdit!.photo;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,45 +190,54 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
         if (_formKey.currentState!.validate()) {
           showDialog(
             context: context,
-            barrierDismissible:
-                false, // Evita que se cierre la ventana emergente haciendo clic fuera de ella
+            barrierDismissible: false,
             builder: (BuildContext context) {
               return AlertDialog(
                 content: Row(
                   children: [
-                    CircularProgressIndicator(), // Indicador de progreso
-                    SizedBox(
-                        width: 20), // Espacio entre el indicador y el texto
-                    Text(
-                        "Posting..."), // Texto que indica que se está publicando
+                    CircularProgressIndicator(),
+                    SizedBox(width: 20),
+                    Text("Posting..."),
                   ],
                 ),
               );
             },
           );
           try {
-            createdCommunity.userCreatorId = userService.user.id;
-            Map<String, dynamic> communityData = createdCommunity.toJson();
-            print("PostData: $communityData");
-            await communityService.postCommunity(communityData);
-            userService.user.createdCommunities
-                .add(communityService.createdCommunity.id);
-            print("Prev: ${userService.user}");
+            if (widget.communityToEdit != null) {
+              // Editar la comunidad existente
+              await communityService.editCommunity(
+                  communityService.chosenCommunity.id,
+                  createdCommunity.toJson());
+            } else {
+              // Crear una nueva comunidad
+              createdCommunity.userCreatorId = userService.user.id;
+              await communityService.postCommunity(createdCommunity.toJson());
+              userService.user.createdCommunities
+                  .add(communityService.createdCommunity.id);
+            }
             Map<String, dynamic> userData = userService.user.toJson();
-            print("PouserService: ${userService.user}");
             await userLoginRequest.editUserCommunities(
                 userService.user.id, userData);
             communityService.getMyCommunities(userService.user.id);
+            Navigator.pop(context); // Cerrar el diálogo emergente
             Navigator.pop(context);
             Navigator.pop(context);
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CommunityScreen(
+                        community: communityService
+                            .chosenCommunity))); // Volver atrás en la navegación
           } catch (error) {
-            Navigator.pop(
-                context); // Cierra el diálogo emergente si hay un error
+            Navigator.pop(context);
             errorTokenExpired(context);
           }
         }
       },
-      child: Text('Create'),
+      child: Text(widget.communityToEdit != null
+          ? 'Confirm Edit'
+          : 'Create'), // Cambiar el texto del botón según si estás editando una comunidad o no
     );
   }
 
@@ -223,15 +260,20 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: Colors.black),
         ),
-        child: _selectedImage != null
-            ? Image.file(
-                File(_selectedImage!),
+        child: (widget.communityToEdit!.photo != "")
+            ? Image.network(
+                widget.communityToEdit!.photo,
                 fit: BoxFit.fill,
               )
-            : Icon(
-                Icons.add_photo_alternate,
-                size: 50,
-              ),
+            : (_selectedImage != "")
+                ? Image.file(
+                    File(_selectedImage!),
+                    fit: BoxFit.fill,
+                  )
+                : Icon(
+                    Icons.add_photo_alternate,
+                    size: 50,
+                  ),
       ),
     );
   }
