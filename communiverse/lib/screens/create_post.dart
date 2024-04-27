@@ -15,8 +15,8 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final User user;
-
-  CreatePostScreen({required this.user});
+  final Community? community;
+  CreatePostScreen({required this.user, this.community});
   @override
   _CreatePostScreenState createState() => _CreatePostScreenState();
 }
@@ -29,8 +29,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   TextEditingController _communityController = TextEditingController();
   bool hasMedia = false;
   int _maxLines = 5;
-  String selectedCommunityName =
-      'Choose Community'; // Variable dentro del estado del widget
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +92,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   postButtons(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: true);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
     return Container(
       color: Color.fromRGBO(
           165, 91, 194, 1), // Establece el color de fondo del Container
@@ -197,10 +202,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         await postService.postPost(postData, "none");
                         postService.currentPostPage = 0;
                         await postService.findMyPostsPaged(widget.user.id);
+                        await communityService.getMyCommunities(widget.user.id);
                         Navigator.pop(
                             context); // Cierra el diálogo emergente cuando la publicación se ha realizado correctamente
-                        Navigator.pop(
-                            context); // Cierra la pantalla de creación de publicaciones
+                        Navigator.pop(context);
+                        if (widget.community != null) {
+                          Navigator.pop(context);
+                        } // Cierra la pantalla de creación de publicaciones
                       } catch (error) {
                         Navigator.pop(
                             context); // Cierra el diálogo emergente si hay un error
@@ -305,6 +313,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 // Aquí puedes hacer cualquier acción necesaria después de seleccionar una comunidad
               });
             },
+            selectedCommunity: widget.community,
           )
         ],
       ),

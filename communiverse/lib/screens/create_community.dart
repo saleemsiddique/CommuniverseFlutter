@@ -222,13 +222,14 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
             communityService.getMyCommunities(userService.user.id);
             Navigator.pop(context); // Cerrar el diálogo emergente
             Navigator.pop(context);
-            Navigator.pop(context);
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => CommunityScreen(
-                        community: communityService
-                            .chosenCommunity))); // Volver atrás en la navegación
+            if (widget.communityToEdit != null) {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CommunityScreen(
+                          community: communityService.chosenCommunity)));
+            }
           } catch (error) {
             Navigator.pop(context);
             errorTokenExpired(context);
@@ -260,12 +261,13 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: Colors.black),
         ),
-        child: (widget.communityToEdit!.photo != "")
+        child: (widget.communityToEdit != null &&
+                widget.communityToEdit!.photo != "")
             ? Image.network(
-                widget.communityToEdit!.photo,
+                widget.communityToEdit!.photo!,
                 fit: BoxFit.fill,
               )
-            : (_selectedImage != "")
+            : (_selectedImage != null && _selectedImage != "")
                 ? Image.file(
                     File(_selectedImage!),
                     fit: BoxFit.fill,

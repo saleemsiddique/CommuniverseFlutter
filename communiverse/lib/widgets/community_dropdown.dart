@@ -7,22 +7,39 @@ class CommunityDropdown extends StatefulWidget {
   final List<Community> communities;
   final TextEditingController communityController;
   final CommunityChangedCallback onChanged;
-
+  final Community? selectedCommunity;
   const CommunityDropdown({
     Key? key,
     required this.communities,
     required this.communityController,
     required this.onChanged,
+    this.selectedCommunity,
   }) : super(key: key);
 
   @override
   _CommunityDropdownState createState() => _CommunityDropdownState();
 }
+
 class _CommunityDropdownState extends State<CommunityDropdown> {
-  String selectedCommunityName = 'Choose Community';
+  late String selectedCommunityName;
+
+  @override
+  void initState() {
+    super.initState();
+    // Establecer la comunidad seleccionada inicialmente
+    selectedCommunityName =
+        widget.selectedCommunity?.name ?? 'Choose Community';
+    widget.communityController.text = widget.selectedCommunity?.id ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
+    /*if (selectedCommunityName == 'Choose Community') {
+      selectedCommunityName = widget.selectedCommunity!.name;
+      widget.communityController.text = widget.selectedCommunity!.id;
+      widget.onChanged(
+          widget.selectedCommunity!); // Llama a la devolución de llamada
+    }*/
     return Container(
       height: 30,
       width: 150, // Ancho deseado
@@ -72,12 +89,15 @@ class _CommunityDropdownState extends State<CommunityDropdown> {
         isExpanded: true,
         underline: Container(),
         menuMaxHeight: 175,
-        elevation: widget.communities.isNotEmpty ? 8 : 0, // Aplicar elevación solo si hay elementos en el menú
+        elevation: widget.communities.isNotEmpty
+            ? 8
+            : 0, // Aplicar elevación solo si hay elementos en el menú
         disabledHint: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
             'No communities',
-            style: TextStyle(fontSize: 14,
+            style: TextStyle(
+              fontSize: 14,
               color: Colors.grey, // Color del texto cuando está deshabilitado
             ),
           ),
