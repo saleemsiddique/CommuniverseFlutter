@@ -193,18 +193,28 @@ class _CommunityScreenState extends State<CommunityScreen> {
           Positioned(
             bottom: 20,
             right: 20,
-            child: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CreatePostScreen(user: userService.user, community: widget.community),
-                  ),
-                );
-              },
-              backgroundColor: Color.fromRGBO(165, 91, 194, 1),
-              child: Icon(Icons.add),
-            ),
+            child: (userService.user.createdCommunities
+                        .contains(widget.community.id) ||
+                    userService.user.moderatedCommunities
+                        .contains(widget.community.id) ||
+                    userService.user.memberCommunities
+                        .contains(widget.community.id))
+                ? FloatingActionButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CreatePostScreen(
+                              user: userService.user,
+                              community: widget.community),
+                        ),
+                      );
+                    },
+                    backgroundColor: Color.fromRGBO(165, 91, 194, 1),
+                    child: Icon(Icons.add),
+                  )
+                : SizedBox
+                    .shrink(), // Si el usuario no está en ninguna de las listas, oculta el botón
           ),
         ],
       ),

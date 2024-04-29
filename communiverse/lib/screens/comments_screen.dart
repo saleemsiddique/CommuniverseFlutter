@@ -139,6 +139,22 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   Widget _buildCommentInput() {
     final commentFormKey = GlobalKey<FormState>(); // Aquí se declara el formKey
+    
+    
+    final userService = Provider.of<UserService>(context, listen: false);
+    final userCommunities = [
+      ...userService.user.createdCommunities,
+      ...userService.user.moderatedCommunities,
+      ...userService.user.memberCommunities,
+    ];
+
+    final isCommunityMember = userCommunities.contains(widget.post.communityId);
+
+    if (!isCommunityMember) {
+      return SizedBox
+          .shrink(); // Si el usuario no es miembro de la comunidad, oculta el widget
+    }
+    
 
     return Form(
       autovalidateMode: AutovalidateMode.always,

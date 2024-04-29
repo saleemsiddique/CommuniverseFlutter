@@ -38,16 +38,6 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
     if (widget.communityToEdit != null) {
       _communityNameController.text = widget.communityToEdit!.name ?? '';
       _descriptionController.text = widget.communityToEdit!.description ?? '';
-      _privacySetting = widget.communityToEdit!.privacy ?? 'PUBLIC';
-      if (_privacySetting == 'PUBLIC') {
-        setState(() {
-          _privacySetting = 'Public';
-        });
-      } else {
-        setState(() {
-          _privacySetting = 'Private';
-        });
-      }
       _selectedImage = widget.communityToEdit!.photo == ""
           ? null
           : widget.communityToEdit!.photo;
@@ -112,59 +102,6 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
                 onChanged: (value) {
                   createdCommunity.description = value;
                 },
-              ),
-              SizedBox(height: 20.0),
-              Text(
-                'Privacy Settings',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10.0),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Theme(
-                    data: ThemeData(
-                      unselectedWidgetColor:
-                          Colors.grey[400], // Color del radio no seleccionado
-                    ),
-                    child: Row(
-                      children: [
-                        Radio<String>(
-                          value: 'Public',
-                          groupValue: _privacySetting,
-                          onChanged: (value) {
-                            setState(() {
-                              _privacySetting = value!;
-                              createdCommunity.privacy = value.toUpperCase();
-                            });
-                          },
-                        ),
-                        Text('Public'),
-                      ],
-                    ),
-                  ),
-                  Theme(
-                    data: ThemeData(
-                      unselectedWidgetColor:
-                          Colors.grey[400], // Color del radio no seleccionado
-                    ),
-                    child: Row(
-                      children: [
-                        Radio<String>(
-                          value: 'Private',
-                          groupValue: _privacySetting,
-                          onChanged: (value) {
-                            setState(() {
-                              _privacySetting = value!;
-                              createdCommunity.privacy = value.toUpperCase();
-                            });
-                          },
-                        ),
-                        Text('Private'),
-                      ],
-                    ),
-                  ),
-                ],
               ),
               SizedBox(height: 20.0),
               createCommunity(),
