@@ -23,3 +23,5 @@ export 'package:communiverse/screens/quizz_screen.dart';
 export 'package:communiverse/screens/quizz_summary.dart';
 export 'package:communiverse/screens/search_profile.dart';
 export 'package:communiverse/screens/communitymanage_screen.dart';
+export 'package:communiverse/screens/community_users.dart';
+export 'package:communiverse/screens/community_banned.dart';

@@ -271,7 +271,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Padding postHeader(BuildContext context) {
     final communityService =
         Provider.of<CommunityService>(context, listen: false);
-    final communities = communityService.myCommunities;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),

@@ -12,6 +12,7 @@ class CommunityService extends ChangeNotifier {
   List<Community> myCommunities = [];
   Community createdCommunity = Community.empty();
   Community chosenCommunity = Community.empty();
+  List<User> bannedUsers = [];
 
   getTop5Communities() async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;
@@ -73,6 +74,35 @@ Future<void> editCommunity(String id, Map<String, dynamic> data) async {
   }
 }
 
+  searchCommunityBannedUsersList(String communityId) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          '/community/$communityId/banned');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      bannedUsers =
+          jsonResponse.map((json) => User.fromJson(json)).toList();
+      print("Usuarios encontrados $bannedUsers");
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+    unbanUser(String communityId, String userId) async {
+    try {
+      final jsonData = await CommuniverseProvider.deleteJsonData(
+          '/community/$communityId/banned/$userId');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      bannedUsers =
+          jsonResponse.map((json) => User.fromJson(json)).toList();
+      print("Usuarios encontrados $bannedUsers");
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
 
   void clearData() {
     formKey = new GlobalKey<FormState>();
