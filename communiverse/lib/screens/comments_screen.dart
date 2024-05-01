@@ -80,32 +80,50 @@ class _CommentsScreenState extends State<CommentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(165, 91, 194, 0.2),
-      body: Padding(
-        padding: EdgeInsets.only(
-          top: 20,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Principal post
-            PostWidget(post: widget.post, isExtend: true),
-            Divider(
-              thickness: 1,
-              color: Colors.white,
+      body: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(
+              top: 20,
             ),
-            // Lista de comentarios
-            Expanded(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: _buildCommentsList(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Principal post
+                // Your PostWidget goes here
+                // Replace the following line with your PostWidget
+                SizedBox(height: 20),
+                PostWidget(post: widget.post, isExtend: true),
+                Divider(
+                  thickness: 1,
+                  color: Colors.white,
+                ),
+                // Lista de comentarios
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: _buildCommentsList(),
+                      ),
+                      _buildCommentInput(),
+                    ],
                   ),
-                  _buildCommentInput(),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          // Back Button
+          Positioned(
+            top: 15,
+            left: 0,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -139,8 +157,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   Widget _buildCommentInput() {
     final commentFormKey = GlobalKey<FormState>(); // Aquí se declara el formKey
-    
-    
+
     final userService = Provider.of<UserService>(context, listen: false);
     final userCommunities = [
       ...userService.user.createdCommunities,
@@ -154,7 +171,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
       return SizedBox
           .shrink(); // Si el usuario no es miembro de la comunidad, oculta el widget
     }
-    
 
     return Form(
       autovalidateMode: AutovalidateMode.always,

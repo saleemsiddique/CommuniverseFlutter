@@ -122,10 +122,10 @@ class UserService extends ChangeNotifier {
     }
   }
 
-  kickFromCommunity(String idCommunity, String idUser) async {
+  kickFromCommunity(String idCommunity, String idUser, int dias) async {
     try {
       final jsonData = await CommuniverseProvider.deleteJsonData(
-          'user/$idUser/community/$idCommunity');
+          'user/$idUser/community/$idCommunity/$dias');
       final List<dynamic> jsonResponse = json.decode(jsonData);
       searchedCommunityUsersList =
           jsonResponse.map((json) => User.fromJson(json)).toList();

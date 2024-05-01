@@ -282,7 +282,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       ),
                     ),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (userService.user.memberCommunities
                         .contains(widget.community.id)) {
                       // Si el usuario ya es miembro de la comunidad, debe dejarla
@@ -302,9 +302,32 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         ),
                       );
                     } else {
-                      // Si el usuario no es miembro de la comunidad, debe unirse
-                      userService.joinCommunity(
-                          widget.community.id, userService.user.id);
+                      try {
+                        // Si el usuario no es miembro de la comunidad, debe unirse
+                        await userService.joinCommunity(
+                            widget.community.id, userService.user.id);
+                      } catch (e) {
+                        // Captura cualquier excepción general
+                        print("Excepción atrapada: $e");
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("Error"),
+                              content: Text(
+                                  "No puedes unirte a esta comunidad porque has sido baneado."),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text("OK"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                     }
                   },
                   child: Text(

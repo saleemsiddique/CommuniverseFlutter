@@ -109,18 +109,21 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
           ),
           IconButton(
             icon: Icon(Icons.cancel,
-                color: !imHim && !isCreator && isModerator
+                color: !imHim && !isCreator && isModerator || isMember
                     ? Colors.red
                     : Colors.grey),
             onPressed: () async {
-              bool? kick = await _showKickConfirmationDialog(
-                  context, widget.user, widget.community.id, userService);
-              if (kick != null && kick) {
-                await userService.kickFromCommunity(
-                    widget.community.id, widget.user.id);
-                setState(() {
-                  isKick = false;
-                });
+              int? dias = await _showKickDurationDialog(context);
+              if (dias != null) {
+                bool? kick = await _showKickConfirmationDialog(
+                    context, widget.user, widget.community.id, userService);
+                if (kick != null && kick) {
+                  await userService.kickFromCommunity(
+                      widget.community.id, widget.user.id, dias);
+                  setState(() {
+                    isKick = false;
+                  });
+                }
               }
             },
           ),
@@ -314,6 +317,47 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
     );
   }
 }
+
+Future<int?> _showKickDurationDialog(BuildContext context) async {
+  final durations = {
+    "Cancelar": null,
+    "1 día": 1,
+    "1 semana": 7,
+    "1 mes": 30,
+    "1 año": 365,
+    "Indefinido": 99999,
+  };
+
+  return await showDialog<int>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text("Selecciona la duración de la expulsión"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: durations.entries
+              .map((entry) => SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(165, 91, 194, 1),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context, entry.value);
+                      },
+                      child: Text(
+                        entry.key,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ))
+              .toList(),
+        ),
+      );
+    },
+  );
+}
+
 
 class CommunityManageScreen extends StatefulWidget {
   final Community community;
