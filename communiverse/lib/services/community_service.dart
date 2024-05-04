@@ -13,6 +13,7 @@ class CommunityService extends ChangeNotifier {
   Community createdCommunity = Community.empty();
   Community chosenCommunity = Community.empty();
   List<User> bannedUsers = [];
+  List<Community> searchedCommunityList = [];
 
   getTop5Communities() async {
     final userLoginRequestService = UserLoginRequestService.userLoginRequest;
@@ -47,6 +48,21 @@ class CommunityService extends ChangeNotifier {
         print("about to notify");
         notifyListeners();
       }
+    }
+  }
+
+    searchCommunityList(String name) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          '/community/nameRegex/${name}');
+      final List<dynamic> jsonResponse = json.decode(jsonData);
+      searchedCommunityList =
+          jsonResponse.map((json) => Community.fromJson(json)).toList();
+      print("Comunidades encontrados $searchedCommunityList");
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
     }
   }
 
