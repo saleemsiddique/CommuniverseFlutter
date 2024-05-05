@@ -52,10 +52,12 @@ class CommunityCarousel extends StatelessWidget {
               postService.currentCommunityPostPage = 0;
               postService.currentCommunityQuizzPage = 0;
               postService.currentMySpacePage = 0;
-              await postService.getAllPostsFromCommunity(community.id);
-              await postService.getAllQuizzFromCommunity(community.id);
-              await postService.getMySpaceFromCommunity(
-                  community.id, userService.user.followedId);
+              await Future.wait([
+                postService.getAllPostsFromCommunity(community.id),
+                postService.getAllQuizzFromCommunity(community.id),
+                postService.getMySpaceFromCommunity(
+                    community.id, userService.user.followedId),
+              ]);
               Navigator.push(
                   context,
                   MaterialPageRoute(

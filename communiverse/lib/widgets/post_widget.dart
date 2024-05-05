@@ -30,8 +30,8 @@ class _PostWidgetState extends State<PostWidget> {
     final userService = Provider.of<UserService>(context, listen: false);
     isLiked =
         widget.post.postInteractions.likeUsersId.contains(userService.user.id);
-    isReposted = 
-        widget.post.postInteractions.repostUsersId.contains(userService.user.id);
+    isReposted = widget.post.postInteractions.repostUsersId
+        .contains(userService.user.id);
   }
 
   @override
@@ -51,12 +51,9 @@ class _PostWidgetState extends State<PostWidget> {
     }
 
     if (widget.post.quizz != Quizz.empty()) {
-      cardHeight = size.height * 0.37; // Ajusta el factor según lo necesites
+      cardHeight = size.height * 0.38; // Ajusta el factor según lo necesites
     }
 
-    if (widget.isExtend && widget.post.quizz != Quizz.empty()) {
-      cardHeight *= 1.1;
-    }
 
     return GestureDetector(
       onTap: () async {
@@ -112,186 +109,190 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 
-Widget _buildHeader(BuildContext context) {
-  final postService = Provider.of<PostService>(context, listen: false);
-  final userService = Provider.of<UserService>(context, listen: false);
-  // Almacenar los datos recuperados en variables locales
-  final authorFuture = postService.findPostAuthor(widget.post.authorId);
-  final communityFuture = postService.findPostCommunity(widget.post.communityId);
-  final List<String> repostUserIds = widget.post.postInteractions.repostUsersId;
+  Widget _buildHeader(BuildContext context) {
+    final postService = Provider.of<PostService>(context, listen: false);
+    final userService = Provider.of<UserService>(context, listen: false);
+    // Almacenar los datos recuperados en variables locales
+    final authorFuture = postService.findPostAuthor(widget.post.authorId);
+    final communityFuture =
+        postService.findPostCommunity(widget.post.communityId);
+    final List<String> repostUserIds =
+        widget.post.postInteractions.repostUsersId;
 
-  // Ahora, para buscar un valor específico dentro de la lista, podrías hacer algo como esto:
-  String? repostUserId;
-  final int index = repostUserIds.indexWhere((id) => id == userService.user.id);
-  if (index != -1) {
-    repostUserId = repostUserIds[index];
-  }
+    // Ahora, para buscar un valor específico dentro de la lista, podrías hacer algo como esto:
+    String? repostUserId;
+    final int index =
+        repostUserIds.indexWhere((id) => id == userService.user.id);
+    if (index != -1) {
+      repostUserId = repostUserIds[index];
+    }
 
-  Future<User>? repostUserFuture;
-  if (repostUserId != null && repostUserId != '') {
-    repostUserFuture = postService.findRePostAuthor(repostUserId);
-  }
+    Future<User>? repostUserFuture;
+    if (repostUserId != null && repostUserId != '') {
+      repostUserFuture = postService.findRePostAuthor(repostUserId);
+    }
 
-  return FutureBuilder<User>(
-    future: authorFuture,
-    builder: (context, snapshotUser) {
-      if (snapshotUser.connectionState == ConnectionState.waiting) {
-        return Container();
-      } else if (snapshotUser.hasError) {
-        return Text('Error: ${snapshotUser.error}');
-      } else {
-        final author = snapshotUser.data!;
-        return FutureBuilder<Community>(
-          future: communityFuture,
-          builder: (context, snapshotCommunity) {
-            if (snapshotCommunity.connectionState == ConnectionState.waiting) {
-              return Container();
-            } else if (snapshotCommunity.hasError) {
-              return FutureBuilder<User>(
-                future: repostUserFuture,
-                builder: (context, snapshotRepostUser) {
-                  final repostUser = snapshotRepostUser.data;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 120,
-                            child: Text(
-                              '${author.name} ${author.lastName}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+    return FutureBuilder<User>(
+      future: authorFuture,
+      builder: (context, snapshotUser) {
+        if (snapshotUser.connectionState == ConnectionState.waiting) {
+          return Container();
+        } else if (snapshotUser.hasError) {
+          return Text('Error: ${snapshotUser.error}');
+        } else {
+          final author = snapshotUser.data!;
+          return FutureBuilder<Community>(
+            future: communityFuture,
+            builder: (context, snapshotCommunity) {
+              if (snapshotCommunity.connectionState ==
+                  ConnectionState.waiting) {
+                return Container();
+              } else if (snapshotCommunity.hasError) {
+                return FutureBuilder<User>(
+                  future: repostUserFuture,
+                  builder: (context, snapshotRepostUser) {
+                    final repostUser = snapshotRepostUser.data;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 120,
+                              child: Text(
+                                '${author.name} ${author.lastName}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          Text(
-                            '${author.username}',
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Container(
-                            width: 150,
-                            child: Text('Not Found',
+                            Text(
+                              '${author.username}',
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          SizedBox(height: 5),
-                          if (repostUser != null &&
-                              repostUser.username != null &&
-                              repostUser.username != '')
-                            Row(
-                              children: [
-                                Icon(
-                                  size: 15,
-                                  Icons.repeat,
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: 150,
+                              child: Text(
+                                'Not Found',
+                                style: TextStyle(
                                   color: Colors.grey,
                                 ),
-                                Text(
-                                  '${repostUser.username}',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              );
-            } else {
-              final community = snapshotCommunity.data!;
-              return FutureBuilder<User>(
-                future: repostUserFuture,
-                builder: (context, snapshotRepostUser) {
-                  final repostUser = snapshotRepostUser.data;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 120,
-                            child: Text(
-                              '${author.name} ${author.lastName}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ),
-                          Text(
-                            '${author.username}',
-                            style: TextStyle(
-                              color: Colors.grey,
+                            SizedBox(height: 5),
+                            if (repostUser != null &&
+                                repostUser.username != null &&
+                                repostUser.username != '')
+                              Row(
+                                children: [
+                                  Icon(
+                                    size: 15,
+                                    Icons.repeat,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    '${repostUser.username}',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                final community = snapshotCommunity.data!;
+                return FutureBuilder<User>(
+                  future: repostUserFuture,
+                  builder: (context, snapshotRepostUser) {
+                    final repostUser = snapshotRepostUser.data;
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 120,
+                              child: Text(
+                                '${author.name} ${author.lastName}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Container(
-                            width: 150,
-                            child: Text(
-                              snapshotCommunity.hasData
-                                  ? 'For: ${community.name}'
-                                  : 'Not found',
+                            Text(
+                              '${author.username}',
                               style: TextStyle(
                                 color: Colors.grey,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          SizedBox(height: 5),
-                          if (repostUser != null &&
-                              repostUser.username != null &&
-                              repostUser.username != '')
-                            Row(
-                              children: [
-                                Icon(
-                                  size: 15,
-                                  Icons.repeat,
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: 150,
+                              child: Text(
+                                snapshotCommunity.hasData
+                                    ? 'For: ${community.name}'
+                                    : 'Not found',
+                                style: TextStyle(
                                   color: Colors.grey,
                                 ),
-                                Text(
-                                  '${repostUser.username}',
-                                  style: TextStyle(
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            if (repostUser != null &&
+                                repostUser.username != null &&
+                                repostUser.username != '')
+                              Row(
+                                children: [
+                                  Icon(
+                                    size: 15,
+                                    Icons.repeat,
                                     color: Colors.grey,
                                   ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          },
-        );
-      }
-    },
-  );
-}
-
+                                  Text(
+                                    '${repostUser.username}',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+            },
+          );
+        }
+      },
+    );
+  }
 
   Widget _buildInteractionCount(
     IconData icon,
@@ -449,8 +450,14 @@ Widget _buildHeader(BuildContext context) {
   }
 
   Widget _buildMedia() {
+    final bool hasText = widget.post.content.isEmpty;
+
+    double mediaHeight = hasText
+        ? 100
+        : 50; // Determina la altura de los medios según si hay texto
+
     return SizedBox(
-      height: 50,
+      height: mediaHeight,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: widget.post.photos.length + widget.post.videos.length,
@@ -466,7 +473,7 @@ Widget _buildHeader(BuildContext context) {
                 padding: EdgeInsets.only(right: 8.0),
                 child: Image.network(
                   widget.post.photos[index],
-                  width: 50,
+                  width: mediaHeight,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -482,7 +489,7 @@ Widget _buildHeader(BuildContext context) {
                   return Padding(
                     padding: EdgeInsets.only(right: 8.0),
                     child: Container(
-                      width: 50,
+                      width: mediaHeight,
                       color: Colors.grey, // Placeholder color
                       child: Center(
                         child:
@@ -497,8 +504,8 @@ Widget _buildHeader(BuildContext context) {
                           context, videoUrl, widget.post);
                     },
                     child: Container(
-                      height: 20,
-                      width: 50,
+                      height: mediaHeight,
+                      width: mediaHeight,
                       color: Colors.red,
                     ),
                   ); // Handle error or no thumbnail available
@@ -514,8 +521,8 @@ Widget _buildHeader(BuildContext context) {
                           padding: EdgeInsets.only(right: 8.0),
                           child: Image.memory(
                             snapshot.data!,
-                            height: 50,
-                            width: 50,
+                            height: mediaHeight,
+                            width: mediaHeight,
                             fit: BoxFit.cover,
                           ),
                         ),

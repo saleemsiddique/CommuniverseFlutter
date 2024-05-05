@@ -89,89 +89,97 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Provider.of<UserLoginRequestService>(context, listen: true);
     final communityService =
         Provider.of<CommunityService>(context, listen: true);
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.only(top: 40),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              basicInfo(userService, userLoginRequestService, size),
-              SizedBox(height: size.height * 0.03),
-              _editingProfile
-                  ? ProfileEditScreen(
-                      user: userService.searchedUser,
-                      firstNameController: _firstNameController,
-                      lastNameController: _lastNameController,
-                      descriptionController: _descriptionController,
-                      usernameController: _usernameController,
-                      getEditedUserData: () => getEditedUserData(),
-                    )
-                  : DefaultTabController(
-                      length: _tabs.length,
-                      child: Container(
-                        height: size.height * 0.9,
-                        color: Color.fromRGBO(165, 91, 194, 0.2),
-                        child: Column(
-                          children: [
-                            TabBar(
-                              tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
-                              onTap: (index) {
-                                setState(() async {
-                                  if (index == 0) {
-                                    postService.currentRepostPage = 0;
-                                    await postService.findMyRePostsPaged(
-                                        userService.searchedUser.id);
-                                  } else if (index == 1) {
-                                    postService.currentPostPage = 0;
-                                    await postService.findMyPostsPaged(
-                                        userService.searchedUser.id);
-                                  }
-                                  _currentIndex = index;
-                                });
-                              },
-                              indicatorColor: Colors.white,
-                            ),
-                            Expanded(
-                              child: TabBarView(
-                                children: [
-                                  // Contenido de la pestaña Posts
-                                  postService.myPosts.isEmpty
-                                      ? noPosts(size, "posts")
-                                      : Center(
-                                          child: MyPosts(
-                                            scrollController: _scrollController,
-                                            buildProgressIndicator: () =>
-                                                _buildProgressIndicator(),
-                                          ),
-                                        ),
+    return Stack(
+      children: [
+        Scaffold(
+          body: Padding(
+            padding: EdgeInsets.only(top: 40),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  basicInfo(userService, userLoginRequestService, size),
+                  SizedBox(height: size.height * 0.03),
+                  _editingProfile
+                      ? ProfileEditScreen(
+                          user: userService.searchedUser,
+                          firstNameController: _firstNameController,
+                          lastNameController: _lastNameController,
+                          descriptionController: _descriptionController,
+                          usernameController: _usernameController,
+                          getEditedUserData: () => getEditedUserData(),
+                        )
+                      : DefaultTabController(
+                          length: _tabs.length,
+                          child: Container(
+                            height: size.height * 0.9,
+                            color: Color.fromRGBO(165, 91, 194, 0.2),
+                            child: Column(
+                              children: [
+                                TabBar(
+                                  tabs: _tabs
+                                      .map((tab) => Tab(text: tab))
+                                      .toList(),
+                                  onTap: (index) {
+                                    setState(() async {
+                                      if (index == 0) {
+                                        postService.currentRepostPage = 0;
+                                        await postService.findMyRePostsPaged(
+                                            userService.searchedUser.id);
+                                      } else if (index == 1) {
+                                        postService.currentPostPage = 0;
+                                        await postService.findMyPostsPaged(
+                                            userService.searchedUser.id);
+                                      }
+                                      _currentIndex = index;
+                                    });
+                                  },
+                                  indicatorColor: Colors.white,
+                                ),
+                                Expanded(
+                                  child: TabBarView(
+                                    children: [
+                                      // Contenido de la pestaña Posts
+                                      postService.myPosts.isEmpty
+                                          ? noPosts(size, "posts")
+                                          : Center(
+                                              child: MyPosts(
+                                                scrollController:
+                                                    _scrollController,
+                                                buildProgressIndicator: () =>
+                                                    _buildProgressIndicator(),
+                                              ),
+                                            ),
 
-                                  // Contenido de la pestaña Reposts
-                                  postService.myRePosts.isEmpty
-                                      ? noPosts(size, "reposts")
-                                      : Center(
-                                          child: MyReposts(
-                                            scrollController: _scrollController,
-                                            buildProgressIndicator: () =>
-                                                _buildProgressIndicator(),
-                                          ),
-                                        ),
-                                  // Contenido de la pestaña Communities
-                                  communityService.myCommunities.isEmpty
-                                      ? noPosts(size, "communities")
-                                      : Center(
-                                          child: MyCommunitiesWidget(),
-                                        ),
-                                ],
-                              ),
+                                      // Contenido de la pestaña Reposts
+                                      postService.myRePosts.isEmpty
+                                          ? noPosts(size, "reposts")
+                                          : Center(
+                                              child: MyReposts(
+                                                scrollController:
+                                                    _scrollController,
+                                                buildProgressIndicator: () =>
+                                                    _buildProgressIndicator(),
+                                              ),
+                                            ),
+                                      // Contenido de la pestaña Communities
+                                      communityService.myCommunities.isEmpty
+                                          ? noPosts(size, "communities")
+                                          : Center(
+                                              child: MyCommunitiesWidget(),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -203,6 +211,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Stack(
           children: [
+            if (userService.searchedUser.id != userService.user.id)
+              Positioned(
+                top: 0,
+                left: 10,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

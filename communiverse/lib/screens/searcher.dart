@@ -35,7 +35,9 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
               children: [
                 SizedBox(height: 20),
                 Container(
-                  padding: EdgeInsets.only(left: 40), // Ajuste de la posición horizontal del TextField
+                  padding: EdgeInsets.only(
+                      left:
+                          40), // Ajuste de la posición horizontal del TextField
                   child: TextField(
                     controller: _searchController,
                     onChanged: (value) {
@@ -89,29 +91,28 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
                           child: TabBarView(
                             children: [
                               ListView.builder(
-                                itemCount:
-                                    userService.searchedUsersList.length,
+                                itemCount: userService.searchedUsersList.length,
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
                                     onTap: () async {
                                       postService.currentPostPage = 0;
                                       postService.currentRepostPage = 0;
                                       await userService.searchOtherUsers(
-                                        userService.searchedUsersList[index]
-                                            .username,
+                                        userService
+                                            .searchedUsersList[index].username,
                                       );
                                       await Future.wait([
                                         postService.findMyPostsPaged(
-                                          userService.searchedUsersList[index]
-                                              .id,
+                                          userService
+                                              .searchedUsersList[index].id,
                                         ),
                                         postService.findMyRePostsPaged(
-                                          userService.searchedUsersList[index]
-                                              .id,
+                                          userService
+                                              .searchedUsersList[index].id,
                                         ),
                                         communityService.getMyCommunities(
-                                          userService.searchedUsersList[index]
-                                              .id,
+                                          userService
+                                              .searchedUsersList[index].id,
                                         ),
                                       ]);
                                       Navigator.push(
@@ -142,10 +143,24 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
                                     onTap: () async {
-                                      postService.currentCommunityPostPage =
-                                          0;
-                                      postService.currentCommunityQuizzPage =
-                                          0;
+                                      postService.currentCommunityPostPage = 0;
+                                      postService.currentCommunityQuizzPage = 0;
+                                      postService.currentMySpacePage = 0;
+                                      await Future.wait([
+                                        postService.getAllPostsFromCommunity(
+                                            communityService
+                                                .searchedCommunityList[index]
+                                                .id),
+                                        postService.getAllQuizzFromCommunity(
+                                            communityService
+                                                .searchedCommunityList[index]
+                                                .id),
+                                        postService.getMySpaceFromCommunity(
+                                            communityService
+                                                .searchedCommunityList[index]
+                                                .id,
+                                            userService.user.followedId),
+                                      ]);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -182,7 +197,10 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
             top: 45,
             left: 3,
             child: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white,),
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              ),
               onPressed: () {
                 Navigator.pop(context);
               },
