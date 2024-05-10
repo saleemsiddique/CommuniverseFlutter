@@ -93,7 +93,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 // Your PostWidget goes here
                 // Replace the following line with your PostWidget
                 SizedBox(height: 20),
-                PostWidget(post: widget.post, isExtend: true),
+                PostWidget(post: widget.post, isExtend: true, isUserPage: false),
                 Divider(
                   thickness: 1,
                   color: Colors.white,
@@ -147,7 +147,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
       itemBuilder: (context, index) {
         if (index < comments.length) {
           final Post comment = comments[index];
-          return PostWidget(post: comment, isExtend: false);
+          return PostWidget(post: comment, isExtend: false, isUserPage: false);
         } else {
           return CircularProgressIndicator(); // Indicador de carga al final de la lista
         }

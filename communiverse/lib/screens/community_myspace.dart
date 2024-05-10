@@ -34,7 +34,7 @@ class _CommunityMySpaceState extends State<CommunityMySpace> {
               itemBuilder: (context, index) {
                 if (index < postService.communitymySpacePosts.length) {
                   final post = postService.communitymySpacePosts[index];
-                  return PostWidget(post: post, isExtend: false);
+                  return PostWidget(post: post, isExtend: false, isUserPage: false);
                 } else {
                   return widget.buildProgressIndicator();
                 }

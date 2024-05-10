@@ -13,7 +13,12 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 class PostWidget extends StatefulWidget {
   final Post post;
   final bool isExtend;
-  const PostWidget({Key? key, required this.post, required this.isExtend})
+  final bool isUserPage;
+  const PostWidget(
+      {Key? key,
+      required this.post,
+      required this.isExtend,
+      required this.isUserPage})
       : super(key: key);
 
   @override
@@ -53,7 +58,7 @@ class _PostWidgetState extends State<PostWidget> {
     if (widget.post.quizz != Quizz.empty()) {
       cardHeight = size.height * 0.38; // Ajusta el factor según lo necesites
     }
-
+    final userService = Provider.of<UserService>(context, listen: true);
 
     return GestureDetector(
       onTap: () async {
@@ -70,40 +75,70 @@ class _PostWidgetState extends State<PostWidget> {
       },
       child: Padding(
         padding: EdgeInsets.all(7),
-        child: SizedBox(
-          height: cardHeight,
-          child: Card(
-            color: Color.fromRGBO(46, 30, 47, 1),
-            elevation: 3,
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (widget.post.quizz == Quizz.empty()) ...[
-                          _buildHeader(context),
-                          if (widget.post.content != '') _buildContent(),
-                          SizedBox(height: 10),
-                          if (hasMedia) _buildMedia(),
-                        ] else ...[
-                          _buildHeader(context),
-                          SizedBox(height: 15),
-                          _buildQuizz(context, widget.post),
-                          SizedBox(height: 1.4),
-                        ]
-                      ],
-                    ),
+        child: Stack(
+          children: [
+            SizedBox(
+              height: cardHeight,
+              child: Card(
+                color: Color.fromRGBO(46, 30, 47, 1),
+                elevation: 3,
+                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (widget.post.quizz == Quizz.empty()) ...[
+                              _buildHeader(context),
+                              if (widget.post.content != '') _buildContent(),
+                              SizedBox(height: 10),
+                              if (hasMedia) _buildMedia(),
+                            ] else ...[
+                              _buildHeader(context),
+                              SizedBox(height: 15),
+                              _buildQuizz(context, widget.post),
+                              SizedBox(height: 1.4),
+                            ]
+                          ],
+                        ),
+                      ),
+                      _buildInteractions(context),
+                    ],
                   ),
-                  _buildInteractions(context),
-                ],
+                ),
               ),
             ),
-          ),
+            if (widget.post.authorId == userService.user.id &&
+                widget.isUserPage == true)
+              Positioned(
+                top: 10,
+                right: 0,
+                child: PopupMenuButton(
+                  icon: Icon(Icons.more_vert, color: Colors.white),
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        value: 'delete',
+                        child:
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                      ),
+                    ];
+                  },
+                  onSelected: (value) async {
+                    if (value == 'delete') {
+                      postService.currentPostPage = 0;
+                      postService.currentRepostPage = 0;
+                      await postService.deletePostById(widget.post.id);
+                      await postService.findMyPostsPaged(userService.user.id);
+                    }
+                  },
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -246,41 +281,45 @@ class _PostWidgetState extends State<PostWidget> {
                             ),
                           ],
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Container(
-                              width: 150,
-                              child: Text(
-                                snapshotCommunity.hasData
-                                    ? 'For: ${community.name}'
-                                    : 'Not found',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            if (repostUser != null &&
-                                repostUser.username != null &&
-                                repostUser.username != '')
-                              Row(
-                                children: [
-                                  Icon(
-                                    size: 15,
-                                    Icons.repeat,
+                        Padding(
+                          padding: const EdgeInsets.only(right: 30),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                width: 150,
+                                child: Text(
+                                  snapshotCommunity.hasData
+                                      ? 'For: ${community.name}'
+                                      : 'Not found',
+                                  style: TextStyle(
                                     color: Colors.grey,
                                   ),
-                                  Text(
-                                    '${repostUser.username}',
-                                    style: TextStyle(
+                                  overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.right, // Justifica el texto a la derecha
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              if (repostUser != null &&
+                                  repostUser.username != null &&
+                                  repostUser.username != '')
+                                Row(
+                                  children: [
+                                    Icon(
+                                      size: 15,
+                                      Icons.repeat,
                                       color: Colors.grey,
                                     ),
-                                  ),
-                                ],
-                              ),
-                          ],
+                                    Text(
+                                      '${repostUser.username}',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     );

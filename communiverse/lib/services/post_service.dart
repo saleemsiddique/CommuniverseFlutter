@@ -266,6 +266,17 @@ class PostService extends ChangeNotifier {
     }
   }
 
+    deletePostById(String id) async {
+    try {
+      final jsonData = await CommuniverseProvider.deleteJsonData('post/${id}');
+      print("Este es el post borrado por ID: $post");
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
   void clearData() {
     formKey = new GlobalKey<FormState>();
     myPosts.clear();

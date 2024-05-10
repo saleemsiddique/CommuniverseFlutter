@@ -34,7 +34,7 @@ class _CommunityQuizzesState extends State<CommunityQuizzes> {
               itemBuilder: (context, index) {
                 if (index < postService.communityQuizzes.length) {
                   final post = postService.communityQuizzes[index];
-                  return PostWidget(post: post, isExtend: false);
+                  return PostWidget(post: post, isExtend: false, isUserPage: false);
                 } else {
                   return widget.buildProgressIndicator();
                 }
