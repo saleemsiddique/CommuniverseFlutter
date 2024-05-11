@@ -57,7 +57,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   void _scrollListener() {
-    final postService = Provider.of<PostService>(context, listen: true);
+    final postService = Provider.of<PostService>(context, listen: false);
+    print("page ${postService.currentCommentPage}");
     if (!_loading &&
         _scrollController.offset >=
             _scrollController.position.maxScrollExtent &&
