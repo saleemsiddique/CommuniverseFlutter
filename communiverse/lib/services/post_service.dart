@@ -23,6 +23,8 @@ class PostService extends ChangeNotifier {
   int currentMySpacePage = 0;
   int pageSize = 5;
 
+    bool _listenerEnabled = true; // Variable de control del listener
+
   /*findMyPosts(String id) async {
     try {
       final jsonData =
@@ -57,7 +59,9 @@ class PostService extends ChangeNotifier {
 
       myPosts.addAll(newPosts);
       currentPostPage++;
-      notifyListeners();
+      if (_listenerEnabled) {
+              notifyListeners();
+      }
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
       throw errorMessage;
@@ -80,8 +84,9 @@ class PostService extends ChangeNotifier {
 
       myRePosts.addAll(newRePosts);
       currentRepostPage++;
-      notifyListeners();
-    } catch (error) {
+      if (_listenerEnabled) {
+              notifyListeners();
+      }    } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
       throw errorMessage;
     }
@@ -284,5 +289,15 @@ class PostService extends ChangeNotifier {
     comments.clear();
     currentPostPage = 0;
     currentRepostPage = 0;
+  }
+
+    // Método para desactivar el listener
+  void disableListener() {
+    _listenerEnabled = false;
+  }
+
+  // Método para reactivar el listener
+  void enableListener() {
+    _listenerEnabled = true;
   }
 }

@@ -41,6 +41,18 @@ class UserService extends ChangeNotifier {
     }
   }
 
+    findOtherUserById(String id) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData('user/${id}');
+      searchedUser = User.fromJson(json.decode(jsonData));
+      print("Este es el usuario encotrado por ID: $searchedUser");
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
   searchOtherUsers(String username) async {
     try {
       final jsonData =

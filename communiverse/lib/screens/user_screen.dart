@@ -6,8 +6,13 @@ import 'package:communiverse/services/services.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String username; // Nuevo parámetro username
-  ProfileScreen({required this.username}); // Constructor
+  final String username;
+  final bool fromPost;
+  final bool fromSearch; // Nuevo parámetro username
+  ProfileScreen(
+      {required this.username,
+      required this.fromPost,
+      required this.fromSearch}); // Constructor
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -28,7 +33,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     final userService = Provider.of<UserService>(context, listen: false);
+    final postService = Provider.of<PostService>(context, listen: false);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: false);
     super.initState();
+    if (widget.fromPost) {
+      Future.wait([
+        postService.findMyPostsPaged(userService.searchedUser.id),
+        postService.findMyRePostsPaged(userService.searchedUser.id),
+        communityService.getMyCommunities(userService.searchedUser.id),
+      ]);
+    }
     _scrollController.addListener(_scrollListener);
     _firstNameController = TextEditingController(text: userService.user.name);
     _lastNameController =
@@ -71,14 +86,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Map<String, dynamic> getEditedUserData() {
-    return {
-      'name': _firstNameController.text,
-      'lastName': _lastNameController.text,
-      'biography': _descriptionController.text,
-      'username': _usernameController.text,
-    };
+Map<String, dynamic> getEditedUserData() {
+      final userService = Provider.of<UserService>(context, listen: false);
+
+  final editedData = <String, dynamic>{
+    'name': _firstNameController.text,
+    'lastName': _lastNameController.text,
+    'biography': _descriptionController.text,
+    'username': _usernameController.text,
+  };
+
+  // Verificar si algún campo está vacío y si es así, actualizar el valor en editedData
+  if (_firstNameController.text.length < 3) {
+    editedData['name'] = userService.user.name;
   }
+  if (_lastNameController.text.length < 3) {
+    editedData['lastName'] = userService.user.lastName;
+  }
+  if (_usernameController.text.length < 3) {
+    editedData['username'] = userService.user.username;
+  }
+
+  return editedData;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +127,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  basicInfo(userService, userLoginRequestService, size),
+                  basicInfo(userService, userLoginRequestService, postService,
+                      communityService, size),
                   SizedBox(height: size.height * 0.03),
                   _editingProfile
                       ? ProfileEditScreen(
@@ -204,14 +235,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Column basicInfo(UserService userService,
-      UserLoginRequestService userLoginRequestService, Size size) {
+  Column basicInfo(
+      UserService userService,
+      UserLoginRequestService userLoginRequestService,
+      PostService postService,
+      CommunityService communityService,
+      Size size) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Stack(
           children: [
-            if (userService.searchedUser.id != userService.user.id)
+            if (userService.searchedUser.id != userService.user.id ||
+                widget.fromSearch)
               Positioned(
                 top: 0,
                 left: 10,
@@ -220,7 +256,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Icons.arrow_back,
                     color: Colors.white,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
+                    postService.currentPostPage = 0;
+                    postService.currentRepostPage = 0;
+                    await userService.searchOtherUsers(
+                      userService.user.username,
+                    );
+                    postService.findMyPostsPaged(
+                      userService.user.id,
+                    );
+                    postService.findMyRePostsPaged(
+                      userService.user.id,
+                    );
+                    communityService.getMyCommunities(userService.user.id);
                     Navigator.pop(context);
                   },
                 ),
@@ -269,7 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 10,
                     ),
                     Text(
-                      userService.searchedUser.username,
+                      "@${userService.searchedUser.username}",
                       style:
                           TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),

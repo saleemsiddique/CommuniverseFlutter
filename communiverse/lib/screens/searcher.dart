@@ -121,7 +121,7 @@ class _SearchProfilesPageState extends State<SearchProfilesPage> {
                                           builder: (context) => ProfileScreen(
                                             username: userService
                                                 .searchedUsersList[index]
-                                                .username,
+                                                .username, fromPost: false, fromSearch: true,
                                           ),
                                         ),
                                       );

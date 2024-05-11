@@ -57,7 +57,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         children: [
           HomeScreen(),
           ProfileScreen(
-            username: UserLoginRequestService.userLoginRequest.username,
+            username: UserLoginRequestService.userLoginRequest.username, fromPost: false, fromSearch: false,
           )
         ],
       ),

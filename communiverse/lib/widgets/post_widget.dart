@@ -147,6 +147,8 @@ class _PostWidgetState extends State<PostWidget> {
   Widget _buildHeader(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: false);
     final userService = Provider.of<UserService>(context, listen: false);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: false);
     // Almacenar los datos recuperados en variables locales
     final authorFuture = postService.findPostAuthor(widget.post.authorId);
     final communityFuture =
@@ -191,26 +193,43 @@ class _PostWidgetState extends State<PostWidget> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 120,
-                              child: Text(
-                                '${author.name} ${author.lastName}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () async {
+                            postService.currentPostPage = 0;
+                            postService.currentRepostPage = 0;
+                            await userService
+                                .findOtherUserById(widget.post.authorId);
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfileScreen(
+                                  username: userService.searchedUser.username, fromPost: true, fromSearch: false,
                                 ),
                               ),
-                            ),
-                            Text(
-                              '${author.username}',
-                              style: TextStyle(
-                                color: Colors.grey,
+                            );
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 120,
+                                child: Text(
+                                  '${author.name} ${author.lastName}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                              Text(
+                                '@${author.username}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -237,7 +256,7 @@ class _PostWidgetState extends State<PostWidget> {
                                     color: Colors.grey,
                                   ),
                                   Text(
-                                    '${repostUser.username}',
+                                    '@${repostUser.username}',
                                     style: TextStyle(
                                       color: Colors.grey,
                                     ),
@@ -256,73 +275,121 @@ class _PostWidgetState extends State<PostWidget> {
                   future: repostUserFuture,
                   builder: (context, snapshotRepostUser) {
                     final repostUser = snapshotRepostUser.data;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 120,
-                              child: Text(
-                                '${author.name} ${author.lastName}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '${author.username}',
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 30),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Container(
-                                width: 150,
-                                child: Text(
-                                  snapshotCommunity.hasData
-                                      ? 'For: ${community.name}'
-                                      : 'Not found',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.right, // Justifica el texto a la derecha
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              if (repostUser != null &&
-                                  repostUser.username != null &&
-                                  repostUser.username != '')
-                                Row(
-                                  children: [
-                                    Icon(
-                                      size: 15,
-                                      Icons.repeat,
-                                      color: Colors.grey,
-                                    ),
-                                    Text(
-                                      '${repostUser.username}',
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
+                    
+// Condición para determinar si se debe usar GestureDetector
+final bool useGestureDetector = widget.post.authorId != userService.user.id;
+
+return Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    // Envolver en GestureDetector si se cumple la condición
+    if (useGestureDetector)
+      GestureDetector(
+        onTap: () async {
+          postService.currentPostPage = 0;
+          postService.currentRepostPage = 0;
+          await userService.findOtherUserById(widget.post.authorId);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfileScreen(
+                username: userService.searchedUser.username,
+                fromPost: true, fromSearch: false,
+              ),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 120,
+              child: Text(
+                '${author.name} ${author.lastName}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Text(
+              '@${author.username}',
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      )
+    else
+      // Usar solo el child si no se cumple la condición
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 120,
+            child: Text(
+              '${author.name} ${author.lastName}',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Text(
+            '@${author.username}',
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    Padding(
+      padding: const EdgeInsets.only(right: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Container(
+            width: 150,
+            child: Text(
+              snapshotCommunity.hasData
+                  ? 'For: ${community.name}'
+                  : 'Not found',
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign
+                  .right, // Justifica el texto a la derecha
+            ),
+          ),
+          SizedBox(height: 5),
+          if (repostUser != null &&
+              repostUser.username != null &&
+              repostUser.username != '')
+            Row(
+              children: [
+                Icon(
+                  size: 15,
+                  Icons.repeat,
+                  color: Colors.grey,
+                ),
+                Text(
+                  '${repostUser.username}',
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    ),
+  ],
+);
+
                   },
                 );
               }
