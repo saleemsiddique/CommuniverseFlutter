@@ -15,11 +15,8 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 class CommentsScreen extends StatefulWidget {
   final Post post;
-  final PostService postService;
 
-  const CommentsScreen(
-      {Key? key, required this.post, required this.postService})
-      : super(key: key);
+  const CommentsScreen({Key? key, required this.post}) : super(key: key);
 
   @override
   _CommentsScreenState createState() => _CommentsScreenState();
@@ -41,7 +38,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   @override
   void dispose() {
-    final postService = widget.postService;
+    final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
 
     postService.currentPostPage = 0;
@@ -60,7 +57,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   void _scrollListener() {
-    final postService = widget.postService;
+    final postService = Provider.of<PostService>(context, listen: true);
     if (!_loading &&
         _scrollController.offset >=
             _scrollController.position.maxScrollExtent &&
@@ -78,6 +75,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final postService = Provider.of<PostService>(context, listen: true);
     return Scaffold(
       backgroundColor: Color.fromRGBO(165, 91, 194, 0.2),
       body: Stack(
@@ -93,7 +91,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 // Your PostWidget goes here
                 // Replace the following line with your PostWidget
                 SizedBox(height: 20),
-                PostWidget(post: widget.post, isExtend: true, isUserPage: false),
+                PostWidget(
+                    post: postService.parentPost,
+                    isExtend: true,
+                    isUserPage: false),
                 Divider(
                   thickness: 1,
                   color: Colors.white,
@@ -129,10 +130,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   Widget _buildCommentsList() {
-    final List<Post> comments = widget.postService.comments;
+    final postService = Provider.of<PostService>(context, listen: true);
 
     // Verificar si la lista de comentarios está vacía
-    if (comments.isEmpty && !_loading) {
+    if (postService.comments.isEmpty && !_loading) {
       return Center(
         child: Text(
           'No comments',
@@ -140,14 +141,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
         ),
       );
     }
-
+    print("Recuento: ${postService.comments.length}");
     return ListView.builder(
       controller: _scrollController,
-      itemCount: comments.length + (_loading ? 1 : 0),
+      itemCount: postService.comments.length + (_loading ? 1 : 0),
       itemBuilder: (context, index) {
-        if (index < comments.length) {
-          final Post comment = comments[index];
-          return PostWidget(post: comment, isExtend: false, isUserPage: false);
+        if (index < postService.comments.length) {
+          return PostWidget(
+              post: postService.comments[index],
+              isExtend: false,
+              isUserPage: true);
         } else {
           return CircularProgressIndicator(); // Indicador de carga al final de la lista
         }
@@ -342,7 +345,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
     try {
       final String commentText = _commentController.text.trim();
       if (commentText.isNotEmpty) {
-        final postService = widget.postService;
+        final postService = Provider.of<PostService>(context, listen: false);
         final Map<String, dynamic> commentData = {
           'community_id': widget.post.communityId,
           'author_id': UserLoginRequestService.userLoginRequest.id,
@@ -357,6 +360,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
           "comment": true
         };
         await postService.postPost(commentData, widget.post.id);
+        widget.post.postInteractions.commentsId.add(postService.newPost.id);
         postService.currentCommentPage = 0;
         await postService.findMyCommentsPaged(widget.post.id);
         Navigator.pop(context);

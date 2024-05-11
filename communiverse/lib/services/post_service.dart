@@ -8,6 +8,8 @@ import 'package:communiverse/models/models.dart';
 class PostService extends ChangeNotifier {
   GlobalKey<FormState> formKey = new GlobalKey<FormState>();
   Post post = Post.empty();
+  Post newPost = Post.empty();
+  Post parentPost = Post.empty();
   List<Post> myPosts = [];
   List<Post> myRePosts = [];
   List<Post> comments = [];
@@ -252,6 +254,7 @@ class PostService extends ChangeNotifier {
     try {
       final jsonData =
           await CommuniverseProvider.postJsonData('post/${parentPostId}', data);
+      newPost = Post.fromJson(json.decode(jsonData));
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');
@@ -275,6 +278,17 @@ class PostService extends ChangeNotifier {
     try {
       final jsonData = await CommuniverseProvider.deleteJsonData('post/${id}');
       print("Este es el post borrado por ID: $post");
+      notifyListeners();
+    } catch (error) {
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+   Future<void> getParentPost(String id) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData('post/comment/${id}');
+      parentPost = Post.fromJson(json.decode(jsonData));
       notifyListeners();
     } catch (error) {
       String errorMessage = error.toString().replaceAll('Exception: ', '');

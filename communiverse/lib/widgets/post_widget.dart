@@ -32,18 +32,17 @@ class _PostWidgetState extends State<PostWidget> {
   @override
   void initState() {
     super.initState();
-    final userService = Provider.of<UserService>(context, listen: false);
-    isLiked =
-        widget.post.postInteractions.likeUsersId.contains(userService.user.id);
-    isReposted = widget.post.postInteractions.repostUsersId
-        .contains(userService.user.id);
   }
 
   @override
   Widget build(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: true);
     final Size size = MediaQuery.of(context).size;
-
+    final userService = Provider.of<UserService>(context, listen: true);
+    isLiked =
+        widget.post.postInteractions.likeUsersId.contains(userService.user.id);
+    isReposted = widget.post.postInteractions.repostUsersId
+        .contains(userService.user.id);
     // Verificar si el post tiene media
     final bool hasMedia =
         widget.post.photos.isNotEmpty || widget.post.videos.isNotEmpty;
@@ -55,21 +54,25 @@ class _PostWidgetState extends State<PostWidget> {
       cardHeight *= 1.2; // Ajusta el factor según lo necesites
     }
 
+    if (widget.isExtend && hasMedia) {
+      cardHeight = 250; // Ajusta el factor según lo necesites
+    }
+
     if (widget.post.quizz != Quizz.empty()) {
       cardHeight = size.height * 0.38; // Ajusta el factor según lo necesites
     }
-    final userService = Provider.of<UserService>(context, listen: true);
 
     return GestureDetector(
       onTap: () async {
         postService.currentCommentPage = 0;
+        postService.parentPost = widget.post;
         await postService.findMyCommentsPaged(widget.post.id);
         // Navegar a la pantalla de comentarios cuando se toque el post
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
-                CommentsScreen(post: widget.post, postService: postService),
+                CommentsScreen(post: widget.post),
           ),
         );
       },
@@ -134,6 +137,12 @@ class _PostWidgetState extends State<PostWidget> {
                       postService.currentRepostPage = 0;
                       await postService.deletePostById(widget.post.id);
                       await postService.findMyPostsPaged(userService.user.id);
+                      if (widget.post.isComment) {
+                        print("parent post ${postService.parentPost.id}");
+                        postService.currentCommentPage = 0;
+                        await postService.findMyCommentsPaged(postService.parentPost.id);
+                        postService.parentPost.postInteractions.commentsId.remove(widget.post.id);
+                      }
                     }
                   },
                 ),
@@ -449,9 +458,18 @@ return Row(
               widget.post.postInteractions.commentsId.length,
               Colors.grey,
               false, // likedByCurrentUser: false
-              () {
-                // Aquí puedes definir la función onPressed para comentarios
-              },
+                 () async {
+                    postService.currentCommentPage = 0;
+                    await postService.findMyCommentsPaged(widget.post.id);
+                    // Navegar a la pantalla de comentarios cuando se toque el post
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommentsScreen(
+                            post: widget.post),
+                      ),
+                    );
+                  },
             ),
             SizedBox(width: 5),
             _buildInteractionCount(
@@ -495,8 +513,7 @@ return Row(
                     await postService.likeOrRepost(
                         "removeLike", widget.post.id, userService.user.id);
                     setState(() {
-                      isLiked = !isLiked;
-                      likeButtonColor = Colors.grey;
+                      likeButtonColor = isLiked ? Colors.red :Colors.grey;
                       // Remover el ID del usuario de la lista
                       widget.post.postInteractions.likeUsersId
                           .remove(userService.user.id);
@@ -505,8 +522,7 @@ return Row(
                     await postService.likeOrRepost(
                         "addLike", widget.post.id, userService.user.id);
                     setState(() {
-                      isLiked = !isLiked;
-                      likeButtonColor = Colors.red;
+                      likeButtonColor = isLiked ? Colors.red :Colors.grey;
                       // Agregar el ID del usuario a la lista
                       widget.post.postInteractions.likeUsersId
                           .add(userService.user.id);
