@@ -26,7 +26,7 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
     final userService = Provider.of<UserService>(context, listen: true);
     final communityService =
         Provider.of<CommunityService>(context, listen: true);
-
+    final postService = Provider.of<PostService>(context, listen: true);
     bool isCreator =
         widget.user.createdCommunities.contains(widget.community.id);
     bool isModerator =
@@ -38,95 +38,118 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
     bool iAmCreator =
         userService.user.createdCommunities.contains(widget.community.id);
 
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundImage: NetworkImage(
-            widget.user.photo), // Asigna la imagen del perfil como avatar
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.user.username,
-            style:
-                TextStyle(color: Colors.white, overflow: TextOverflow.ellipsis),
+    return GestureDetector(
+      onTap: () async {
+        postService.currentPostPage = 0;
+        postService.currentRepostPage = 0;
+        await userService.findOtherUserById(widget.user.id);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileScreen(
+              username: userService.searchedUser.username,
+              fromPost: true,
+              fromSearch: false,
+            ),
           ),
-          Text(
-            '${widget.user.name} ${widget.user.lastName}',
-            style:
-                TextStyle(color: Colors.white, overflow: TextOverflow.ellipsis),
-          ),
-          if (isCreator) _buildRoleButton(context, 'Creator'),
-          if (isModerator) _buildRoleButton(context, 'Moderator'),
-          if (isMember) _buildRoleButton(context, 'Member'),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(Icons.arrow_upward,
-                color: isMember || isModerator && iAmCreator && !imHim
-                    ? Colors.green
-                    : Colors.grey),
-            onPressed: isMember || isModerator && iAmCreator && !imHim
-                ? () async {
-                    bool? promote = await showPromoteConfirmationDialog(
-                        context,
-                        widget.user,
-                        widget.community.id,
-                        userService,
-                        communityService);
-                    if (promote != null && promote) {
-                      await userService.promoteInCommunity(widget.community.id,
-                          widget.user.id, userService.user.id);
-                      setState(() {
-                        isPromote = false;
-                      });
+        );
+      },
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(
+              widget.user.photo), // Asigna la imagen del perfil como avatar
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.user.username,
+              style: TextStyle(
+                  color: Colors.white, overflow: TextOverflow.ellipsis),
+            ),
+            Text(
+              '${widget.user.name} ${widget.user.lastName}',
+              style: TextStyle(
+                  color: Colors.white, overflow: TextOverflow.ellipsis),
+            ),
+            if (isCreator) _buildRoleButton(context, 'Creator'),
+            if (isModerator) _buildRoleButton(context, 'Moderator'),
+            if (isMember) _buildRoleButton(context, 'Member'),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_upward,
+                  color: isMember || isModerator && iAmCreator && !imHim
+                      ? Colors.green
+                      : Colors.grey),
+              onPressed: isMember || isModerator && iAmCreator && !imHim
+                  ? () async {
+                      bool? promote = await showPromoteConfirmationDialog(
+                          context,
+                          widget.user,
+                          widget.community.id,
+                          userService,
+                          communityService);
+                      if (promote != null && promote) {
+                        await userService.promoteInCommunity(
+                            widget.community.id,
+                            widget.user.id,
+                            userService.user.id);
+                        setState(() {
+                          isPromote = false;
+                        });
+                      }
                     }
-                  }
-                : null,
-          ),
-          IconButton(
-            icon: Icon(Icons.arrow_downward,
-                color: isModerator && iAmCreator && !imHim
-                    ? Colors.orange
-                    : Colors.grey),
-            onPressed: isModerator && !imHim
-                ? () async {
-                    bool? demote = await _showDemoteConfirmationDialog(
-                        context, widget.user, widget.community.id, userService);
-                    if (demote != null && demote) {
-                      await userService.demoteInCommunity(
-                          widget.community.id, widget.user.id);
-                      setState(() {
-                        isDemote = false;
-                      });
+                  : null,
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_downward,
+                  color: isModerator && iAmCreator && !imHim
+                      ? Colors.orange
+                      : Colors.grey),
+              onPressed: isModerator && !imHim
+                  ? () async {
+                      bool? demote = await _showDemoteConfirmationDialog(
+                          context,
+                          widget.user,
+                          widget.community.id,
+                          userService);
+                      if (demote != null && demote) {
+                        await userService.demoteInCommunity(
+                            widget.community.id, widget.user.id);
+                        setState(() {
+                          isDemote = false;
+                        });
+                      }
                     }
+                  : null,
+            ),
+            IconButton(
+              icon: Icon(Icons.cancel,
+                  color: !imHim && !isCreator && isModerator || isMember
+                      ? Colors.red
+                      : Colors.grey),
+              onPressed: () async {
+                int? dias = await _showKickDurationDialog(context);
+                if (dias != null) {
+                  bool? kick = await _showKickConfirmationDialog(
+                      context, widget.user, widget.community.id, userService);
+                  if (kick != null && kick) {
+                    await userService.kickFromCommunity(
+                        widget.community.id, widget.user.id, dias);
+                    setState(() {
+                      isKick = false;
+                    });
                   }
-                : null,
-          ),
-          IconButton(
-            icon: Icon(Icons.cancel,
-                color: !imHim && !isCreator && isModerator || isMember
-                    ? Colors.red
-                    : Colors.grey),
-            onPressed: () async {
-              int? dias = await _showKickDurationDialog(context);
-              if (dias != null) {
-                bool? kick = await _showKickConfirmationDialog(
-                    context, widget.user, widget.community.id, userService);
-                if (kick != null && kick) {
-                  await userService.kickFromCommunity(
-                      widget.community.id, widget.user.id, dias);
-                  setState(() {
-                    isKick = false;
-                  });
                 }
-              }
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -319,19 +342,19 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
 
 Future<int?> _showKickDurationDialog(BuildContext context) async {
   final durations = {
-    "Cancelar": null,
-    "1 día": 1,
-    "1 semana": 7,
-    "1 mes": 30,
-    "1 año": 365,
-    "Indefinido": 99999,
+    "Cancel": null,
+    "1 day": 1,
+    "1 week": 7,
+    "1 month": 30,
+    "1 year": 365,
+    "Undefined": 9999,
   };
 
   return await showDialog<int>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text("Selecciona la duración de la expulsión"),
+        title: Text("Select the duration of the ban"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: durations.entries

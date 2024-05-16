@@ -18,48 +18,78 @@ class _CommunityBannedProfileItemState
     extends State<CommunityBannedProfileItem> {
   @override
   Widget build(BuildContext context) {
-  final userService = Provider.of<UserService>(context, listen: true);
-  final communityService = Provider.of<CommunityService>(context, listen: true);
+    final userService = Provider.of<UserService>(context, listen: true);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
 
-  return ListTile(
-    leading: CircleAvatar(
-      backgroundImage: NetworkImage(widget.user.photo),
-    ),
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween, // Alinea los elementos a la izquierda y derecha
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.user.username,
-              style: TextStyle(
-                color: Colors.white,
-                overflow: TextOverflow.ellipsis,
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(widget.user.photo),
+      ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment
+            .spaceBetween, // Alinea los elementos a la izquierda y derecha
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.user.username,
+                style: TextStyle(
+                  color: Colors.white,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            Text(
-              '${widget.user.name} ${widget.user.lastName}',
-              style: TextStyle(
-                color: Colors.white,
-                overflow: TextOverflow.ellipsis,
+              Text(
+                '${widget.user.name} ${widget.user.lastName}',
+                style: TextStyle(
+                  color: Colors.white,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-          ],
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            onPrimary: Colors.black, // Color del texto del botón
+            ],
           ),
-          onPressed: () {
-            communityService.unbanUser(widget.community.id, widget.user.id);
-          },
-          child: Text('Unban'),
-        ),
-      ],
-    ),
-  );
-}
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.white, // Color del texto del botón
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Confirmation"),
+                    content: Text(
+                        "Are you sure you want to unban this user from this community?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .pop(); // Cierra el diálogo sin realizar ninguna acción
+                        },
+                        child: Text("Cancelar"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Cierra el diálogo
+                          communityService.unbanUser(
+                              widget.community.id,
+                              widget.user
+                                  .id); // Realiza la acción de desbloquear al usuario
+                        },
+                        child: Text("Confirmar"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Text('Unban'),
+          ),
+        ],
+      ),
+    );
+  }
 }
