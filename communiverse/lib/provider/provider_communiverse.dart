@@ -87,7 +87,7 @@ class CommuniverseProvider extends ChangeNotifier {
         return response.body;
       } else {
         print('Error en la solicitud: ${response.statusCode}');
-        throw Exception('Error en la solicitud: ${response.statusCode}');
+        throw Exception(response.body);
       }
     } catch (error) {
       if (error is SocketException) {
@@ -97,7 +97,7 @@ class CommuniverseProvider extends ChangeNotifier {
       } else {
         print('Error desconocido: $error');
       }
-      throw Exception('Error durante la solicitud: $error');
+      throw Exception('$error');
     }
   }
 

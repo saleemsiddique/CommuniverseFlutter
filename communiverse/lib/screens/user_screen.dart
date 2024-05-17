@@ -86,29 +86,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-Map<String, dynamic> getEditedUserData() {
-      final userService = Provider.of<UserService>(context, listen: false);
+  Map<String, dynamic> getEditedUserData() {
+    final userService = Provider.of<UserService>(context, listen: false);
 
-  final editedData = <String, dynamic>{
-    'name': _firstNameController.text,
-    'lastName': _lastNameController.text,
-    'biography': _descriptionController.text,
-    'username': _usernameController.text,
-  };
+    final editedData = <String, dynamic>{
+      'name': _firstNameController.text,
+      'lastName': _lastNameController.text,
+      'biography': _descriptionController.text,
+      'username': _usernameController.text,
+    };
 
-  // Verificar si algún campo está vacío y si es así, actualizar el valor en editedData
-  if (_firstNameController.text.length < 3) {
-    editedData['name'] = userService.user.name;
-  }
-  if (_lastNameController.text.length < 3) {
-    editedData['lastName'] = userService.user.lastName;
-  }
-  if (_usernameController.text.length < 3) {
-    editedData['username'] = userService.user.username;
-  }
+    // Verificar si algún campo está vacío y si es así, actualizar el valor en editedData
+    if (_firstNameController.text.length < 3) {
+      editedData['name'] = userService.user.name;
+    }
+    if (_lastNameController.text.length < 3) {
+      editedData['lastName'] = userService.user.lastName;
+    }
+    if (_usernameController.text.length < 3) {
+      editedData['username'] = userService.user.username;
+    }
 
-  return editedData;
-}
+    return editedData;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -338,6 +338,9 @@ Map<String, dynamic> getEditedUserData() {
                             await userService.findUserById(
                               UserLoginRequestService.userLoginRequest.id,
                             );
+                            await userService.searchOtherUsers(
+                                UserLoginRequestService
+                                    .userLoginRequest.username);
                             // Realizar alguna acción después de editar el usuario, si es necesario
                             setState(() {
                               _editingProfile =
@@ -367,8 +370,24 @@ Map<String, dynamic> getEditedUserData() {
                             }
                           }
                         } catch (error) {
-                          // Manejar el error si falla la operación
-                          errorTokenExpired(context);
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text("Editing Error"),
+                                content: Text(error.toString()),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      setState(() {});
+                                    },
+                                    child: Text("Accept"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -464,13 +483,33 @@ Map<String, dynamic> getEditedUserData() {
                             await userService.findUserById(
                               UserLoginRequestService.userLoginRequest.id,
                             );
+                            await userService.searchOtherUsers(
+                                UserLoginRequestService
+                                    .userLoginRequest.username);
                             // Realizar alguna acción después de editar el usuario, si es necesario
                             setState(() {
                               _editingProfile =
                                   false; // Cambiar de nuevo al modo de visualización
                             });
                           } catch (error) {
-                            // Manejar el error si falla la edición del usuario
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text("Editing Error"),
+                                  content: Text(error.toString()),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        setState(() {});
+                                      },
+                                      child: Text("Accept"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           }
                         },
                       ),
