@@ -38,7 +38,7 @@ class _LoginFormState extends State<LoginForm> {
           SizedBox(height: size.height * 0.03),
           formDivider(),
           SizedBox(height: size.height * 0.03),
-          botonGoogle(context),
+          botonGoogleSignIn(context),
           SizedBox(height: size.height * 0.03),
           endFormText(),
         ],

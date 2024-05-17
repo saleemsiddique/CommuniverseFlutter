@@ -1,6 +1,8 @@
+import 'package:communiverse/services/google_signIn_api.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -57,7 +59,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 SizedBox(height: size.height * 0.03),
                 formDivider(),
                 SizedBox(height: size.height * 0.02),
-                botonGoogle(context)
+                botonGoogleSignUp(context)
               ],
             ),
           ),
@@ -291,5 +293,67 @@ class _SignupScreenState extends State<SignupScreen> {
             },
       child: _isLoading ? Text('Signing up...') : Text('Sign up'),
     );
+  }
+
+  Widget botonGoogleSignUp(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: const Color.fromARGB(255, 124, 122, 122),
+          width: 2,
+          strokeAlign: BorderSide.strokeAlignOutside,
+        ),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      width: double.infinity,
+      height: 50,
+      child: MaterialButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        elevation: 0,
+        color: Colors.white,
+        onPressed: () => signIn(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('assets/googleLogo.png'),
+              width: 30,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              'Signup with Google',
+              style: TextStyle(
+                color: Colors.black, // You can adjust the color as needed
+                fontSize: 16, // You can adjust the font size as needed
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future signIn() async {
+    final user = await GoogleSignInApi.login();
+    if (user == null) {
+      print("Google Login failed");
+    } else {
+      print("Google: $user");
+      print("Google: ${user.toString()}");
+      _emailController.text = user.email ?? '';
+      _nameController.text = user.displayName?.split(' ')[0] ?? '';
+      _lastNameController.text = user.displayName?.split(' ')[1] ?? '';
+      Map<String, dynamic> credentials = {
+        "name": user.displayName?.split(' ')[0] ?? '',
+        "lastName": user.displayName?.split(' ')[1] ?? '',
+        "email": user.email ?? '',
+        "password": "",
+        "username": user.email ?? '',
+        "isGoogle": true
+      };
+    }
+    return user;
   }
 }
