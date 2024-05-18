@@ -47,70 +47,84 @@ class _CreateCommunityScreenState extends State<CreateCommunityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                imageSelector(),
-                SizedBox(height: 40),
-                TextFormField(
-                  controller: _communityNameController,
-                  decoration: InputDecoration(
-                    counterStyle: TextStyle(color: Colors.white),
-                    prefixIcon: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 12.0),
-                      child: Icon(Icons.groups), // _myIcon is a 48px-wide widget.
+      body: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    imageSelector(),
+                    SizedBox(height: 40),
+                    TextFormField(
+                      controller: _communityNameController,
+                      decoration: InputDecoration(
+                        counterStyle: TextStyle(color: Colors.white),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsetsDirectional.only(start: 12.0),
+                          child: Icon(Icons.groups),
+                        ),
+                        hintText: 'Community Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      onChanged: (value) {
+                        createdCommunity.name = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty || value.length < 3) {
+                          return 'Please enter a valid community name (minimum 3 characters)';
+                        }
+                        return null;
+                      },
+                      maxLength: 30,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                     ),
-                    hintText: 'Community Name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                    SizedBox(height: 20.0),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        counterStyle: TextStyle(color: Colors.white),
+                        hintText: 'Description (Max 200 characters)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      maxLines: 4,
+                      maxLength: 200,
+                      textInputAction: TextInputAction.done,
+                      onChanged: (value) {
+                        createdCommunity.description = value;
+                      },
                     ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  onChanged: (value) {
-                    createdCommunity.name = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty || value.length < 3) {
-                      return 'Please enter a valid community name (minimum 3 characters)';
-                    }
-                    return null;
-                  },
-                  maxLength: 30,
-                  textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                    SizedBox(height: 20.0),
+                    createCommunity(),
+                    SizedBox(height: 20.0),
+                  ],
                 ),
-                SizedBox(height: 20.0),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: InputDecoration(
-                    counterStyle: TextStyle(color: Colors.white),
-                    hintText: 'Description (Max 200 characters)',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  maxLines: 4,
-                  maxLength: 200,
-                  textInputAction: TextInputAction.done,
-                  onChanged: (value) {
-                    createdCommunity.description = value;
-                  },
-                ),
-                SizedBox(height: 20.0),
-                createCommunity(),
-                SizedBox(height: 20.0),
-              ],
+              ),
             ),
           ),
-        ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

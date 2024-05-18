@@ -9,7 +9,8 @@ import 'package:provider/provider.dart';
 class UserLoginRequestService extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String emailOrUsername = '';
-  String password = '';
+  String password = 'contrasenya';
+  bool google = false;
   static UserLoginRequest userLoginRequest = UserLoginRequest.empty();
   User userForEdit = User.empty();
   // Add loading state variable
@@ -24,7 +25,7 @@ class UserLoginRequestService extends ChangeNotifier {
       CommuniverseProvider.apiKey =
           '${userLoginRequest.type} ${userLoginRequest.token}';
       print(CommuniverseProvider.apiKey);
-      print("Logged User: $userLoginRequest");
+      print("Logged User: ${userLoginRequest}");
       notifyListeners();
     } catch (error) {
       // Extraer el mensaje de error de la cadena de excepción
@@ -51,7 +52,8 @@ class UserLoginRequestService extends ChangeNotifier {
           '${CommuniverseProvider.apiAuthRoutes}edit/$id', data);
       Map<String, dynamic> credentials = {
         "emailOrUsername": userLoginRequest.email,
-        "password": password
+        "password": password,
+        "google": userLoginRequest.isGoogle
       };
       print("edit user $credentials");
       await signIn(credentials);
@@ -69,7 +71,8 @@ class UserLoginRequestService extends ChangeNotifier {
           '${CommuniverseProvider.apiAuthRoutes}editUserCommunities/$id', data);
       Map<String, dynamic> credentials = {
         "emailOrUsername": userLoginRequest.email,
-        "password": password
+        "password": password,
+        "google": userLoginRequest.isGoogle
       };
       print("edit user $credentials");
       await signIn(credentials);
@@ -87,7 +90,8 @@ class UserLoginRequestService extends ChangeNotifier {
           '${CommuniverseProvider.apiAuthRoutes}editphoto/$id', data);
       Map<String, dynamic> credentials = {
         "emailOrUsername": userLoginRequest.email,
-        "password": password
+        "password": password,
+        "google": userLoginRequest.isGoogle
       };
       print(credentials);
       await signIn(credentials);
@@ -102,7 +106,7 @@ class UserLoginRequestService extends ChangeNotifier {
   void clearData() {
     formKey = new GlobalKey<FormState>();
     emailOrUsername = '';
-    password = '';
+    password = 'contrasenya';
     userLoginRequest = UserLoginRequest.empty();
     userForEdit = User.empty();
     isLoadingForgotPassword = false;
@@ -111,6 +115,7 @@ class UserLoginRequestService extends ChangeNotifier {
   Map<String, dynamic> toJson() => {
         "emailOrUsername": emailOrUsername,
         "password": password,
+        "google": google
       };
 
 /*

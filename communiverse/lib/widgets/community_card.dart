@@ -1,6 +1,8 @@
 import 'package:communiverse/models/models.dart';
 import 'package:communiverse/screens/screens.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CommunityCard extends StatelessWidget {
   final Community community;
@@ -10,7 +12,18 @@ class CommunityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        final postService = Provider.of<PostService>(context, listen: false);
+        final userService = Provider.of<UserService>(context, listen: false);
+        postService.currentCommunityPostPage = 0;
+        postService.currentCommunityQuizzPage = 0;
+        postService.currentMySpacePage = 0;
+        await Future.wait([
+          postService.getAllPostsFromCommunity(community.id),
+          postService.getAllQuizzFromCommunity(community.id),
+          postService.getMySpaceFromCommunity(
+              community.id, userService.user.followedId),
+        ]);
         Navigator.push(
           context,
           MaterialPageRoute(

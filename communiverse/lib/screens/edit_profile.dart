@@ -84,7 +84,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget _buildField(String label, TextEditingController controller) {
     // Variables para almacenar las restricciones según el campo
     int minLength = 3;
-    int maxLength = 50;
+    int maxLength = 20;
     String hint = 'Enter $label';
     TextInputType keyboardType = TextInputType.text;
 

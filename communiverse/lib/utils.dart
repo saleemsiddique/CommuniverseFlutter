@@ -62,7 +62,7 @@ class Utils {
         await userLoginRequestService.editPhotoUser(
             userService.user.id, imageData);
         await userService
-            .findUserById(UserLoginRequestService.userLoginRequest.id);
+            .findOtherUserById(UserLoginRequestService.userLoginRequest.id);
 
         // Llamar a la función de devolución de llamada
         await onImageSelected();
@@ -213,13 +213,14 @@ class Utils {
   }
 
   void _removeImage(UserService userService,
-      UserLoginRequestService userLoginRequestService) {
+      UserLoginRequestService userLoginRequestService) async {
     userService.user.photo = ''; // Vacía el campo de la foto
     Map<String, dynamic> data = {
       '': "",
     };
     print("data: $data");
-    userLoginRequestService.editPhotoUser(userService.user.id, data);
+    await userLoginRequestService.editPhotoUser(userService.user.id, data);
+    await userService.findOtherUserById(UserLoginRequestService.userLoginRequest.id);
   }
 
   static String getBase64FromPath(String path) {

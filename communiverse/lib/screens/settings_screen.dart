@@ -1,5 +1,7 @@
+import 'package:communiverse/services/google_signIn_api.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -71,6 +73,7 @@ class SettingsScreen extends StatelessWidget {
                           communityService.clearData();
                           userService.clearData();
                           userLoginRequestService.clearData();
+                          GoogleSignInApi.logout();
                           Navigator.pushNamedAndRemoveUntil(
                               context, '/', (route) => false);
                         },

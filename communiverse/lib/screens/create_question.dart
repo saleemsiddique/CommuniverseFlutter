@@ -21,34 +21,50 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+
     return Scaffold(
-      body: Center(
-        child: Container(
-          width: size.width * 0.8,
-          child: ListView(
-            padding: EdgeInsets.only(top: size.height * 0.1),
-            children: [
-              Center(
-                  child: Text(
-                "Create Question",
-                style: TextStyle(fontSize: 28),
-              )),
-              SizedBox(height: 16),
-              question(),
-              SizedBox(height: 32),
-              Center(
-                child: Text(
-                  'Responses',
-                  style: TextStyle(color: Colors.white),
-                ),
+      body: Stack(
+        children: [
+          Center(
+            child: Container(
+              width: size.width * 0.8,
+              child: ListView(
+                padding: EdgeInsets.only(top: size.height * 0.1),
+                children: [
+                  Center(
+                    child: Text(
+                      "Create Question",
+                      style: TextStyle(fontSize: 28),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  question(),
+                  SizedBox(height: 32),
+                  Center(
+                    child: Text(
+                      'Responses',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  options(),
+                  SizedBox(height: 16),
+                  addQuestion(context),
+                ],
               ),
-              SizedBox(height: 16),
-              options(),
-              SizedBox(height: 16),
-              addQuestion(context),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            top: 40,
+            left: 10,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white,),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -123,10 +139,9 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                             controller: _optionControllers[entry.key],
                             style: TextStyle(color: Colors.black),
                             decoration: InputDecoration(
-                              labelText: 'Option ${entry.key + 1}',
-                              border: InputBorder.none,
-                              counterText: ""
-                            ),
+                                labelText: 'Option ${entry.key + 1}',
+                                border: InputBorder.none,
+                                counterText: ""),
                           ),
                           Positioned(
                             right: 0,
@@ -166,29 +181,28 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     );
   }
 
-question() {
-  return TextFormField(
-    maxLength: 60,
-    controller: _questionController,
-    style: TextStyle(color: Colors.black),
-    decoration: InputDecoration(
-      hintText: 'Question',
-      filled: true,
-      fillColor: Colors.white,
-      counterStyle: TextStyle(color: Colors.white),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0),
+  question() {
+    return TextFormField(
+      maxLength: 60,
+      controller: _questionController,
+      style: TextStyle(color: Colors.black),
+      decoration: InputDecoration(
+        hintText: 'Question',
+        filled: true,
+        fillColor: Colors.white,
+        counterStyle: TextStyle(color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.black),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
       ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-    ),
-  );
-}
-
+    );
+  }
 }

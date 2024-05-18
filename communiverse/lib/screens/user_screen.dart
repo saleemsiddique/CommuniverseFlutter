@@ -276,138 +276,142 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 40,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        if (_editingProfile) {
-                          Utils().showImageOptions(
-                            context,
-                            userService,
-                            userLoginRequestService,
-                            () async {
-                              String uniqueIdentifier = DateTime.now()
-                                  .millisecondsSinceEpoch
-                                  .toString();
-                              String updatedPhotoUrl =
-                                  '${userService.searchedUser.photo}?$uniqueIdentifier';
-                              setState(() {
-                                userService.searchedUser.photo =
-                                    updatedPhotoUrl;
-                              });
-                            },
-                          );
-                        }
-                      },
-                      child: CircleAvatar(
-                        backgroundColor: Colors.black,
-                        radius: 55,
-                        // Usar la nueva URL con el identificador único para cargar la imagen
-                        backgroundImage: userService.searchedUser.photo != ""
-                            ? NetworkImage(userService.searchedUser.photo)
-                            : AssetImage('assets/no-user.png')
-                                as ImageProvider<Object>?,
+                Container(
+                  width: size.width * 0.4,
+                  
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 40,
                       ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      "@${userService.searchedUser.username}",
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        try {
+                      GestureDetector(
+                        onTap: () {
                           if (_editingProfile) {
-                            // Lógica para guardar los cambios
-                            Map<String, dynamic> editedData =
-                                getEditedUserData();
-                            await userLoginRequestService.editUser(
-                              UserLoginRequestService.userLoginRequest.id,
-                              editedData,
+                            Utils().showImageOptions(
+                              context,
+                              userService,
+                              userLoginRequestService,
+                              () async {
+                                String uniqueIdentifier = DateTime.now()
+                                    .millisecondsSinceEpoch
+                                    .toString();
+                                String updatedPhotoUrl =
+                                    '${userService.searchedUser.photo}?$uniqueIdentifier';
+                                setState(() {
+                                  userService.searchedUser.photo =
+                                      updatedPhotoUrl;
+                                });
+                              },
                             );
-                            await userService.findUserById(
-                              UserLoginRequestService.userLoginRequest.id,
-                            );
-                            await userService.searchOtherUsers(
-                                UserLoginRequestService
-                                    .userLoginRequest.username);
-                            // Realizar alguna acción después de editar el usuario, si es necesario
-                            setState(() {
-                              _editingProfile =
-                                  false; // Cambiar de nuevo al modo de visualización
-                            });
-                          } else if (userService.searchedUser.id ==
-                              userService.user.id) {
-                            setState(() {
-                              _editingProfile =
-                                  true; // Cambiar a modo de edición
-                            });
-                          } else {
-                            // Lógica para seguir o dejar de seguir al usuario
-                            if (userService.user.followedId
-                                .contains(userService.searchedUser.id)) {
-                              // El usuario actual ya sigue al usuario buscado, dejar de seguir
-                              await userService.follow(
-                                UserLoginRequestService.userLoginRequest.id,
-                                userService.searchedUser.id,
-                              );
-                            } else {
-                              // El usuario actual aún no sigue al usuario buscado, seguir
-                              await userService.follow(
-                                UserLoginRequestService.userLoginRequest.id,
-                                userService.searchedUser.id,
-                              );
-                            }
                           }
-                        } catch (error) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text("Editing Error"),
-                                content: Text(error.toString()),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      setState(() {});
-                                    },
-                                    child: Text("Accept"),
-                                  ),
-                                ],
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black,
+                          radius: 55,
+                          // Usar la nueva URL con el identificador único para cargar la imagen
+                          backgroundImage: userService.searchedUser.photo != ""
+                              ? NetworkImage(userService.searchedUser.photo)
+                              : AssetImage('assets/no-user.png')
+                                  as ImageProvider<Object>?,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "@${userService.searchedUser.username}",
+                        style:
+                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          try {
+                            if (_editingProfile) {
+                              // Lógica para guardar los cambios
+                              Map<String, dynamic> editedData =
+                                  getEditedUserData();
+                              await userLoginRequestService.editUser(
+                                UserLoginRequestService.userLoginRequest.id,
+                                editedData,
                               );
-                            },
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-                        backgroundColor:
-                            Color.fromRGBO(222, 139, 255, 1), // Color de fondo
-                      ),
-                      child: Text(
-                        _editingProfile
-                            ? 'Save'
-                            : userService.searchedUser.id == userService.user.id
-                                ? 'Edit'
-                                : userService.searchedUser.followersId
-                                        .contains(userService.user.id)
-                                    ? 'Followed'
-                                    : 'Follow',
-                      ),
-                    )
-                  ],
+                              await userService.findUserById(
+                                UserLoginRequestService.userLoginRequest.id,
+                              );
+                              await userService.searchOtherUsers(
+                                  UserLoginRequestService
+                                      .userLoginRequest.username);
+                              // Realizar alguna acción después de editar el usuario, si es necesario
+                              setState(() {
+                                _editingProfile =
+                                    false; // Cambiar de nuevo al modo de visualización
+                              });
+                            } else if (userService.searchedUser.id ==
+                                userService.user.id) {
+                              setState(() {
+                                _editingProfile =
+                                    true; // Cambiar a modo de edición
+                              });
+                            } else {
+                              // Lógica para seguir o dejar de seguir al usuario
+                              if (userService.user.followedId
+                                  .contains(userService.searchedUser.id)) {
+                                // El usuario actual ya sigue al usuario buscado, dejar de seguir
+                                await userService.follow(
+                                  UserLoginRequestService.userLoginRequest.id,
+                                  userService.searchedUser.id,
+                                );
+                              } else {
+                                // El usuario actual aún no sigue al usuario buscado, seguir
+                                await userService.follow(
+                                  UserLoginRequestService.userLoginRequest.id,
+                                  userService.searchedUser.id,
+                                );
+                              }
+                            }
+                          } catch (error) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text("Editing Error"),
+                                  content: Text(error.toString()),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        setState(() {});
+                                      },
+                                      child: Text("Accept"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                          backgroundColor:
+                              Color.fromRGBO(222, 139, 255, 1), // Color de fondo
+                        ),
+                        child: Text(
+                          _editingProfile
+                              ? 'Save'
+                              : userService.searchedUser.id == userService.user.id
+                                  ? 'Edit'
+                                  : userService.searchedUser.followersId
+                                          .contains(userService.user.id)
+                                      ? 'Followed'
+                                      : 'Follow',
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 SizedBox(width: size.width * 0.05),
                 _editingProfile

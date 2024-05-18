@@ -1,44 +1,46 @@
 import 'dart:convert';
 
 class UserLoginRequest {
-    String token;
-    String type;
-    String id;
-    String name;
-    String lastName;
-    String email;
-    String password;
-    String username;
-    bool isGoogle;
+  String token;
+  String type;
+  String id;
+  String name;
+  String lastName;
+  String email;
+  String password;
+  String username;
+  bool isGoogle;
 
-    UserLoginRequest({
-        required this.token,
-        required this.type,
-        required this.id,
-        required this.name,
-        required this.lastName,
-        required this.email,
-        required this.password,
-        required this.username,
-        required this.isGoogle,
-    });
+  UserLoginRequest({
+    required this.token,
+    required this.type,
+    required this.id,
+    required this.name,
+    required this.lastName,
+    required this.email,
+    required this.password,
+    required this.username,
+    required this.isGoogle,
+  });
 
-    UserLoginRequest.empty()
-        : token = '',
-          type = '',
-          id = '',
-          name = '',
-          lastName = '',
-          email = '',
-          password = '',
-          username = '',
-          isGoogle = false;
+  UserLoginRequest.empty()
+      : token = '',
+        type = '',
+        id = '',
+        name = '',
+        lastName = '',
+        email = '',
+        password = '',
+        username = '',
+        isGoogle = false;
 
-    factory UserLoginRequest.fromRawJson(String str) => UserLoginRequest.fromJson(json.decode(str));
+  factory UserLoginRequest.fromRawJson(String str) =>
+      UserLoginRequest.fromJson(json.decode(str));
 
-    String toRawJson() => json.encode(toJson());
+  String toRawJson() => json.encode(toJson());
 
-    factory UserLoginRequest.fromJson(Map<String, dynamic> json) => UserLoginRequest(
+  factory UserLoginRequest.fromJson(Map<String, dynamic> json) =>
+      UserLoginRequest(
         token: json["token"],
         type: json["type"],
         id: json["id"],
@@ -48,9 +50,9 @@ class UserLoginRequest {
         password: json["password"],
         username: json["username"],
         isGoogle: json["google"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "token": token,
         "type": type,
         "id": id,
@@ -60,5 +62,10 @@ class UserLoginRequest {
         "password": password,
         "username": username,
         "isGoogle": isGoogle,
-    };
+      };
+
+  @override
+  String toString() {
+    return 'UserLoginRequest(email: $email, username: $username, password: $password, isGoogle: $isGoogle)';
+  }
 }

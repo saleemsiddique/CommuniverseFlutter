@@ -66,6 +66,7 @@ class _PostWidgetState extends State<PostWidget> {
       onTap: () async {
         postService.currentCommentPage = 0;
         postService.parentPost = widget.post;
+        await postService.findPostById(widget.post.id);
         await postService.findMyCommentsPaged(widget.post.id);
         // Navegar a la pantalla de comentarios cuando se toque el post
         Navigator.push(

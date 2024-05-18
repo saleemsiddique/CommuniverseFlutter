@@ -35,50 +35,61 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
     final communityService = Provider.of<CommunityService>(context);
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          height: size.height,
-          child: Padding(
-            padding:
-                const EdgeInsets.only(top: 50, bottom: 10, right: 20, left: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Container(
+              height: size.height,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    top: 50, bottom: 10, right: 20, left: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(
-                      child: Text(
-                        "Create Quizz",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        Text(
+                          "Create Quizz",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        CommunityDropdown(
+                          communities: communityService.myCommunities,
+                          communityController: _communityController,
+                          onChanged: (selectedCommunity) {
+                            setState(() {
+                              // Aquí puedes hacer cualquier acción necesaria después de seleccionar una comunidad
+                            });
+                          },
+                        )
+                      ],
                     ),
-                    CommunityDropdown(
-                      communities: communityService.myCommunities,
-                      communityController: _communityController,
-                      onChanged: (selectedCommunity) {
-                        setState(() {
-                          // Aquí puedes hacer cualquier acción necesaria después de seleccionar una comunidad
-                        });
-                      },
-                    )
+                    SizedBox(height: 16),
+                    descriptionField(),
+                    SizedBox(height: 32),
+                    imageSelector(),
+                    SizedBox(height: 7),
+                    addQuestion(context),
+                    SizedBox(height: 10),
+                    questionList(),
+                    SizedBox(height: 20),
+                    createQuizz(context),
                   ],
                 ),
-                SizedBox(height: 16),
-                descriptionField(),
-                SizedBox(height: 32),
-                imageSelector(),
-                SizedBox(height: 7),
-                addQuestion(context),
-                SizedBox(height: 10),
-                questionList(),
-                SizedBox(height: 20),
-                createQuizz(context),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -129,8 +140,7 @@ class _CreateQuizzScreenState extends State<CreateQuizzScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: Color.fromRGBO(165, 91, 194, 1),
       ),
-      onPressed: _questions.isEmpty ||
-              _communityController.text == ''
+      onPressed: _questions.isEmpty || _communityController.text == ''
           ? null
           : () async {
               showDialog(

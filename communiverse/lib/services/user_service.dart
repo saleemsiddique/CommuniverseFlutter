@@ -10,6 +10,7 @@ class UserService extends ChangeNotifier {
   String email = '';
   String password = '';
   String username = "";
+  bool isGoogle = false;
   User user = new User.empty();
   User searchedUser = new User.empty();
   List<User> searchedUsersList = [];
@@ -203,5 +204,6 @@ class UserService extends ChangeNotifier {
         "email": email,
         "password": password,
         "username": username,
+        "isGoogle": isGoogle
       };
 }

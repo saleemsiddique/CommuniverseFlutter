@@ -39,35 +39,49 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-              color: Color.fromRGBO(165, 91, 194, 0.2),
-              height: _images.isNotEmpty || _videos.isNotEmpty
-                  ? size.height * 0.62
-                  : size.height * 0.50,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 50),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    postHeader(context),
-                    SizedBox(height: 20),
-                    postContent(),
-                    SizedBox(height: 20),
-                    postButtons(context),
-                    SizedBox(height: 20),
-                    postMedia()
-                  ],
+      body: Stack(
+        children: [
+          Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  color: Color.fromRGBO(165, 91, 194, 0.2),
+                  height: _images.isNotEmpty || _videos.isNotEmpty
+                      ? size.height * 0.64
+                      : size.height * 0.52,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 80),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        postHeader(context),
+                        SizedBox(height: 20),
+                        postContent(),
+                        SizedBox(height: 20),
+                        postButtons(context),
+                        SizedBox(height: 20),
+                        postMedia()
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                SizedBox(),
+              ],
             ),
-            SizedBox()
-          ],
-        ),
+          ),
+          Positioned(
+            top: 25,
+            left: 10,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:communiverse/services/google_signIn_api.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -197,5 +198,108 @@ class _LoginFormState extends State<LoginForm> {
             },
       child: _isLoading ? Text('Logging into account...') : Text('Login'),
     );
+  }
+
+  Widget botonGoogleSignIn(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: const Color.fromARGB(255, 124, 122, 122),
+          width: 2,
+          strokeAlign: BorderSide.strokeAlignOutside,
+        ),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      width: double.infinity,
+      height: 50,
+      child: MaterialButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        elevation: 0,
+        color: Colors.white,
+        onPressed: () => _isLoading ? null : signIn(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('assets/googleLogo.png'),
+              width: 30,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            _isLoading
+                ? Text('Logging into account...')
+                : Text(
+                    'Login with Google',
+                    style: TextStyle(
+                      color: Colors.black, // You can adjust the color as needed
+                      fontSize: 16, // You can adjust the font size as needed
+                    ),
+                  )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future signIn() async {
+    final userService = Provider.of<UserService>(context, listen: false);
+    final postService = Provider.of<PostService>(context, listen: false);
+    final userLoginRequestService =
+        Provider.of<UserLoginRequestService>(context, listen: false);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: false);
+    setState(() {
+      _isLoading = true;
+    });
+    final user = await GoogleSignInApi.login();
+    if (user == null) {
+      print("Google Login failed");
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      print("Google: $user");
+      print("Google: ${user.toString()}");
+      Map<String, dynamic> credentialsLogIn = {
+        "emailOrUsername": user.email ?? '',
+        "password": 'contrasenya',
+        "google": true
+      };
+      print(credentialsLogIn);
+      try {
+        await userLoginRequestService.signIn(credentialsLogIn);
+        await userService
+            .findUserById(UserLoginRequestService.userLoginRequest.id);
+        await postService.findMyPostsPaged(userService.user.id);
+        await postService.findMyRePostsPaged(userService.user.id);
+        await communityService.getTop5Communities();
+        await communityService.getMyCommunities(userService.user.id);
+        _isLoading = false;
+        Navigator.of(context).pushReplacementNamed('home');
+      } catch (error) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text(error.toString()),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    GoogleSignInApi.logout();
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+                  child: Text("Accept"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+    return user;
   }
 }

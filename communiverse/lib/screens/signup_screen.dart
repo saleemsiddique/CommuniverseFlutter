@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:communiverse/services/google_signIn_api.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
@@ -253,7 +255,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 Map<String, dynamic> credentialsLogIn = {
                   "emailOrUsername": "${_emailController.text}",
                   "password": "${_passwordController.text}",
-                  "isGoogle": false
+                  "google": false
                 };
                 print(credentials);
                 print(credentialsLogIn);
@@ -312,7 +314,7 @@ class _SignupScreenState extends State<SignupScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         elevation: 0,
         color: Colors.white,
-        onPressed: () => signIn(),
+        onPressed: () => _isLoading ? null : signIn(),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -323,13 +325,15 @@ class _SignupScreenState extends State<SignupScreen> {
             SizedBox(
               width: 10,
             ),
-            Text(
-              'Signup with Google',
-              style: TextStyle(
-                color: Colors.black, // You can adjust the color as needed
-                fontSize: 16, // You can adjust the font size as needed
-              ),
-            ),
+            _isLoading
+                ? Text("Signing up...")
+                : Text(
+                    'Sign up with Google',
+                    style: TextStyle(
+                      color: Colors.black, // You can adjust the color as needed
+                      fontSize: 16, // You can adjust the font size as needed
+                    ),
+                  ),
           ],
         ),
       ),
@@ -337,6 +341,10 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future signIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final userService = Provider.of<UserService>(context, listen: false);
     final postService = Provider.of<PostService>(context, listen: false);
     final userLoginRequestService =
@@ -347,19 +355,29 @@ class _SignupScreenState extends State<SignupScreen> {
     final user = await GoogleSignInApi.login();
     if (user == null) {
       print("Google Login failed");
+      setState(() {
+        _isLoading = false;
+      });
     } else {
       print("Google: $user");
       print("Google: ${user.toString()}");
+
+      String email = user.email ?? '';
+      String name = user.displayName?.split(' ')[0] ?? '';
+      String lastName = user.displayName?.split(' ')[1] ?? '';
+
+      String username = generateUsername(name, lastName);
+
       Map<String, dynamic> credentials = {
-        "name": user.displayName?.split(' ')[0] ?? '',
-        "lastName": user.displayName?.split(' ')[1] ?? '',
-        "email": user.email ?? '',
+        "name": name,
+        "lastName": lastName,
+        "email": email,
         "password": "contrasenya",
-        "username": user.email ?? '',
+        "username": username,
         "isGoogle": true
       };
       Map<String, dynamic> credentialsLogIn = {
-        "emailOrUsername": user.email ?? '',
+        "emailOrUsername": email,
         "password": 'contrasenya',
         "google": true
       };
@@ -374,9 +392,14 @@ class _SignupScreenState extends State<SignupScreen> {
         await postService.findMyRePostsPaged(userService.user.id);
         await communityService.getTop5Communities();
         await communityService.getMyCommunities(userService.user.id);
-        _isLoading = false;
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(context).pushReplacementNamed('home');
       } catch (error) {
+        setState(() {
+          _isLoading = false;
+        });
         showDialog(
           context: context,
           builder: (context) {
@@ -386,6 +409,7 @@ class _SignupScreenState extends State<SignupScreen> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
+                    GoogleSignInApi.logout();
                     Navigator.of(context).pop();
                     setState(() {
                       _isLoading = false;
@@ -400,5 +424,20 @@ class _SignupScreenState extends State<SignupScreen> {
       }
     }
     return user;
+  }
+
+  String generateUsername(String name, String lastName) {
+    String firstPart = name.length >= 3 ? name.substring(0, 3) : name;
+    String lastPart =
+        lastName.length >= 3 ? lastName.substring(0, 3) : lastName;
+    String randomString = getRandomString(5);
+    return '$firstPart${lastPart}_$randomString';
+  }
+
+  String getRandomString(int length) {
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random();
+    return String.fromCharCodes(Iterable.generate(length,
+        (_) => characters.codeUnitAt(random.nextInt(characters.length))));
   }
 }
