@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+
 class User {
   String id;
   String name;
@@ -16,6 +17,7 @@ class User {
   Interactions interactions;
   List<String> followersId;
   List<String> followedId;
+  bool isGoogle;
 
   User({
     required this.id,
@@ -33,6 +35,7 @@ class User {
     required this.interactions,
     required this.followersId,
     required this.followedId,
+    required this.isGoogle,
   });
 
   factory User.empty() {
@@ -52,6 +55,7 @@ class User {
       interactions: Interactions(receivedLikes: 0, receivedReposts: 0),
       followersId: [],
       followedId: [],
+      isGoogle: false,
     );
   }
 
@@ -69,15 +73,13 @@ class User {
         photo: json["photo"],
         biography: json["biography"],
         userStats: UserStats.fromJson(json["userStats"]),
-        createdCommunities:
-            List<String>.from(json["createdCommunities"].map((x) => x)),
-        moderatedCommunities:
-            List<String>.from(json["moderatedCommunities"].map((x) => x)),
-        memberCommunities:
-            List<String>.from(json["memberCommunities"].map((x) => x)),
+        createdCommunities: List<String>.from(json["createdCommunities"].map((x) => x)),
+        moderatedCommunities: List<String>.from(json["moderatedCommunities"].map((x) => x)),
+        memberCommunities: List<String>.from(json["memberCommunities"].map((x) => x)),
         interactions: Interactions.fromJson(json["interactions"]),
         followersId: List<String>.from(json["followers_id"].map((x) => x)),
         followedId: List<String>.from(json["followed_id"].map((x) => x)),
+        isGoogle: json["google"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -90,16 +92,14 @@ class User {
         "photo": photo,
         "biography": biography,
         "userStats": userStats.toJson(),
-        "createdCommunities":
-            List<String>.from(createdCommunities.map((x) => x)),
-        "moderatedCommunities":
-            List<String>.from(moderatedCommunities.map((x) => x)),
+        "createdCommunities": List<String>.from(createdCommunities.map((x) => x)),
+        "moderatedCommunities": List<String>.from(moderatedCommunities.map((x) => x)),
         "memberCommunities": List<String>.from(memberCommunities.map((x) => x)),
         "interactions": interactions.toJson(),
         "followers_id": List<String>.from(followersId.map((x) => x)),
         "followed_id": List<String>.from(followedId.map((x) => x)),
+        "isGoogle": isGoogle,
       };
-
   @override
   String toString() {
     return 'User{id: $id, name: $name, lastName: $lastName, email: $email, username: $username, createdCommunities: $createdCommunities}';

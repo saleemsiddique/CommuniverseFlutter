@@ -252,7 +252,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 Map<String, dynamic> credentials = userService.toJson();
                 Map<String, dynamic> credentialsLogIn = {
                   "emailOrUsername": "${_emailController.text}",
-                  "password": "${_passwordController.text}"
+                  "password": "${_passwordController.text}",
+                  "isGoogle": false
                 };
                 print(credentials);
                 print(credentialsLogIn);
@@ -336,23 +337,67 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future signIn() async {
+    final userService = Provider.of<UserService>(context, listen: false);
+    final postService = Provider.of<PostService>(context, listen: false);
+    final userLoginRequestService =
+        Provider.of<UserLoginRequestService>(context, listen: false);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: false);
+
     final user = await GoogleSignInApi.login();
     if (user == null) {
       print("Google Login failed");
     } else {
       print("Google: $user");
       print("Google: ${user.toString()}");
-      _emailController.text = user.email ?? '';
-      _nameController.text = user.displayName?.split(' ')[0] ?? '';
-      _lastNameController.text = user.displayName?.split(' ')[1] ?? '';
       Map<String, dynamic> credentials = {
         "name": user.displayName?.split(' ')[0] ?? '',
         "lastName": user.displayName?.split(' ')[1] ?? '',
         "email": user.email ?? '',
-        "password": "",
+        "password": "contrasenya",
         "username": user.email ?? '',
         "isGoogle": true
       };
+      Map<String, dynamic> credentialsLogIn = {
+        "emailOrUsername": user.email ?? '',
+        "password": 'contrasenya',
+        "google": true
+      };
+      print(credentials);
+      print(credentialsLogIn);
+      try {
+        await userService.signUp(credentials);
+        await userLoginRequestService.signIn(credentialsLogIn);
+        await userService
+            .findUserById(UserLoginRequestService.userLoginRequest.id);
+        await postService.findMyPostsPaged(userService.user.id);
+        await postService.findMyRePostsPaged(userService.user.id);
+        await communityService.getTop5Communities();
+        await communityService.getMyCommunities(userService.user.id);
+        _isLoading = false;
+        Navigator.of(context).pushReplacementNamed('home');
+      } catch (error) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Sign Up Error"),
+              content: Text(error.toString()),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+                  child: Text("Accept"),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
     return user;
   }

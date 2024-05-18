@@ -9,6 +9,7 @@ class UserLoginRequest {
     String email;
     String password;
     String username;
+    bool isGoogle;
 
     UserLoginRequest({
         required this.token,
@@ -19,18 +20,19 @@ class UserLoginRequest {
         required this.email,
         required this.password,
         required this.username,
+        required this.isGoogle,
     });
 
-  UserLoginRequest.empty()
-      : token = '',
-        type = '',
-        id = "",
-        name = '',
-        lastName = '',
-        email = '',
-        password = '',
-        username = '';
-        
+    UserLoginRequest.empty()
+        : token = '',
+          type = '',
+          id = '',
+          name = '',
+          lastName = '',
+          email = '',
+          password = '',
+          username = '',
+          isGoogle = false;
 
     factory UserLoginRequest.fromRawJson(String str) => UserLoginRequest.fromJson(json.decode(str));
 
@@ -45,6 +47,7 @@ class UserLoginRequest {
         email: json["email"],
         password: json["password"],
         username: json["username"],
+        isGoogle: json["google"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -56,5 +59,6 @@ class UserLoginRequest {
         "email": email,
         "password": password,
         "username": username,
+        "isGoogle": isGoogle,
     };
 }

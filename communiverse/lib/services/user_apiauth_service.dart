@@ -19,6 +19,7 @@ class UserLoginRequestService extends ChangeNotifier {
     try {
       final jsonData = await CommuniverseProvider.postJsonData(
           '${CommuniverseProvider.apiAuthRoutes}signin', data);
+          print("Termino httpPet: $jsonData");
       userLoginRequest = UserLoginRequest.fromJson(json.decode(jsonData));
       CommuniverseProvider.apiKey =
           '${userLoginRequest.type} ${userLoginRequest.token}';
