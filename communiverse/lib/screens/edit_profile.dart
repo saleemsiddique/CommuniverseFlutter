@@ -1,5 +1,7 @@
 import 'package:communiverse/models/models.dart';
+import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   final User user;
@@ -27,7 +29,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _descriptionController;
   late TextEditingController _usernameController;
-  late TextEditingController _levelController;
 
   @override
   void initState() {
@@ -36,8 +37,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _lastNameController = TextEditingController(text: widget.user.lastName);
     _descriptionController = TextEditingController(text: widget.user.biography);
     _usernameController = TextEditingController(text: widget.user.username);
-    _levelController =
-        TextEditingController(text: widget.user.userStats.level.toString());
   }
 
   @override
@@ -46,7 +45,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _lastNameController.dispose();
     _descriptionController.dispose();
     _usernameController.dispose();
-    _levelController.dispose();
     super.dispose();
   }
 
@@ -71,7 +69,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   _buildDivider(),
                   _buildField('Username', _usernameController),
                   _buildDivider(),
-                  _buildField('Level', _levelController),
+                  _buildLevelField(),
                 ],
               ),
             ),
@@ -179,6 +177,58 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             }
             return null;
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLevelField() {
+    final userService = Provider.of<UserService>(context, listen: true);
+
+    final int currentLevel = userService.user.userStats.level;
+    final int totalPoints = userService.user.userStats.totalPoints;
+    final int nextLevelPoints = currentLevel * 100;
+    final double progress = totalPoints / nextLevelPoints;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Level',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Text(
+              'Level $currentLevel',
+              style: TextStyle(
+                color: Color.fromRGBO(222, 139, 255, 1),
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Color.fromRGBO(222, 139, 255, 0.5),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Color.fromRGBO(222, 139, 255, 1)),
+              ),
+            ),
+            SizedBox(width: 8),
+            Text(
+              '$totalPoints / $nextLevelPoints',
+              style: TextStyle(
+                color: Color.fromRGBO(222, 139, 255, 1),
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
       ],
     );

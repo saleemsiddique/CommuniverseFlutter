@@ -461,6 +461,7 @@ return Row(
               false, // likedByCurrentUser: false
                  () async {
                     postService.currentCommentPage = 0;
+                    postService.parentPost = widget.post;
                     await postService.findMyCommentsPaged(widget.post.id);
                     // Navegar a la pantalla de comentarios cuando se toque el post
                     Navigator.push(

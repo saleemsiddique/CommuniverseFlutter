@@ -468,7 +468,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ? Icon(Icons.close, color: Colors.white)
                           : Icon(Icons.edit, color: Colors.white),
                       onPressed: () {
-                        setState(() {
+                        setState(() async {
+                          await userService.findUserById(userService.searchedUser.id);
                           _editingProfile = !_editingProfile;
                         });
                       },
