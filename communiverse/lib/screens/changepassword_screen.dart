@@ -185,7 +185,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _confirmChangePassword,
                     child: _isLoading
-                        ? CircularProgressIndicator(color: Colors.white)
+                        ? Text("Changing password...")
                         : Text('Confirm'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStatePropertyAll(

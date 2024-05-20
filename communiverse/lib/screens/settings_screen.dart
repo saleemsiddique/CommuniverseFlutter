@@ -2,18 +2,13 @@ import 'package:communiverse/screens/changepassword_screen.dart';
 import 'package:communiverse/services/google_signIn_api.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
-    final userLoginRequestService =
-        Provider.of<UserLoginRequestService>(context, listen: true);
-    final communityService =
-        Provider.of<CommunityService>(context, listen: true);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(165, 91, 194, 0.2),
@@ -21,34 +16,29 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          ListTile(
-            title: Text(
-              'Change Language',
-              style: TextStyle(color: Colors.white),
+          if (!userService
+              .user.isGoogle) // Verifica si no es un usuario de Google
+
+            Divider(
+              color: Colors.white,
             ),
-            leading: Icon(Icons.language, color: Colors.white),
-            onTap: () {
-              // Acción al seleccionar "Change Language"
-            },
-          ),
-          Divider(
-            color: Colors.white,
-          ),
-          ListTile(
-            title: Text(
-              'Change Password',
-              style: TextStyle(color: Colors.white),
-            ),
-            leading: Icon(Icons.lock, color: Colors.white),
-            onTap: () {
-               Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ChangePasswordScreen(),
+          if (!userService
+              .user.isGoogle) // Verifica si no es un usuario de Google
+            ListTile(
+              title: Text(
+                'Change Password',
+                style: TextStyle(color: Colors.white),
               ),
-            );
-            },
-          ),
+              leading: Icon(Icons.lock, color: Colors.white),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChangePasswordScreen(),
+                  ),
+                );
+              },
+            ),
           Divider(
             color: Colors.white,
           ),
@@ -74,11 +64,8 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Limpiar datos y realizar logout
-                          postService.clearData();
-                          communityService.clearData();
+                          // Realizar logout
                           userService.clearData();
-                          userLoginRequestService.clearData();
                           GoogleSignInApi.logout();
                           Navigator.pushNamedAndRemoveUntil(
                               context, '/', (route) => false);

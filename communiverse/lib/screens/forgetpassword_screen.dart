@@ -14,6 +14,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   late TextEditingController _emailController;
   bool isSent = false;
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -32,26 +33,36 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     try {
-      userLoginRequestService.forgotPassword(email);
       setState(() {
+        isLoading = true;
+      });
+      await userLoginRequestService.forgotPassword(email);
+      setState(() {
+        isLoading = false;
         isSent = true;
       });
     } catch (error) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text(error.toString()),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
+            content: Text(error.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+
+                  setState(() {
+                    isLoading = false;
+                  });
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      });
     }
   }
 
@@ -118,7 +129,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _sendNewPassword,
-                        child: Text('Send New Password'),
+                        child: isLoading ? Text("Sending email...") : Text('Send New Password'),
                         style: ButtonStyle(
                           backgroundColor: MaterialStatePropertyAll(
                               Color.fromRGBO(165, 91, 194, 1)),
