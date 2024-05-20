@@ -1,3 +1,4 @@
+import 'package:communiverse/screens/forgetPassword_screen.dart';
 import 'package:communiverse/services/google_signIn_api.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:communiverse/widgets/widgets.dart';
@@ -117,7 +118,26 @@ class _LoginFormState extends State<LoginForm> {
       alignment: Alignment.centerLeft,
       child: TextButton(
         onPressed: () {
-          // Action for forgot password
+          final emailOrUsername = _emailorusernameController.text;
+          if (emailOrUsername.contains('@')) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ForgotPasswordScreen(
+                  initialEmail: emailOrUsername,
+                ),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ForgotPasswordScreen(
+                  initialEmail: "",
+                ),
+              ),
+            );
+          }
         },
         child: Text(
           'Forgot password?',

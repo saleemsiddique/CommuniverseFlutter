@@ -303,18 +303,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         as ImageProvider<Object>?,
               ),
               SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${widget.user.name} ${widget.user.lastName}',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    '@${widget.user.username}',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+              Container(
+                width: 100,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${widget.user.name} ${widget.user.lastName}',
+                      style: TextStyle(color: Colors.white),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '@${widget.user.username}',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

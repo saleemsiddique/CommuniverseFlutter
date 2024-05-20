@@ -20,7 +20,7 @@ class UserLoginRequestService extends ChangeNotifier {
     try {
       final jsonData = await CommuniverseProvider.postJsonData(
           '${CommuniverseProvider.apiAuthRoutes}signin', data);
-          print("Termino httpPet: $jsonData");
+      print("Termino httpPet: $jsonData");
       userLoginRequest = UserLoginRequest.fromJson(json.decode(jsonData));
       CommuniverseProvider.apiKey =
           '${userLoginRequest.type} ${userLoginRequest.token}';
@@ -65,7 +65,7 @@ class UserLoginRequestService extends ChangeNotifier {
     }
   }
 
-    editUserCommunities(String id, Map<String, dynamic> data) async {
+  editUserCommunities(String id, Map<String, dynamic> data) async {
     try {
       final jsonData = await CommuniverseProvider.putJsonData(
           '${CommuniverseProvider.apiAuthRoutes}editUserCommunities/$id', data);
@@ -84,7 +84,7 @@ class UserLoginRequestService extends ChangeNotifier {
     }
   }
 
-    editPhotoUser(String id, Map<String, dynamic> data) async {
+  editPhotoUser(String id, Map<String, dynamic> data) async {
     try {
       final jsonData = await CommuniverseProvider.putJsonData(
           '${CommuniverseProvider.apiAuthRoutes}editphoto/$id', data);
@@ -95,6 +95,29 @@ class UserLoginRequestService extends ChangeNotifier {
       };
       print(credentials);
       await signIn(credentials);
+      notifyListeners();
+    } catch (error) {
+      // Extraer el mensaje de error de la cadena de excepción
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  editPassword(String email, Map<String, dynamic> data) async {
+    try {
+      final jsonData = await CommuniverseProvider.putJsonData(
+          '${CommuniverseProvider.apiAuthRoutes}editPassword/$email', data);
+    } catch (error) {
+      // Extraer el mensaje de error de la cadena de excepción
+      String errorMessage = error.toString().replaceAll('Exception: ', '');
+      throw errorMessage;
+    }
+  }
+
+  forgotPassword(String email) async {
+    try {
+      final jsonData = await CommuniverseProvider.getJsonData(
+          '${CommuniverseProvider.apiAuthRoutes}forgot-password/$email');
       notifyListeners();
     } catch (error) {
       // Extraer el mensaje de error de la cadena de excepción

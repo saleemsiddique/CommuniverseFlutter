@@ -25,3 +25,4 @@ export 'package:communiverse/screens/searcher.dart';
 export 'package:communiverse/screens/communitymanage_screen.dart';
 export 'package:communiverse/screens/community_users.dart';
 export 'package:communiverse/screens/community_banned.dart';
+export 'package:communiverse/screens/forgetpassword_screen.dart';

@@ -1,3 +1,4 @@
+import 'package:communiverse/screens/changepassword_screen.dart';
 import 'package:communiverse/services/google_signIn_api.dart';
 import 'package:communiverse/services/services.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,12 @@ class SettingsScreen extends StatelessWidget {
             ),
             leading: Icon(Icons.lock, color: Colors.white),
             onTap: () {
-              // Acción al seleccionar "Change Password"
+               Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChangePasswordScreen(),
+              ),
+            );
             },
           ),
           Divider(
