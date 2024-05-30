@@ -55,7 +55,7 @@ class _PostWidgetState extends State<PostWidget> {
     }
 
     if (widget.isExtend && hasMedia) {
-      cardHeight = 250; // Ajusta el factor según lo necesites
+      cardHeight = 270; // Ajusta el factor según lo necesites
     }
 
     if (widget.post.quizz != Quizz.empty()) {
@@ -72,8 +72,7 @@ class _PostWidgetState extends State<PostWidget> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                CommentsScreen(post: widget.post),
+            builder: (context) => CommentsScreen(post: widget.post),
           ),
         );
       },
@@ -97,7 +96,27 @@ class _PostWidgetState extends State<PostWidget> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             if (widget.post.quizz == Quizz.empty()) ...[
-                              _buildHeader(context),
+                              GestureDetector(
+                                onTap: () async {
+                                  postService.currentPostPage = 0;
+                                  postService.currentRepostPage = 0;
+                                  await userService
+                                      .findOtherUserById(widget.post.authorId);
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ProfileScreen(
+                                        username:
+                                            userService.searchedUser.username,
+                                        fromPost: true,
+                                        fromSearch: true,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: _buildHeader(context),
+                              ),
                               if (widget.post.content != '') _buildContent(),
                               SizedBox(height: 10),
                               if (hasMedia) _buildMedia(),
@@ -141,8 +160,10 @@ class _PostWidgetState extends State<PostWidget> {
                       if (widget.post.isComment) {
                         print("parent post ${postService.parentPost.id}");
                         postService.currentCommentPage = 0;
-                        await postService.findMyCommentsPaged(postService.parentPost.id);
-                        postService.parentPost.postInteractions.commentsId.remove(widget.post.id);
+                        await postService
+                            .findMyCommentsPaged(postService.parentPost.id);
+                        postService.parentPost.postInteractions.commentsId
+                            .remove(widget.post.id);
                       }
                     }
                   },
@@ -203,43 +224,26 @@ class _PostWidgetState extends State<PostWidget> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GestureDetector(
-                          onTap: () async {
-                            postService.currentPostPage = 0;
-                            postService.currentRepostPage = 0;
-                            await userService
-                                .findOtherUserById(widget.post.authorId);
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProfileScreen(
-                                  username: userService.searchedUser.username, fromPost: true, fromSearch: false,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 120,
-                                child: Text(
-                                  '${author.name} ${author.lastName}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                '@${author.username}',
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 120,
+                              child: Text(
+                                '${author.name} ${author.lastName}',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            Text(
+                              '@${author.username}',
+                              style: TextStyle(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -285,121 +289,123 @@ class _PostWidgetState extends State<PostWidget> {
                   future: repostUserFuture,
                   builder: (context, snapshotRepostUser) {
                     final repostUser = snapshotRepostUser.data;
-                    
+
 // Condición para determinar si se debe usar GestureDetector
-final bool useGestureDetector = widget.post.authorId != userService.user.id;
+                    final bool useGestureDetector =
+                        widget.post.authorId != userService.user.id;
 
-return Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    // Envolver en GestureDetector si se cumple la condición
-    if (useGestureDetector)
-      GestureDetector(
-        onTap: () async {
-          postService.currentPostPage = 0;
-          postService.currentRepostPage = 0;
-          await userService.findOtherUserById(widget.post.authorId);
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Envolver en GestureDetector si se cumple la condición
+                        if (useGestureDetector)
+                          GestureDetector(
+                            onTap: () async {
+                              postService.currentPostPage = 0;
+                              postService.currentRepostPage = 0;
+                              await userService
+                                  .findOtherUserById(widget.post.authorId);
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfileScreen(
-                username: userService.searchedUser.username,
-                fromPost: true, fromSearch: false,
-              ),
-            ),
-          );
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 120,
-              child: Text(
-                '${author.name} ${author.lastName}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Text(
-              '@${author.username}',
-              style: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      )
-    else
-      // Usar solo el child si no se cumple la condición
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 120,
-            child: Text(
-              '${author.name} ${author.lastName}',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Text(
-            '@${author.username}',
-            style: TextStyle(
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    Padding(
-      padding: const EdgeInsets.only(right: 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Container(
-            width: 150,
-            child: Text(
-              snapshotCommunity.hasData
-                  ? 'For: ${community.name}'
-                  : 'Not found',
-              style: TextStyle(
-                color: Colors.grey,
-              ),
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign
-                  .right, // Justifica el texto a la derecha
-            ),
-          ),
-          SizedBox(height: 5),
-          if (repostUser != null &&
-              repostUser.username != null &&
-              repostUser.username != '')
-            Row(
-              children: [
-                Icon(
-                  size: 15,
-                  Icons.repeat,
-                  color: Colors.grey,
-                ),
-                Text(
-                  '${repostUser.username}',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-    ),
-  ],
-);
-
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileScreen(
+                                    username: userService.searchedUser.username,
+                                    fromPost: true,
+                                    fromSearch: false,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 120,
+                                  child: Text(
+                                    '${author.name} ${author.lastName}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '@${author.username}',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          // Usar solo el child si no se cumple la condición
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 120,
+                                child: Text(
+                                  '${author.name} ${author.lastName}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '@${author.username}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 30),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                width: 150,
+                                child: Text(
+                                  snapshotCommunity.hasData
+                                      ? 'For: ${community.name}'
+                                      : 'Not found',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign
+                                      .right, // Justifica el texto a la derecha
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              if (repostUser != null &&
+                                  repostUser.username != null &&
+                                  repostUser.username != '')
+                                Row(
+                                  children: [
+                                    Icon(
+                                      size: 15,
+                                      Icons.repeat,
+                                      color: Colors.grey,
+                                    ),
+                                    Text(
+                                      '${repostUser.username}',
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
                   },
                 );
               }
@@ -459,19 +465,18 @@ return Row(
               widget.post.postInteractions.commentsId.length,
               Colors.grey,
               false, // likedByCurrentUser: false
-                 () async {
-                    postService.currentCommentPage = 0;
-                    postService.parentPost = widget.post;
-                    await postService.findMyCommentsPaged(widget.post.id);
-                    // Navegar a la pantalla de comentarios cuando se toque el post
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CommentsScreen(
-                            post: widget.post),
-                      ),
-                    );
-                  },
+              () async {
+                postService.currentCommentPage = 0;
+                postService.parentPost = widget.post;
+                await postService.findMyCommentsPaged(widget.post.id);
+                // Navegar a la pantalla de comentarios cuando se toque el post
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CommentsScreen(post: widget.post),
+                  ),
+                );
+              },
             ),
             SizedBox(width: 5),
             _buildInteractionCount(
@@ -515,7 +520,7 @@ return Row(
                     await postService.likeOrRepost(
                         "removeLike", widget.post.id, userService.user.id);
                     setState(() {
-                      likeButtonColor = isLiked ? Colors.red :Colors.grey;
+                      likeButtonColor = isLiked ? Colors.red : Colors.grey;
                       // Remover el ID del usuario de la lista
                       widget.post.postInteractions.likeUsersId
                           .remove(userService.user.id);
@@ -524,7 +529,7 @@ return Row(
                     await postService.likeOrRepost(
                         "addLike", widget.post.id, userService.user.id);
                     setState(() {
-                      likeButtonColor = isLiked ? Colors.red :Colors.grey;
+                      likeButtonColor = isLiked ? Colors.red : Colors.grey;
                       // Agregar el ID del usuario a la lista
                       widget.post.postInteractions.likeUsersId
                           .add(userService.user.id);

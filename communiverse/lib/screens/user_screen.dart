@@ -246,8 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Stack(
           children: [
-            if (userService.searchedUser.id != userService.user.id ||
-                widget.fromSearch)
+            if (widget.fromSearch)
               Positioned(
                 top: 0,
                 left: 10,
