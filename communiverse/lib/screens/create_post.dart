@@ -36,6 +36,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   @override
+  void dispose() {
+    // Cerrar el teclado si está abierto
+    FocusScope.of(context).unfocus();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -179,6 +186,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       _communityController.text == ''
                   ? null
                   : () async {
+                      // Cerrar el teclado si está abierto
+                      FocusScope.of(context).unfocus();
                       showDialog(
                         context: context,
                         barrierDismissible:
@@ -254,12 +263,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         keyboardType: TextInputType.multiline,
         decoration: InputDecoration(
           hintText: "What's on your mind?",
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
-          ),
           hintStyle: TextStyle(color: Colors.white),
           counterStyle: TextStyle(color: Colors.white),
         ),

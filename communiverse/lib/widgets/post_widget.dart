@@ -313,7 +313,7 @@ class _PostWidgetState extends State<PostWidget> {
                                   builder: (context) => ProfileScreen(
                                     username: userService.searchedUser.username,
                                     fromPost: true,
-                                    fromSearch: false,
+                                    fromSearch: true,
                                   ),
                                 ),
                               );
