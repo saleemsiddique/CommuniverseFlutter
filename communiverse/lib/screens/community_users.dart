@@ -50,7 +50,7 @@ class _CommunityUserProfileItemState extends State<CommunityUserProfileItem> {
             builder: (context) => ProfileScreen(
               username: userService.searchedUser.username,
               fromPost: true,
-              fromSearch: false,
+              fromSearch: true,
             ),
           ),
         );

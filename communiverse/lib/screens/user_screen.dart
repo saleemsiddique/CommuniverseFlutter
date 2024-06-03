@@ -277,7 +277,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(
                   width: size.width * 0.4,
-                  
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -320,8 +319,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Text(
                         "@${userService.searchedUser.username}",
-                        style:
-                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(
                         height: 10,
@@ -363,12 +362,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   UserLoginRequestService.userLoginRequest.id,
                                   userService.searchedUser.id,
                                 );
+                                userService.user.followedId
+                                    .remove(userService.searchedUser.id);
                               } else {
                                 // El usuario actual aún no sigue al usuario buscado, seguir
                                 await userService.follow(
                                   UserLoginRequestService.userLoginRequest.id,
                                   userService.searchedUser.id,
                                 );
+                                userService.user.followedId
+                                    .add(userService.searchedUser.id);
                               }
                             }
                           } catch (error) {
@@ -393,15 +396,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-                          backgroundColor:
-                              Color.fromRGBO(222, 139, 255, 1), // Color de fondo
+                          padding: EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 40),
+                          backgroundColor: Color.fromRGBO(
+                              222, 139, 255, 1), // Color de fondo
                         ),
                         child: Text(
                           _editingProfile
                               ? 'Save'
-                              : userService.searchedUser.id == userService.user.id
+                              : userService.searchedUser.id ==
+                                      userService.user.id
                                   ? 'Edit'
                                   : userService.searchedUser.followersId
                                           .contains(userService.user.id)
@@ -468,7 +472,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : Icon(Icons.edit, color: Colors.white),
                       onPressed: () {
                         setState(() async {
-                          await userService.findUserById(userService.searchedUser.id);
+                          await userService
+                              .findUserById(userService.searchedUser.id);
                           _editingProfile = !_editingProfile;
                         });
                       },
