@@ -192,7 +192,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 3),
             Row(
               children: [
                 IconButton(
@@ -270,9 +270,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
             postMedia(),
-            SizedBox(height: 8),
+            SizedBox(height: 3),
             // Mostrar fotos y videos seleccionados
           ],
         ),
