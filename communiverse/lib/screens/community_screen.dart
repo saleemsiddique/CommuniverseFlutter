@@ -3,6 +3,7 @@ import 'package:communiverse/navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:communiverse/screens/screens.dart';
 import 'package:communiverse/services/services.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:provider/provider.dart';
 
 class CommunityScreen extends StatefulWidget {
@@ -81,7 +82,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
     final Size size = MediaQuery.of(context).size;
     final postService = Provider.of<PostService>(context, listen: true);
     final userService = Provider.of<UserService>(context, listen: true);
-    final communityService = Provider.of<CommunityService>(context, listen: true);
+    final communityService =
+        Provider.of<CommunityService>(context, listen: true);
     return Scaffold(
       body: Stack(
         children: [
@@ -200,19 +202,47 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         .contains(widget.community.id) ||
                     userService.user.memberCommunities
                         .contains(widget.community.id))
-                ? FloatingActionButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CreatePostScreen(
-                              user: userService.user,
-                              community: widget.community),
-                        ),
-                      );
-                    },
+                ? SpeedDial(
+                    icon: Icons.add,
+                    activeIcon: Icons.close,
                     backgroundColor: Color.fromRGBO(165, 91, 194, 1),
-                    child: Icon(Icons.add),
+                    childMargin: EdgeInsets.all(20),
+                    children: [
+                      SpeedDialChild(
+                        child: Icon(Icons.post_add_outlined),
+                        backgroundColor: Color.fromRGBO(165, 91, 194, 1),
+                        label: 'Crear Post',
+                        labelStyle: TextStyle(color: Colors.black),
+                        foregroundColor: Colors.white,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreatePostScreen(
+                                user: userService.user,
+                                community: widget.community,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      SpeedDialChild(
+                        child: Icon(Icons.quiz_outlined),
+                        backgroundColor: Color.fromRGBO(165, 91, 194, 1),
+                        label: 'Crear Quizz',
+                        labelStyle: TextStyle(color: Colors.black),
+                        foregroundColor: Colors.white,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CreateQuizzScreen(user: userService.user),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   )
                 : SizedBox
                     .shrink(), // Si el usuario no está en ninguna de las listas, oculta el botón
@@ -222,7 +252,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
-  Widget _buildCommunityInfo(Size size, UserService userService, CommunityService communityService) {
+  Widget _buildCommunityInfo(
+      Size size, UserService userService, CommunityService communityService) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -307,7 +338,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                         // Si el usuario no es miembro de la comunidad, debe unirse
                         await userService.joinCommunity(
                             widget.community.id, userService.user.id);
-                        await communityService.getMyCommunities(userService.user.id);
+                        await communityService
+                            .getMyCommunities(userService.user.id);
                       } catch (e) {
                         // Captura cualquier excepción general
                         print("Excepción atrapada: $e");

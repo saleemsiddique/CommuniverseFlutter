@@ -286,6 +286,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.17"
+  flutter_speed_dial:
+    dependency: "direct main"
+    description:
+      name: flutter_speed_dial
+      sha256: a9da6f4d7ea259d29d03023469022f0c95bd48c35b324088f3f4ba9b8468981b
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.6.6"
   flutter_test:
     dependency: "direct dev"
     description: flutter

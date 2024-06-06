@@ -28,12 +28,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
   bool _loading = false;
   List<File> _images = [];
   List<String> _videos = [];
+  List<Post> postStack = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    postStack.add(widget.post);
   }
 
   @override
@@ -58,10 +60,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   void _scrollListener() {
     final postService = Provider.of<PostService>(context, listen: false);
-    print("page ${postService.currentCommentPage}");
     if (!_loading &&
-        _scrollController.offset >=
-            _scrollController.position.maxScrollExtent &&
+        _scrollController.offset >= _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
       setState(() {
         _loading = true;
@@ -77,81 +77,87 @@ class _CommentsScreenState extends State<CommentsScreen> {
   @override
   Widget build(BuildContext context) {
     final postService = Provider.of<PostService>(context, listen: true);
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(165, 91, 194, 0.2),
-      body: Stack(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              top: 20,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Principal post
-                // Your PostWidget goes here
-                // Replace the following line with your PostWidget
-                SizedBox(height: 20),
-                PostWidget(
-                    post: postService.parentPost,
-                    isExtend: true,
-                    isUserPage: false),
-                Divider(
-                  thickness: 1,
-                  color: Colors.white,
-                ),
-                // Lista de comentarios
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: _buildCommentsList(),
-                      ),
-                      _buildCommentInput(),
-                    ],
+    return WillPopScope(
+      onWillPop: () async {
+        if (postStack.length > 1) {
+          setState(() {
+            postStack.removeLast();
+          });
+          return false; // Prevent default back navigation
+        }
+        return true; // Allow default back navigation
+      },
+      child: Scaffold(
+        backgroundColor: Color.fromRGBO(165, 91, 194, 0.2),
+        body: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: 20),
+                  PostWidget(post: postStack.last, isExtend: true, isUserPage: false),
+                  Divider(thickness: 1, color: Colors.white),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: _buildCommentsList(),
+                        ),
+                        _buildCommentInput(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // Back Button
-          Positioned(
-            top: 15,
-            left: 0,
-            child: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Positioned(
+              top: 15,
+              left: 0,
+              child: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  if (postStack.length > 1) {
+                    setState(() {
+                      postStack.removeLast();
+                    });
+                  } else {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildCommentsList() {
     final postService = Provider.of<PostService>(context, listen: true);
-
-    // Verificar si la lista de comentarios está vacía
     if (postService.comments.isEmpty && !_loading) {
       return Center(
-        child: Text(
-          'No comments',
-          style: TextStyle(fontSize: 16.0),
-        ),
+        child: Text('No comments', style: TextStyle(fontSize: 16.0)),
       );
     }
-    print("Recuento: ${postService.comments.length}");
     return ListView.builder(
       controller: _scrollController,
       itemCount: postService.comments.length + (_loading ? 1 : 0),
       itemBuilder: (context, index) {
         if (index < postService.comments.length) {
-          return PostWidget(
-              post: postService.comments[index],
-              isExtend: false,
-              isUserPage: true);
+          return GestureDetector(
+            onTap: () async {
+              postService.currentCommentPage = 0;
+              postService.parentPost = postService.comments[index];
+              await postService.findPostById(postService.comments[index].id);
+              await postService.findMyCommentsPaged(postService.comments[index].id);
+              setState(() {
+                postStack.add(postService.comments[index]);
+              });
+            },
+            child: PostWidget(post: postService.comments[index], isExtend: false, isUserPage: true),
+          );
         } else {
           return CircularProgressIndicator(); // Indicador de carga al final de la lista
         }
